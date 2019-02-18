@@ -1,5 +1,7 @@
 package io.soabase.structured.logger;
 
+import io.soabase.structured.logger.generation.Generated;
+import io.soabase.structured.logger.generation.Generator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,8 +58,7 @@ public class StructuredLoggerFactory {
             generated = generator.generate(schema, classloaderProc.apply(logger, schema), loggingFormatter);
             schemaInstance = generated.generated().newInstance();
         } catch (Exception e) {
-            // TODO
-            throw new RuntimeException(e);
+            throw new RuntimeException("Could not complete logging", e);
         }
         return new StructuredLoggerImpl<>(logger, schemaInstance, generated, requireAllSchemaMethods);
     }

@@ -1,5 +1,8 @@
-package io.soabase.structured.logger;
+package io.soabase.structured.logger.generation;
 
+import io.soabase.structured.logger.LoggingFormatter;
+import io.soabase.structured.logger.exception.InvalidSchemaException;
+import io.soabase.structured.logger.exception.MissingSchemaValueException;
 import net.bytebuddy.ByteBuddy;
 import net.bytebuddy.dynamic.DynamicType;
 import net.bytebuddy.implementation.FixedValue;
@@ -36,7 +39,7 @@ public class Generator {
     }
 
     private interface Applicator {
-        void apply(String mainMessage, Map<String, Object> values, Throwable t, BiConsumer<String, Object[]> appliedConsumer);
+        void apply(String mainMessage, Map<String, Object> values, Throwable t, BiConsumer<String, Object[]> appliedConsumer, boolean requireAllSchemaMethods);
     }
 
     private static class Entry<T> implements Generated<T>, Applicator {
@@ -49,8 +52,8 @@ public class Generator {
         }
 
         @Override
-        public void apply(String mainMessage, Map<String, Object> values, Throwable t, BiConsumer<String, Object[]> appliedConsumer) {
-            applicator.apply(mainMessage, values, t, appliedConsumer);
+        public void apply(String mainMessage, Map<String, Object> values, Throwable t, BiConsumer<String, Object[]> appliedConsumer, boolean requireAllSchemaMethods) {
+            applicator.apply(mainMessage, values, t, appliedConsumer, requireAllSchemaMethods);
         }
     }
 
@@ -67,18 +70,26 @@ public class Generator {
             boolean hasCustom = validateSchemaClass(schemaClass);
             synchronized (useEntry) {
                 if (useEntry.generated == null) {
-                    List<String> names = Stream.of(schemaClass.getDeclaredMethods()).filter(m -> m.getParameterCount() == 1).map(Method::getName).collect(Collectors.toList());
+                    List<String> names = Stream.of(schemaClass.getMethods()).filter(m -> m.getParameterCount() == 1).map(Method::getName).collect(Collectors.toList());
                     useEntry.generated = internalGenerate(schemaClass, classLoader);
                     String preBuiltFormatString = hasCustom ? null : loggingFormatter.buildFormatString(names);
                     Collection<String> namesSet = hasCustom ? new HashSet<>(names) : Collections.emptySet();
-                    useEntry.applicator = (mainMessage, values, t, consumer) -> applyValues(loggingFormatter, names, namesSet, mainMessage, values, t, preBuiltFormatString, consumer);
+                    useEntry.applicator = (mainMessage, values, t, consumer, requireAllSchemaMethods) -> applyValues(loggingFormatter, names, namesSet, mainMessage, values, t, preBuiltFormatString, consumer, requireAllSchemaMethods);
                 }
             }
         }
         return useEntry;
     }
 
-    private void applyValues(LoggingFormatter loggingFormatter, List<String> schemaNames, Collection<String> namesSet, String mainMessage, Map<String, Object> values, Throwable t, String preBuiltFormatMessage, BiConsumer<String, Object[]> consumer) {
+    private void applyValues(LoggingFormatter loggingFormatter, List<String> schemaNames, Collection<String> namesSet, String mainMessage, Map<String, Object> values, Throwable t, String preBuiltFormatMessage, BiConsumer<String, Object[]> consumer, boolean requireAllSchemaMethods) {
+        if (requireAllSchemaMethods) {
+            if (!values.keySet().containsAll(namesSet)) {
+                Set<String> localNamesSet = new HashSet<>(namesSet);
+                localNamesSet.removeAll(values.keySet());
+                throw new MissingSchemaValueException("Entire schema must be specified. Missing: " + localNamesSet);
+            }
+        }
+
         List<String> names;
         String formatString;
         if (preBuiltFormatMessage == null) {
@@ -108,7 +119,6 @@ public class Generator {
         consumer.accept(formatString, arguments);
     }
 
-
     private <T> boolean validateSchemaClass(Class<T> schemaClass) {
         if (!schemaClass.isInterface()) {
             throw new InvalidSchemaException("Schema must be an interface. Schema: " + schemaClass.getName());
@@ -116,9 +126,9 @@ public class Generator {
 
         boolean hasCustom = false;
         Set<String> methodNames = new HashSet<>();
-        for (Method method : schemaClass.getDeclaredMethods()) {
-            if (!method.getReturnType().equals(schemaClass)) {
-                throw new InvalidSchemaException("Schema methods must return " + schemaClass.getSimpleName() + ". Method: " + method.getName());
+        for (Method method : schemaClass.getMethods()) {
+            if (!method.getReturnType().isAssignableFrom(schemaClass)) {
+                throw new InvalidSchemaException("Schema methods must return " + schemaClass.getSimpleName() + " or a subclass of it. Method: " + method.getName());
             }
             if ((method.getParameterCount() < 1) || (method.getParameterCount() > 2)) {
                 throw new InvalidSchemaException("Schema methods must take exactly 1 or 2 arguments. Method: " + method.getName());
@@ -142,7 +152,7 @@ public class Generator {
     @SuppressWarnings("unchecked")
     private Class internalGenerate(Class schemaClass, ClassLoader classLoader) {
         DynamicType.Builder builder = new ByteBuddy().subclass(Instance.class).implement(schemaClass);
-        for (Method method : schemaClass.getDeclaredMethods()) {
+        for (Method method : schemaClass.getMethods()) {
             Implementation methodCall;
             if (method.getParameterCount() == 2) {
                 methodCall = invoke(setValueMethod)

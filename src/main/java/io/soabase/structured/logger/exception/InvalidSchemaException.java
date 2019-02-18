@@ -1,4 +1,4 @@
-package io.soabase.structured.logger;
+package io.soabase.structured.logger.exception;
 
 public class InvalidSchemaException extends RuntimeException {
     public InvalidSchemaException(String message) {

@@ -1,5 +1,7 @@
 package io.soabase.structured.logger;
 
+import io.soabase.structured.logger.generation.Generated;
+import io.soabase.structured.logger.generation.Instance;
 import org.slf4j.Logger;
 
 import java.util.Map;
@@ -63,9 +65,6 @@ class StructuredLoggerImpl<T> implements StructuredLogger<T> {
     private void consume(Consumer<T> statement, String mainMessage, Throwable t, BiConsumer<String, Object[]> logger) {
         statement.accept(schemaInstance);
         Map<String, Object> values = ((Instance) schemaInstance).slogGetValues();
-        if (requireAllSchemaMethods && values.values().stream().anyMatch(Objects::isNull)) {
-            throw new NullPointerException("Entire schema must be specified");
-        }
-        generated.apply(mainMessage, values, t, logger);
+        generated.apply(mainMessage, values, t, logger, requireAllSchemaMethods);
     }
 }
