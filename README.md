@@ -19,6 +19,8 @@ public class MyClass {
 }
 ```
 
+Logs similar to: `id=7892323 event=EventName qty=100 Something happened`
+
 ### With Just Structured Logging
 
 ```java
