@@ -1,6 +1,5 @@
 package io.soabase.structured.logger;
 
-import io.soabase.structured.logger.generator.Generator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,19 +50,16 @@ public class StructuredLoggerFactory {
     }
 
     private static <T> StructuredLogger<T> internalGetLogger(Logger logger, Class<T> schema, LoggingFormatter loggingFormatter) {
-        T schemaInstance = newSchemaInstance(logger, schema);
-        return new StructuredLoggerImpl<>(logger, schemaInstance, loggingFormatter, requireAllSchemaMethods);
-    }
-
-    private static <T> T newSchemaInstance(Logger logger, Class<T> schema) {
-        Class<T> generate = generator.generate(schema, classloaderProc.apply(logger, schema));
-        T schemaInstance = null;
+        Generated<T> generated;
+        T schemaInstance;
         try {
-            schemaInstance = generate.newInstance();
+            generated = generator.generate(schema, classloaderProc.apply(logger, schema), loggingFormatter);
+            schemaInstance = generated.generated().newInstance();
         } catch (Exception e) {
             // TODO
+            throw new RuntimeException(e);
         }
-        return schemaInstance;
+        return new StructuredLoggerImpl<>(logger, schemaInstance, generated, requireAllSchemaMethods);
     }
 
     private StructuredLoggerFactory() {

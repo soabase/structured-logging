@@ -1,36 +1,23 @@
 package io.soabase.structured.logger;
 
-import java.util.Map;
+import java.util.Collection;
 
 @FunctionalInterface
 public interface LoggingFormatter {
-    String format(String mainMessage, Map<String, Object> values);
+    String buildFormatString(Collection<String> names);
 
-    LoggingFormatter defaultLoggingFormatter = (mainMessage, values) -> {
-        StringBuilder format = new StringBuilder(mainMessage);
-        values.forEach((name, value) -> {
-            if (format.length() > 0) {
-                format.append(' ');
-            }
-            format.append(name).append('=').append(value);
-        });
-        return format.toString();
-    };
-
-    LoggingFormatter messageAtEndLoggingFormatter = (mainMessage, values) -> {
+    LoggingFormatter defaultLoggingFormatter = names -> {
         StringBuilder format = new StringBuilder();
-        values.forEach((name, value) -> {
+        names.forEach(name -> {
             if (format.length() > 0) {
                 format.append(' ');
             }
-            format.append(name).append('=').append(value);
+            format.append(name).append("={}");
         });
-        if (!mainMessage.isEmpty()) {
-            if (format.length() > 0) {
-                format.append(' ');
-            }
-            format.append(mainMessage);
+        if (format.length() > 0) {
+            format.append(' ');
         }
+        format.append("{}");
         return format.toString();
     };
 }

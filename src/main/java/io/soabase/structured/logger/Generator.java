@@ -1,7 +1,5 @@
-package io.soabase.structured.logger.generator;
+package io.soabase.structured.logger;
 
-import io.soabase.structured.logger.Instance;
-import io.soabase.structured.logger.InvalidSchemaException;
 import net.bytebuddy.ByteBuddy;
 import net.bytebuddy.dynamic.DynamicType;
 import net.bytebuddy.implementation.FixedValue;
@@ -10,6 +8,7 @@ import net.bytebuddy.implementation.Implementation;
 import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -33,8 +32,37 @@ public class Generator {
         }
     }
 
-    private static class Entry {
-        volatile Class generated;
+    private static class Entry<T> implements Generated<T> {
+        volatile Class<T> generated;
+        volatile List<String> names;
+        volatile String formatString;
+        volatile boolean hasCustom;
+        volatile LoggingFormatter loggingFormatter;
+
+        @Override
+        public Class<T> generated() {
+            return generated;
+        }
+
+        @Override
+        public List<String> names() {
+            return names;
+        }
+
+        @Override
+        public String formatString() {
+            return formatString;
+        }
+
+        @Override
+        public boolean hasCustom() {
+            return hasCustom;
+        }
+
+        @Override
+        public LoggingFormatter loggingFormatter() {
+            return loggingFormatter;
+        }
     }
 
     public void clearCache() {
@@ -42,26 +70,31 @@ public class Generator {
     }
 
     @SuppressWarnings({"SynchronizationOnLocalVariableOrMethodParameter", "unchecked"})
-    public <T> Class<T> generate(Class<T> schemaClass, ClassLoader classLoader) {
-        Entry newEntry = new Entry();
-        Entry existingEntry = generated.putIfAbsent(schemaClass, newEntry);
+    public <T> Generated<T> generate(Class<T> schemaClass, ClassLoader classLoader, LoggingFormatter loggingFormatter) {
+        Entry<T> newEntry = new Entry<>();
+        Entry<T> existingEntry = generated.putIfAbsent(schemaClass, newEntry);
         final Entry useEntry = (existingEntry != null) ? existingEntry : newEntry;
         if (useEntry.generated == null) {
-            validateSchemaClass(schemaClass);
+            boolean hasCustom = validateSchemaClass(schemaClass);
             synchronized (useEntry) {
                 if (useEntry.generated == null) {
                     useEntry.generated = internalGenerate(schemaClass, classLoader);
+                    useEntry.names = Stream.of(schemaClass.getDeclaredMethods()).filter(m -> m.getParameterCount() == 1).map(Method::getName).collect(Collectors.toList());
+                    useEntry.formatString = loggingFormatter.buildFormatString(useEntry.names);
+                    useEntry.hasCustom = hasCustom;
+                    useEntry.loggingFormatter = loggingFormatter;
                 }
             }
         }
-        return useEntry.generated;
+        return useEntry;
     }
 
-    private <T> void validateSchemaClass(Class<T> schemaClass) {
+    private <T> boolean validateSchemaClass(Class<T> schemaClass) {
         if (!schemaClass.isInterface()) {
             throw new InvalidSchemaException("Schema must be an interface. Schema: " + schemaClass.getName());
         }
 
+        boolean hasCustom = false;
         Set<String> methodNames = new HashSet<>();
         for (Method method : schemaClass.getDeclaredMethods()) {
             if (!method.getReturnType().equals(schemaClass)) {
@@ -71,6 +104,7 @@ public class Generator {
                 throw new InvalidSchemaException("Schema methods must take exactly 1 or 2 arguments. Method: " + method.getName());
             }
             if (method.getParameterCount() == 2) {
+                hasCustom = true;
                 if (method.getParameterTypes()[0] != String.class) {
                     throw new InvalidSchemaException("For 2 argument schema methods, the first argument must be a string. Method: " + method.getName());
                 }
@@ -82,6 +116,7 @@ public class Generator {
                 throw new InvalidSchemaException("Schema method name is reserved for internal use. Name: " + method.getName());
             }
         }
+        return hasCustom;
     }
 
     @SuppressWarnings("unchecked")
