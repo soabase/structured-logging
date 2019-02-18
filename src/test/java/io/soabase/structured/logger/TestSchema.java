@@ -6,4 +6,6 @@ public interface TestSchema {
     TestSchema id(String id);
 
     TestSchema context(String c);
+
+    TestSchema catchAll(String name, Object value);
 }

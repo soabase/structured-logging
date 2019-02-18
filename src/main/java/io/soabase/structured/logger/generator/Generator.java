@@ -37,6 +37,10 @@ public class Generator {
         volatile Class generated;
     }
 
+    public void clearCache() {
+        generated.clear();
+    }
+
     @SuppressWarnings({"SynchronizationOnLocalVariableOrMethodParameter", "unchecked"})
     public <T> Class<T> generate(Class<T> schemaClass, ClassLoader classLoader) {
         Entry newEntry = new Entry();
@@ -55,16 +59,21 @@ public class Generator {
 
     private <T> void validateSchemaClass(Class<T> schemaClass) {
         if (!schemaClass.isInterface()) {
-            throw new InvalidSchemaException("Schema must be an interface");
+            throw new InvalidSchemaException("Schema must be an interface. Schema: " + schemaClass.getName());
         }
 
         Set<String> methodNames = new HashSet<>();
         for (Method method : schemaClass.getDeclaredMethods()) {
             if (!method.getReturnType().equals(schemaClass)) {
-                throw new InvalidSchemaException("Schema methods must return " + schemaClass.getSimpleName());
+                throw new InvalidSchemaException("Schema methods must return " + schemaClass.getSimpleName() + ". Method: " + method.getName());
             }
-            if (method.getParameterCount() != 1) {
-                throw new InvalidSchemaException("Schema methods must take exactly 1 argument");
+            if ((method.getParameterCount() < 1) || (method.getParameterCount() > 2)) {
+                throw new InvalidSchemaException("Schema methods must take exactly 1 or 2 arguments. Method: " + method.getName());
+            }
+            if (method.getParameterCount() == 2) {
+                if (method.getParameterTypes()[0] != String.class) {
+                    throw new InvalidSchemaException("For 2 argument schema methods, the first argument must be a string. Method: " + method.getName());
+                }
             }
             if (!methodNames.add(method.getName())) {
                 throw new InvalidSchemaException("Schema method names must be unique. Duplicate: " + method.getName());
@@ -79,11 +88,18 @@ public class Generator {
     private Class internalGenerate(Class schemaClass, ClassLoader classLoader) {
         DynamicType.Builder builder = new ByteBuddy().subclass(Instance.class).implement(schemaClass);
         for (Method method : schemaClass.getDeclaredMethods()) {
-            Implementation methodCall = invoke(setValueMethod)
+            Implementation methodCall;
+            if (method.getParameterCount() == 2) {
+                methodCall = invoke(setValueMethod)
+                        .withArgument(0)
+                        .withArgument(1)
+                        .andThen(FixedValue.self());
+            } else {
+                methodCall = invoke(setValueMethod)
                     .with(method.getName())
                     .withArgument(0)
-                    .andThen(FixedValue.self())
-                    ;
+                    .andThen(FixedValue.self());
+            }
             builder = builder.method(named(method.getName())).intercept(methodCall);
         }
         return builder.make().load(classLoader).getLoaded();
