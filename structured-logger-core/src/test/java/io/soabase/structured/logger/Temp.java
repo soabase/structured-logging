@@ -17,13 +17,13 @@ public class Temp {
     public void testBasic()
     {
         Logger logger = LoggerFactory.getLogger(getClass());
-        StructuredLogger<TestSchema> log = StructuredLoggerFactory.structured(logger, TestSchema.class);
+        StructuredLogger<Schema> log = StructuredLoggerFactory.structured(logger, Schema.class);
         log.debug(s -> s.context("one").event("two").id("three"));
     }
 
     @Test
     public void testException() {
-        StructuredLogger<TestSchemaWithCustom> log = StructuredLoggerFactory.structured(TestSchemaWithCustom.class);
+        StructuredLogger<SchemaWithCustom> log = StructuredLoggerFactory.structured(SchemaWithCustom.class);
         log.debug("Hey", new Error("what"), s -> s.a("one").b("three").custom("hey", "there"));
     }
 

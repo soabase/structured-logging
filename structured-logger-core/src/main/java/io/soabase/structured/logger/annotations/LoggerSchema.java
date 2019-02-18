@@ -8,9 +8,13 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.SOURCE)
 @Target(ElementType.TYPE)
 public @interface LoggerSchema {
-    Class[] value() default {};
+    Class[] value();
 
     String schemaFormatString() default "%sSchema";
+
+    String schemaName() default "";
+
+    String packageName() default "";
 
     boolean schemaClassesExtendBase() default true;
 }

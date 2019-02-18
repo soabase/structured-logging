@@ -3,14 +3,12 @@ package io.soabase.structured.logger.generator;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.ParameterizedTypeName;
-import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.Filer;
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
-import javax.annotation.processing.SupportedOptions;
 import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
@@ -26,7 +24,6 @@ import java.util.List;
 import java.util.Set;
 
 @SupportedAnnotationTypes("io.soabase.structured.logger.annotations.LoggerSchema")
-@SupportedOptions({"LoggerSchema.components", "LoggerSchema.schemaFormatString"})
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
 public class StructuredLoggerSchemaGenerator extends AbstractProcessor {
     @Override
@@ -47,12 +44,18 @@ public class StructuredLoggerSchemaGenerator extends AbstractProcessor {
 
     private void processElement(TypeElement element, TypeElement annotation) {
         AnnotationReader annotationReader = new AnnotationReader(processingEnv, element, annotation.getQualifiedName().toString(), annotation.getSimpleName().toString());
+
         String schemaFormatString = annotationReader.getString("schemaFormatString");
         List<TypeMirror> components = annotationReader.getClasses("value");
         boolean schemaClassesExtendBase = annotationReader.getBoolean("schemaClassesExtendBase");
-        String schemaClassName = String.format(schemaFormatString, element.getSimpleName());
+        String schemaName = annotationReader.getString("schemaName");
+        String packageName = annotationReader.getString("packageName");
 
-        String packageName = getPackage(element);
+        String schemaClassName = schemaName.isEmpty() ? String.format(schemaFormatString, element.getSimpleName()) : schemaName;
+        if (packageName.isEmpty()) {
+            packageName = getPackage(element);
+        }
+
         ClassName className = ClassName.get(packageName, schemaClassName);
         TypeSpec.Builder builder = TypeSpec.interfaceBuilder(className).addModifiers(Modifier.PUBLIC);
         for (TypeMirror parentInterface : components) {
