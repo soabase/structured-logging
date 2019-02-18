@@ -22,7 +22,7 @@ private void myOperation(String id, String eventName, int qty) {
 
 ```java
 
-public interface LogSchema extends Id<Mixin>, Event<Mixin>, Qty<Mixin>{}
+public interface LogSchema extends Id<LogSchema>, Event<LogSchema>, Qty<LogSchema>{}
 
 ...
 
