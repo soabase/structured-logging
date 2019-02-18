@@ -26,7 +26,7 @@ public interface LogSchema extends Id<Mixin>, Event<Mixin>, Qty<Mixin>{}
 
 ...
 
-StructuredLogger<Mixin> log = StructuredLoggerFactory.structured(Mixin.class);  // note: the library auto-generates the schema instance class
+StructuredLogger<LogSchema> log = StructuredLoggerFactory.structured(LogSchema.class);  // note: the library auto-generates the schema instance class
 
 ...
 
