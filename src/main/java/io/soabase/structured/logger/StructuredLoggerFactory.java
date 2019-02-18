@@ -31,35 +31,35 @@ public class StructuredLoggerFactory {
             }
 
             @Override
-            public void trace(Consumer<T> statement, String mainMessage) {
+            public void trace(String mainMessage, Consumer<T> statement) {
                 if (logger.isTraceEnabled()) {
                     consume(statement, mainMessage, logger::trace);
                 }
             }
 
             @Override
-            public void debug(Consumer<T> statement, String mainMessage) {
+            public void debug(String mainMessage, Consumer<T> statement) {
                 if (logger.isDebugEnabled()) {
                     consume(statement, mainMessage, logger::debug);
                 }
             }
 
             @Override
-            public void warn(Consumer<T> statement, String mainMessage) {
+            public void warn(String mainMessage, Consumer<T> statement) {
                 if (logger.isWarnEnabled()) {
                     consume(statement, mainMessage, logger::warn);
                 }
             }
 
             @Override
-            public void info(Consumer<T> statement, String mainMessage) {
+            public void info(String mainMessage, Consumer<T> statement) {
                 if (logger.isInfoEnabled()) {
                     consume(statement, mainMessage, logger::info);
                 }
             }
 
             @Override
-            public void error(Consumer<T> statement, String mainMessage) {
+            public void error(String mainMessage, Consumer<T> statement) {
                 if (logger.isErrorEnabled()) {
                     consume(statement, mainMessage, logger::error);
                 }
