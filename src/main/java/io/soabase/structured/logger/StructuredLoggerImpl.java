@@ -10,11 +10,13 @@ class StructuredLoggerImpl<T> implements StructuredLogger<T> {
     private final Logger logger;
     private final T schemaInstance;
     private final LoggingFormatter loggingFormatter;
+    private final boolean requireAllSchemaMethods;
 
-    StructuredLoggerImpl(Logger logger, T schemaInstance, LoggingFormatter loggingFormatter) {
+    StructuredLoggerImpl(Logger logger, T schemaInstance, LoggingFormatter loggingFormatter, boolean requireAllSchemaMethods) {
         this.logger = logger;
         this.schemaInstance = schemaInstance;
         this.loggingFormatter = loggingFormatter;
+        this.requireAllSchemaMethods = requireAllSchemaMethods;
     }
 
     @Override
@@ -61,7 +63,7 @@ class StructuredLoggerImpl<T> implements StructuredLogger<T> {
     {
         statement.accept(schemaInstance);
         Map<String, Object> values = ((Instance) schemaInstance).slogGetValues();
-        if (values.values().stream().anyMatch(Objects::isNull)) {
+        if (requireAllSchemaMethods && values.values().stream().anyMatch(Objects::isNull)) {
             throw new NullPointerException("Entire schema must be specified");
         }
         logger.accept(loggingFormatter.format(mainMessage, values));

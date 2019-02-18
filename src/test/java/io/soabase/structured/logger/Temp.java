@@ -10,15 +10,13 @@ public class Temp {
     {
         Logger logger = LoggerFactory.getLogger(getClass());
         // TODO make the StructuredLogger injectable, etc.
-        StructuredLogger<TestSchema> log = StructuredLoggerFactory.get(logger, TestSchema.class);
+        StructuredLogger<TestSchema> log = StructuredLoggerFactory.getLogger(logger, TestSchema.class);
         log.debug(s -> s.context("one").event("two").id("three").catchAll("hey", "there"));
     }
 
     @Test
-    public void testPredefined() {
-        PredefinedStructuredLoggerFactory.predefine(LoggerFactory.getLogger(getClass()), TestSchema.class);
-
-        StructuredLogger<TestSchema> log = PredefinedStructuredLoggerFactory.get(getClass());
+    public void testException() {
+        StructuredLogger<TestSchema> log = StructuredLoggerFactory.getLogger(TestSchema.class);
         log.debug("Hey", new Error("what"), s -> s.context("one").event("two").id("three").catchAll("hey", "there"));
     }
 }

@@ -16,4 +16,21 @@ public interface LoggingFormatter {
         });
         return format.toString();
     };
+
+    LoggingFormatter messageAtEndLoggingFormatter = (mainMessage, values) -> {
+        StringBuilder format = new StringBuilder();
+        values.forEach((name, value) -> {
+            if (format.length() > 0) {
+                format.append(' ');
+            }
+            format.append(name).append('=').append(value);
+        });
+        if (!mainMessage.isEmpty()) {
+            if (format.length() > 0) {
+                format.append(' ');
+            }
+            format.append(mainMessage);
+        }
+        return format.toString();
+    };
 }
