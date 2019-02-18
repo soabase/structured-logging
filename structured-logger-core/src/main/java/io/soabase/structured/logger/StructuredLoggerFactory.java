@@ -13,7 +13,7 @@ import java.util.function.BiFunction;
 public class StructuredLoggerFactory {
     private static final Generator generator = new Generator();
     private static final Map<Class<?>, LoggingFormatter> registrations = new ConcurrentHashMap<>();
-    private static volatile LoggingFormatter loggingFormatter = LoggingFormatter.defaultLoggingFormatter;
+    private static volatile LoggingFormatter defaultLoggingFormatter = LoggingFormatter.defaultLoggingFormatter;
     private static volatile BiFunction<Logger, Class, ClassLoader> classloaderProc = (logger, aClass) -> aClass.getClassLoader();
 
     public static <T> StructuredLogger<T> structured(Class<T> schema) {
@@ -25,7 +25,7 @@ public class StructuredLoggerFactory {
     }
 
     public static <T> StructuredLogger<T> structured(String name, Class<T> schema) {
-        return structured(LoggerFactory.getLogger(name), schema, loggingFormatter);
+        return structured(LoggerFactory.getLogger(name), schema, defaultLoggingFormatter);
     }
 
     public static <T> StructuredLogger<T> structured(Logger logger, Class<T> schema) {
@@ -34,7 +34,7 @@ public class StructuredLoggerFactory {
         if (registered != null) {
             return internalGetLogger(logger, schema, registered);
         }
-        return internalGetLogger(logger, schema, loggingFormatter);
+        return internalGetLogger(logger, schema, defaultLoggingFormatter);
     }
 
     public static <T> StructuredLogger<T> structured(Class<T> schema, LoggingFormatter loggingFormatter) {
@@ -57,8 +57,8 @@ public class StructuredLoggerFactory {
         registrations.clear();
     }
 
-    public static void setLoggingFormatter(LoggingFormatter loggingFormatter) {
-        StructuredLoggerFactory.loggingFormatter = Objects.requireNonNull(loggingFormatter);
+    public static void setDefaultLoggingFormatter(LoggingFormatter defaultLoggingFormatter) {
+        StructuredLoggerFactory.defaultLoggingFormatter = Objects.requireNonNull(defaultLoggingFormatter);
     }
 
     public static void setClassloaderProc(BiFunction<Logger, Class, ClassLoader> classloaderProc) {
@@ -70,7 +70,7 @@ public class StructuredLoggerFactory {
         T schemaInstance;
         try {
             generated = generator.generate(schema, classloaderProc.apply(logger, schema), loggingFormatter);
-            schemaInstance = generated.generated().newInstance();
+            schemaInstance = generated.generated().getDeclaredConstructor().newInstance();
         } catch (Exception e) {
             throw new RuntimeException("Could not complete logging", e);
         }
