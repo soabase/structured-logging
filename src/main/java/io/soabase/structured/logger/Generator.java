@@ -7,6 +7,7 @@ import net.bytebuddy.implementation.Implementation;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -40,7 +41,6 @@ public class Generator {
 
     private static class Entry<T> implements Generated<T>, Applicator {
         volatile Class<T> generated;
-        volatile List<String> names;
         volatile Applicator applicator;
 
         @Override
@@ -69,22 +69,21 @@ public class Generator {
                 if (useEntry.generated == null) {
                     List<String> names = Stream.of(schemaClass.getDeclaredMethods()).filter(m -> m.getParameterCount() == 1).map(Method::getName).collect(Collectors.toList());
                     useEntry.generated = internalGenerate(schemaClass, classLoader);
-                    useEntry.names = Stream.of(schemaClass.getDeclaredMethods()).filter(m -> m.getParameterCount() == 1).map(Method::getName).collect(Collectors.toList());
                     String preBuiltFormatString = hasCustom ? null : loggingFormatter.buildFormatString(names);
-                    useEntry.applicator = (mainMessage, values, t, consumer) -> applyValues(loggingFormatter, names, mainMessage, values, t, preBuiltFormatString, consumer);
+                    Collection<String> namesSet = hasCustom ? new HashSet<>(names) : Collections.emptySet();
+                    useEntry.applicator = (mainMessage, values, t, consumer) -> applyValues(loggingFormatter, names, namesSet, mainMessage, values, t, preBuiltFormatString, consumer);
                 }
             }
         }
         return useEntry;
     }
 
-    private void applyValues(LoggingFormatter loggingFormatter, List<String> schemaNames, String mainMessage, Map<String, Object> values, Throwable t, String preBuiltFormatMessage, BiConsumer<String, Object[]> consumer) {
+    private void applyValues(LoggingFormatter loggingFormatter, List<String> schemaNames, Collection<String> namesSet, String mainMessage, Map<String, Object> values, Throwable t, String preBuiltFormatMessage, BiConsumer<String, Object[]> consumer) {
         List<String> names;
         String formatString;
         if (preBuiltFormatMessage == null) {
-            HashSet<String> generatedSet = new HashSet<>(schemaNames);
             names = new ArrayList<>(schemaNames);   // add schema names first to preserve ordering
-            values.keySet().stream().filter(generatedSet::add).forEach(names::add);
+            values.keySet().stream().filter(n -> !namesSet.contains(n)).forEach(names::add);
             formatString = loggingFormatter.buildFormatString(names);
         } else {
             names = schemaNames;
