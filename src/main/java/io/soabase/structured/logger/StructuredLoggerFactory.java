@@ -4,6 +4,7 @@ import io.soabase.structured.logger.generator.Generator;
 import org.slf4j.Logger;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Consumer;
 
 public class StructuredLoggerFactory {
@@ -69,6 +70,9 @@ public class StructuredLoggerFactory {
             {
                 statement.accept(schemaInstance);
                 Map<String, Object> values = ((Instance) schemaInstance).slogGetValues();
+                if (values.values().stream().anyMatch(Objects::isNull)) {
+                    throw new NullPointerException("Entire schema must be specified");
+                }
                 logger.accept(loggingFormatter.format(mainMessage, values));
             }
         };
