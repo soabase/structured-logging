@@ -11,6 +11,8 @@
 
     <modules>
         <module>structured-logger-core</module>
+        <module>structured-logger-generator</module>
+        <module>structured-logger-generator-test</module>
     </modules>
 
     <properties>
@@ -22,10 +24,13 @@
 
         <maven-compiler-plugin-version>3.8.0</maven-compiler-plugin-version>
         <maven-source-plugin-version>3.0.1</maven-source-plugin-version>
+        <maven-deploy-plugin-version>3.0.0-M1</maven-deploy-plugin-version>
+        <maven-install-plugin-version>3.0.0-M1</maven-install-plugin-version>
 
         <slf4j-version>1.7.25</slf4j-version>
         <byte-buddy-version>1.9.10</byte-buddy-version>
         <junit-version>4.12</junit-version>
+        <javapoet-version>1.11.1</javapoet-version>
     </properties>
 
     <dependencyManagement>
@@ -63,8 +68,14 @@
 
             <dependency>
                 <groupId>io.soabase.structured-logger</groupId>
-                <artifactId>structured-logger-preprocessor</artifactId>
+                <artifactId>structured-logger-generator</artifactId>
                 <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.squareup</groupId>
+                <artifactId>javapoet</artifactId>
+                <version>${javapoet-version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -80,6 +91,18 @@
                 <plugin>
                     <artifactId>maven-source-plugin</artifactId>
                     <version>${maven-source-plugin-version}</version>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-install-plugin</artifactId>
+                    <version>${maven-install-plugin-version}</version>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-deploy-plugin</artifactId>
+                    <version>${maven-deploy-plugin-version}</version>
                 </plugin>
             </plugins>
         </pluginManagement>
