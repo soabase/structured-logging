@@ -1,11 +1,10 @@
 package io.soabase.structured.logger;
 
-import java.util.List;
+import java.util.Map;
+import java.util.function.BiConsumer;
 
 public interface Generated<T> {
     Class<T> generated();
-    List<String> names();
-    String formatString();
-    boolean hasCustom();
-    LoggingFormatter loggingFormatter();
+
+    void apply(String mainMessage, Map<String, Object> values, Throwable t, BiConsumer<String, Object[]> consumer);
 }

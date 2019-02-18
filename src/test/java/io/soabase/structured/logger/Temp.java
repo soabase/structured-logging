@@ -10,8 +10,8 @@ public class Temp {
     {
         Logger logger = LoggerFactory.getLogger(getClass());
         // TODO make the StructuredLogger injectable, etc.
-        StructuredLogger<TestSchema> log = StructuredLoggerFactory.structured(logger, TestSchema.class);
-        log.debug(s -> s.context("one").event("two").id("three").catchAll("hey", "there"));
+        StructuredLogger<TestSchema2> log = StructuredLoggerFactory.structured(logger, TestSchema2.class);
+        log.debug(s -> s.context("one").event("two").id("three"));
     }
 
     @Test

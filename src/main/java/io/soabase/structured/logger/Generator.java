@@ -6,12 +6,14 @@ import net.bytebuddy.implementation.FixedValue;
 import net.bytebuddy.implementation.Implementation;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -32,12 +34,14 @@ public class Generator {
         }
     }
 
-    private static class Entry<T> implements Generated<T> {
+    private interface Applicator {
+        void apply(String mainMessage, Map<String, Object> values, Throwable t, BiConsumer<String, Object[]> appliedConsumer);
+    }
+
+    private static class Entry<T> implements Generated<T>, Applicator {
         volatile Class<T> generated;
         volatile List<String> names;
-        volatile String formatString;
-        volatile boolean hasCustom;
-        volatile LoggingFormatter loggingFormatter;
+        volatile Applicator applicator;
 
         @Override
         public Class<T> generated() {
@@ -45,23 +49,8 @@ public class Generator {
         }
 
         @Override
-        public List<String> names() {
-            return names;
-        }
-
-        @Override
-        public String formatString() {
-            return formatString;
-        }
-
-        @Override
-        public boolean hasCustom() {
-            return hasCustom;
-        }
-
-        @Override
-        public LoggingFormatter loggingFormatter() {
-            return loggingFormatter;
+        public void apply(String mainMessage, Map<String, Object> values, Throwable t, BiConsumer<String, Object[]> appliedConsumer) {
+            applicator.apply(mainMessage, values, t, appliedConsumer);
         }
     }
 
@@ -78,16 +67,48 @@ public class Generator {
             boolean hasCustom = validateSchemaClass(schemaClass);
             synchronized (useEntry) {
                 if (useEntry.generated == null) {
+                    List<String> names = Stream.of(schemaClass.getDeclaredMethods()).filter(m -> m.getParameterCount() == 1).map(Method::getName).collect(Collectors.toList());
                     useEntry.generated = internalGenerate(schemaClass, classLoader);
                     useEntry.names = Stream.of(schemaClass.getDeclaredMethods()).filter(m -> m.getParameterCount() == 1).map(Method::getName).collect(Collectors.toList());
-                    useEntry.formatString = loggingFormatter.buildFormatString(useEntry.names);
-                    useEntry.hasCustom = hasCustom;
-                    useEntry.loggingFormatter = loggingFormatter;
+                    String preBuiltFormatString = hasCustom ? null : loggingFormatter.buildFormatString(names);
+                    useEntry.applicator = (mainMessage, values, t, consumer) -> applyValues(loggingFormatter, names, mainMessage, values, t, preBuiltFormatString, consumer);
                 }
             }
         }
         return useEntry;
     }
+
+    private void applyValues(LoggingFormatter loggingFormatter, List<String> schemaNames, String mainMessage, Map<String, Object> values, Throwable t, String preBuiltFormatMessage, BiConsumer<String, Object[]> consumer) {
+        List<String> names;
+        String formatString;
+        if (preBuiltFormatMessage == null) {
+            HashSet<String> generatedSet = new HashSet<>(schemaNames);
+            names = new ArrayList<>(schemaNames);   // add schema names first to preserve ordering
+            values.keySet().stream().filter(generatedSet::add).forEach(names::add);
+            formatString = loggingFormatter.buildFormatString(names);
+        } else {
+            names = schemaNames;
+            formatString = preBuiltFormatMessage;
+        }
+
+        int argumentQty = names.size() + 1;
+        if (t != null) {
+            argumentQty += 1;
+        }
+
+        Object[] arguments = new Object[argumentQty];
+        int argumentIndex = 0;
+        for (String name : names) {
+            arguments[argumentIndex++] = values.get(name);
+        }
+        arguments[argumentIndex++] = mainMessage;
+
+        if (t != null) {
+            arguments[argumentIndex] = t;
+        }
+        consumer.accept(formatString, arguments);
+    }
+
 
     private <T> boolean validateSchemaClass(Class<T> schemaClass) {
         if (!schemaClass.isInterface()) {
