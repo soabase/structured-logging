@@ -11,7 +11,6 @@ Per Thoughtworks (https://www.thoughtworks.com/radar/techniques/structured-loggi
 public class MyClass {
     private static final StructuredLogger<MyClassSchema> log = StructuredLoggerFactory.structured(MyClassSchema.class);  // note: the library auto-generates the schema instance class
 
-
     private void myOperation(String id, String eventName, int qty) {
     ...
     
