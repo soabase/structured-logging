@@ -1,6 +1,6 @@
 # Structured Logging
 
-Per Thoughtworks (https://www.thoughtworks.com/radar/techniques/structured-logging) we should logging in a structured manner
+Per Thoughtworks (https://www.thoughtworks.com/radar/techniques/structured-logging) we should log in a structured manner
 
 ...
 
