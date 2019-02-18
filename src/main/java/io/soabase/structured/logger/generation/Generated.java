@@ -6,5 +6,5 @@ import java.util.function.BiConsumer;
 public interface Generated<T> {
     Class<T> generated();
 
-    void apply(String mainMessage, Map<String, Object> values, Throwable t, BiConsumer<String, Object[]> consumer, boolean requireAllSchemaMethods);
+    void apply(String mainMessage, Map<String, Object> values, Throwable t, BiConsumer<String, Object[]> consumer);
 }

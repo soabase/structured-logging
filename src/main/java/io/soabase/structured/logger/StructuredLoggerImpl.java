@@ -5,7 +5,6 @@ import io.soabase.structured.logger.generation.Instance;
 import org.slf4j.Logger;
 
 import java.util.Map;
-import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
@@ -13,13 +12,11 @@ class StructuredLoggerImpl<T> implements StructuredLogger<T> {
     private final Logger logger;
     private final T schemaInstance;
     private final Generated<T> generated;
-    private final boolean requireAllSchemaMethods;
 
-    StructuredLoggerImpl(Logger logger, T schemaInstance, Generated<T> generated, boolean requireAllSchemaMethods) {
+    StructuredLoggerImpl(Logger logger, T schemaInstance, Generated<T> generated) {
         this.logger = logger;
         this.schemaInstance = schemaInstance;
         this.generated = generated;
-        this.requireAllSchemaMethods = requireAllSchemaMethods;
     }
 
     @Override
@@ -65,6 +62,6 @@ class StructuredLoggerImpl<T> implements StructuredLogger<T> {
     private void consume(Consumer<T> statement, String mainMessage, Throwable t, BiConsumer<String, Object[]> logger) {
         statement.accept(schemaInstance);
         Map<String, Object> values = ((Instance) schemaInstance).slogGetValues();
-        generated.apply(mainMessage, values, t, logger, requireAllSchemaMethods);
+        generated.apply(mainMessage, values, t, logger);
     }
 }

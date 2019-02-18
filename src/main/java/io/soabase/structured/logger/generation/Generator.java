@@ -39,7 +39,7 @@ public class Generator {
     }
 
     private interface Applicator {
-        void apply(String mainMessage, Map<String, Object> values, Throwable t, BiConsumer<String, Object[]> appliedConsumer, boolean requireAllSchemaMethods);
+        void apply(String mainMessage, Map<String, Object> values, Throwable t, BiConsumer<String, Object[]> appliedConsumer);
     }
 
     private static class Entry<T> implements Generated<T>, Applicator {
@@ -52,8 +52,8 @@ public class Generator {
         }
 
         @Override
-        public void apply(String mainMessage, Map<String, Object> values, Throwable t, BiConsumer<String, Object[]> appliedConsumer, boolean requireAllSchemaMethods) {
-            applicator.apply(mainMessage, values, t, appliedConsumer, requireAllSchemaMethods);
+        public void apply(String mainMessage, Map<String, Object> values, Throwable t, BiConsumer<String, Object[]> appliedConsumer) {
+            applicator.apply(mainMessage, values, t, appliedConsumer);
         }
     }
 
@@ -74,15 +74,15 @@ public class Generator {
                     useEntry.generated = internalGenerate(schemaClass, classLoader);
                     String preBuiltFormatString = hasCustom ? null : loggingFormatter.buildFormatString(names);
                     Collection<String> namesSet = hasCustom ? new HashSet<>(names) : Collections.emptySet();
-                    useEntry.applicator = (mainMessage, values, t, consumer, requireAllSchemaMethods) -> applyValues(loggingFormatter, names, namesSet, mainMessage, values, t, preBuiltFormatString, consumer, requireAllSchemaMethods);
+                    useEntry.applicator = (mainMessage, values, t, consumer) -> applyValues(loggingFormatter, names, namesSet, mainMessage, values, t, preBuiltFormatString, consumer);
                 }
             }
         }
         return useEntry;
     }
 
-    private void applyValues(LoggingFormatter loggingFormatter, List<String> schemaNames, Collection<String> namesSet, String mainMessage, Map<String, Object> values, Throwable t, String preBuiltFormatMessage, BiConsumer<String, Object[]> consumer, boolean requireAllSchemaMethods) {
-        if (requireAllSchemaMethods) {
+    private void applyValues(LoggingFormatter loggingFormatter, List<String> schemaNames, Collection<String> namesSet, String mainMessage, Map<String, Object> values, Throwable t, String preBuiltFormatMessage, BiConsumer<String, Object[]> consumer) {
+        if (loggingFormatter.requireAllValues()) {
             if (!values.keySet().containsAll(namesSet)) {
                 Set<String> localNamesSet = new HashSet<>(namesSet);
                 localNamesSet.removeAll(values.keySet());

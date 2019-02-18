@@ -6,7 +6,6 @@ import io.soabase.structured.logger.schemas.Id;
 import io.soabase.structured.logger.schemas.Qty;
 import io.soabase.structured.logger.schemas.Time;
 import io.soabase.structured.logger.schemas.WithCustom;
-import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,11 +13,6 @@ import org.slf4j.LoggerFactory;
 import java.time.Instant;
 
 public class Temp {
-    @Before
-    public void setup() {
-        StructuredLoggerFactory.setRequireAllSchemaMethods(true);
-    }
-
     @Test
     public void testBasic()
     {
