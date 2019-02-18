@@ -36,3 +36,5 @@ private void myOperation(String id, String eventName, int qty) {
     log.info("Something happened", schema -> schema.event(eventName).id(id).qty(qty));
 }
 ```
+
+Logs similar to: `id=7892323 event=EventName qty=100 Something happened`
