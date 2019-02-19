@@ -69,7 +69,7 @@ public class StructuredLoggerSchemaGenerator extends AbstractProcessor {
 
         TypeSpec classSpec = builder.build();
         JavaFile javaFile = JavaFile.builder(packageName, classSpec)
-                .addFileComment("Auto generated from $L by Soabase LoggerSchema annotation processor", className.toString())
+                .addFileComment("Auto generated from annotation on $L by Soabase LoggerSchema annotation processor", element.getQualifiedName())
                 .indent("    ")
                 .build();
 
