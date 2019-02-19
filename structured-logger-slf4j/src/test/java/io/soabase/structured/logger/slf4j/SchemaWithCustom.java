@@ -1,4 +1,4 @@
-package io.soabase.structured.logger;
+package io.soabase.structured.logger.slf4j;
 
 import io.soabase.structured.logger.schemas.WithCustom;
 

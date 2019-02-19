@@ -1,11 +1,9 @@
 package io.soabase.structured.logger;
 
-import org.slf4j.Logger;
-
 import java.util.function.Consumer;
 
 public interface StructuredLogger<T> {
-    Logger logger();
+    LoggerFacade logger();
 
     default void trace(Consumer<T> statement) {
         trace("", null, statement);

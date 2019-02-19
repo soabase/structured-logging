@@ -2,25 +2,24 @@ package io.soabase.structured.logger;
 
 import io.soabase.structured.logger.generation.Generated;
 import io.soabase.structured.logger.generation.Instance;
-import org.slf4j.Logger;
 
 import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 class StructuredLoggerImpl<T> implements StructuredLogger<T> {
-    private final Logger logger;
+    private final LoggerFacade logger;
     private final T schemaInstance;
     private final Generated<T> generated;
 
-    StructuredLoggerImpl(Logger logger, T schemaInstance, Generated<T> generated) {
+    StructuredLoggerImpl(LoggerFacade logger, T schemaInstance, Generated<T> generated) {
         this.logger = logger;
         this.schemaInstance = schemaInstance;
         this.generated = generated;
     }
 
     @Override
-    public Logger logger() {
+    public LoggerFacade logger() {
         return logger;
     }
 

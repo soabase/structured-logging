@@ -1,4 +1,4 @@
-package io.soabase.structured.logger;
+package io.soabase.structured.logger.slf4j;
 
 public interface Schema {
     Schema event(String s);

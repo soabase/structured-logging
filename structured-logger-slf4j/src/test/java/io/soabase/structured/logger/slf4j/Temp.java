@@ -1,5 +1,7 @@
-package io.soabase.structured.logger;
+package io.soabase.structured.logger.slf4j;
 
+import io.soabase.structured.logger.StructuredLogger;
+import io.soabase.structured.logger.StructuredLoggerFactoryBase;
 import io.soabase.structured.logger.schemas.Code;
 import io.soabase.structured.logger.schemas.Event;
 import io.soabase.structured.logger.schemas.Id;
