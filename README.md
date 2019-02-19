@@ -68,14 +68,12 @@ private void myOperation(String id, String eventName, int qty) {
 
 ```java
 @LoggerSchemas({
-        @LoggerSchema(value = {Id.class, Code.class}, schemaName = "IdCodeSchema"),
-        @LoggerSchema(value = {Id.class, Event.class}, schemaName = "IdEventSchema"),
-        @LoggerSchema(value = Id.class, schemaName = "IdSchema"),
-        @LoggerSchema(value = {Id.class, CustomSchema.class}, schemaName = "IdCustomSchema")
+        @LoggerSchema(value = {Id.class, Code.class}, schemaName = "LoggingSchemaIdCode"),
+        @LoggerSchema(value = {Id.class, Event.class}, schemaName = "LoggingSchemaIdEvent"),
+        @LoggerSchema(value = Id.class, schemaName = "LoggingSchemaId"),
+        @LoggerSchema(value = {Id.class, CustomSchema.class}, schemaName = "LoggingSchemaIdCustom")
 })
-public class SchemaFactory {
-    private SchemaFactory() {
-    }
+public class LoggingSchema {
 }
 ```
 
