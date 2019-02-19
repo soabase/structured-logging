@@ -66,7 +66,7 @@ private void myOperation(String id, String eventName, int qty) {
 
 ## Under The Hood
 
-- The schema concrete instance is generated from the interface using Byte Buddy here: (Generator.java)[https://github.com/soabase/structured-logging/blob/master/structured-logger-core/src/main/java/io/soabase/structured/logger/generation/Generator.java]
+- The schema concrete instance is generated from the interface using Byte Buddy here: [Generator.java](https://github.com/soabase/structured-logging/blob/master/structured-logger-core/src/main/java/io/soabase/structured/logger/generation/Generator.java)
 - The logging facade forwards directly to SLF4J (or whatever). This is not a new logging library.
-- If writing a little interface schema is too much trouble, there's a preprocessor that will generate one from "mixins". See the example here: (TestGenerated.java)[https://github.com/soabase/structured-logging/blob/master/structured-logger-generator-test/src/test/java/io/soabase/structured/logger/TestGenerated.java]
+- If writing a little interface schema is too much trouble, there's a preprocessor that will generate one from "mixins". See the example here: [TestGenerated.java](https://github.com/soabase/structured-logging/blob/master/structured-logger-generator-test/src/test/java/io/soabase/structured/logger/TestGenerated.java)
 - The "message" that is passed to SLF4J that has the replacement tokens is produced via a proc that can be changed. We could develop standard ones that do validation, etc.
