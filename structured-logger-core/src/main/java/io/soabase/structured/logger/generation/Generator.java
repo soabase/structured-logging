@@ -70,10 +70,10 @@ public class Generator {
             boolean hasCustom = validateSchemaClass(schemaClass);
             synchronized (useEntry) {
                 if (useEntry.generated == null) {
-                    List<String> names = Stream.of(schemaClass.getMethods()).filter(m -> m.getParameterCount() == 1).map(Method::getName).collect(Collectors.toList());
+                    List<String> names = Collections.unmodifiableList(Stream.of(schemaClass.getMethods()).filter(m -> m.getParameterCount() == 1).map(Method::getName).collect(Collectors.toList()));
                     useEntry.generated = internalGenerate(schemaClass, classLoader);
                     String preBuiltFormatString = hasCustom ? null : loggingFormatter.buildFormatString(names);
-                    Collection<String> namesSet = hasCustom ? new HashSet<>(names) : Collections.emptySet();
+                    Collection<String> namesSet = hasCustom ? Collections.unmodifiableSet(new HashSet<>(names)) : Collections.emptySet();
                     useEntry.applicator = (mainMessage, values, t, consumer) -> applyValues(loggingFormatter, names, namesSet, mainMessage, values, t, preBuiltFormatString, consumer);
                 }
             }
@@ -101,21 +101,7 @@ public class Generator {
             formatString = preBuiltFormatMessage;
         }
 
-        int argumentQty = names.size() + 1;
-        if (t != null) {
-            argumentQty += 1;
-        }
-
-        Object[] arguments = new Object[argumentQty];
-        int argumentIndex = 0;
-        for (String name : names) {
-            arguments[argumentIndex++] = values.get(name);
-        }
-        arguments[argumentIndex++] = mainMessage;
-
-        if (t != null) {
-            arguments[argumentIndex] = t;
-        }
+        Object[] arguments = loggingFormatter.buildArguments(names, mainMessage, t, values);
         consumer.accept(formatString, arguments);
     }
 

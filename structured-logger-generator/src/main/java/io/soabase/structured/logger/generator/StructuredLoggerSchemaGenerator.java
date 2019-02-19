@@ -4,6 +4,7 @@ import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeSpec;
+import io.soabase.structured.logger.annotations.LoggerSchema;
 
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.Filer;
@@ -69,7 +70,7 @@ public class StructuredLoggerSchemaGenerator extends AbstractProcessor {
 
         TypeSpec classSpec = builder.build();
         JavaFile javaFile = JavaFile.builder(packageName, classSpec)
-                .addFileComment("Auto generated from annotation on $L by Soabase LoggerSchema annotation processor", element.getQualifiedName())
+                .addFileComment("Auto generated from annotation on $L by Soabase $L annotation processor", element.getQualifiedName(), LoggerSchema.class.getSimpleName())
                 .indent("    ")
                 .build();
 
