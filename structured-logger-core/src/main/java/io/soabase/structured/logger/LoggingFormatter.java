@@ -43,7 +43,7 @@ public interface LoggingFormatter {
                 format.append(' ');
             }
             if (quoted) {
-                format.append(name).append("\"{}\"");
+                format.append(name).append("=\"{}\"");
             } else {
                 format.append(name).append("={}");
             }

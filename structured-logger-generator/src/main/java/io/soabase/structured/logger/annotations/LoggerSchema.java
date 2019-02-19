@@ -17,4 +17,6 @@ public @interface LoggerSchema {
     String packageName() default "";
 
     boolean schemaClassesExtendBase() default true;
+
+    boolean reuseExistingSchema() default true;
 }

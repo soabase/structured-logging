@@ -7,8 +7,10 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.type.TypeMirror;
 import javax.tools.Diagnostic;
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,37 +22,36 @@ public class AnnotationReader {
     private final String annotationName;
     private final Map<String, Object> values;
     private final ProcessingEnvironment processingEnv;
-    private final String annotationFullName;
 
-    AnnotationReader(ProcessingEnvironment processingEnv, Element element, String annotationFullName, String annotationName) {
+    AnnotationReader(ProcessingEnvironment processingEnv, Element element, String annotationName) {
         this.processingEnv = processingEnv;
-        this.annotationFullName = annotationFullName;
         Optional<? extends AnnotationMirror> annotation = (element == null) ? Optional.empty() :
-                element.getAnnotationMirrors().stream()
+                processingEnv.getElementUtils().getAllAnnotationMirrors(element).stream()
                         .filter(mirror -> mirror.getAnnotationType().asElement().getSimpleName().toString().equals(annotationName))
                         .findFirst();
-        if (!annotation.isPresent()) {
-            processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Internal error. Could not find annotation: " + annotationName, element);
-        }
-        this.annotationName = annotationName;
-        values = new HashMap<>();
         if (annotation.isPresent()) {
-            Map<? extends ExecutableElement, ? extends AnnotationValue> specifiedValues = annotation.get().getElementValues();
-            Map<? extends ExecutableElement, ? extends AnnotationValue> valuesWithDefaults = processingEnv.getElementUtils().getElementValuesWithDefaults(annotation.get());
-            valuesWithDefaults.forEach((key, value) -> {
-                String overrideKey = annotationName + "." + key.getSimpleName().toString();
-                if (specifiedValues.containsKey(key)) {
-                    values.put(key.getSimpleName().toString(), specifiedValues.get(key).getValue());
-                } else if (processingEnv.getOptions().containsKey(overrideKey)) {
-                    values.put(key.getSimpleName().toString(), processingEnv.getOptions().get(overrideKey));
-                } else {
-                    values.put(key.getSimpleName().toString(), value.getValue());
-                }
-            });
+            this.annotationName = annotationName;
+            values = new HashMap<>();
+            applyAnnotationWithDefaults(processingEnv, annotationName, annotation.get(), annotation.get().getElementValues());
+        } else {
+            this.annotationName = null;
+            processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "Internal error. Could not find annotation: " + annotationName, element);
+            values = Collections.emptyMap();
         }
     }
 
-    public boolean getBoolean(String named)
+    AnnotationReader(ProcessingEnvironment processingEnv, AnnotationMirror annotation, Map<? extends ExecutableElement, ? extends AnnotationValue> elementValues, String annotationName) {
+        this.annotationName = annotationName;
+        this.processingEnv = processingEnv;
+        values = new HashMap<>();
+        applyAnnotationWithDefaults(processingEnv, annotationName, annotation, elementValues);
+    }
+
+    String getAnnotationName() {
+        return annotationName;
+    }
+
+    boolean getBoolean(String named)
     {
         Object value = values.get(named);
         //noinspection SimplifiableIfStatement
@@ -61,13 +62,29 @@ public class AnnotationReader {
         return false;
     }
 
-    public String getString(String named) {
+    String getString(String named) {
         Object value = values.getOrDefault(named, "");
         return String.valueOf(value);
     }
 
     @SuppressWarnings("unchecked")
-    public List<TypeMirror> getClasses(String named) {
+    List<AnnotationMirror> getAnnotations(String named) {
+        Object value = values.get(named);
+        if (value != null) {
+            if (value instanceof Map) {
+                value = ((Map)value).get(named);
+            }
+            if (value instanceof List) {
+                return (List<AnnotationMirror>) value;
+            }
+
+            return Arrays.asList((AnnotationMirror[])value);
+        }
+        return new ArrayList<>();
+    }
+
+    @SuppressWarnings("unchecked")
+    List<TypeMirror> getClasses(String named) {
         Object value = values.get(named);
         if (value != null) {
             if (value instanceof List) {
@@ -83,5 +100,26 @@ public class AnnotationReader {
                     .collect(Collectors.toList());
         }
         return new ArrayList<>();
+    }
+
+    private Object unwrapValue(Object value) {
+        if (value instanceof AnnotationValue) {
+            value = ((AnnotationValue)value).getValue();
+        }
+        return value;
+    }
+
+    private void applyAnnotationWithDefaults(ProcessingEnvironment processingEnv, String annotationName, AnnotationMirror annotation, Map<? extends ExecutableElement, ? extends AnnotationValue> specifiedValues) {
+        Map<? extends ExecutableElement, ? extends AnnotationValue> valuesWithDefaults = processingEnv.getElementUtils().getElementValuesWithDefaults(annotation);
+        valuesWithDefaults.forEach((key, value) -> {
+            String overrideKey = annotationName + "." + key.getSimpleName().toString();
+            if (specifiedValues.containsKey(key)) {
+                values.put(key.getSimpleName().toString(), specifiedValues.get(key).getValue());
+            } else if (processingEnv.getOptions().containsKey(overrideKey)) {
+                values.put(key.getSimpleName().toString(), processingEnv.getOptions().get(overrideKey));
+            } else {
+                values.put(key.getSimpleName().toString(), value.getValue());
+            }
+        });
     }
 }
