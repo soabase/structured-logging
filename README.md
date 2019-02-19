@@ -25,7 +25,13 @@ Logs similar to: `id=7892323 event=EventName qty=100 Something happened`
 
 ```java
 
-public interface LogSchema extends Id<LogSchema>, Event<LogSchema>, Qty<LogSchema>{}
+public interface LogSchema {
+    LogSchema id(String id);
+    
+    LogSchema qty(int qty);
+    
+    LogSchema event(String name);
+}
 
 ...
 
