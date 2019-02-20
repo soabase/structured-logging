@@ -49,12 +49,16 @@ public class Generator {
         private final int schemaQty;
         private final String formatString;
         private final boolean requireAllValues;
+        private final int mainMessageIndex;
+        private final int exceptionIndex;
 
-        Entry(Class<T> generated, int schemaQty, String formatString, boolean requireAllValues) {
+        Entry(Class<T> generated, int schemaQty, String formatString, boolean requireAllValues, boolean mainMessageIsLast) {
             this.generated = generated;
             this.schemaQty = schemaQty;
             this.formatString = formatString;
             this.requireAllValues = requireAllValues;
+            this.mainMessageIndex = mainMessageIsLast ? schemaQty : 0;
+            this.exceptionIndex = schemaQty + 1;
         }
 
         @Override
@@ -71,9 +75,9 @@ public class Generator {
         @Override
         public void apply(T instance, String mainMessage, Throwable t, BiConsumer<String, Object[]> consumer) {
             Object[] arguments = ((Instance)instance).arguments;
-            arguments[schemaQty] = mainMessage;
+            arguments[mainMessageIndex] = mainMessage;
             if (t != null) {
-                arguments[schemaQty + 1] = t;
+                arguments[exceptionIndex] = t;
             }
 
             if (requireAllValues) {
@@ -92,9 +96,9 @@ public class Generator {
     public <T> Generated<T> generate(Class<T> schemaClass, ClassLoader classLoader, LoggingFormatter loggingFormatter) {
         return generated.computeIfAbsent(schemaClass, __ -> {
             List<String> schemaNames = validateSchemaClass(schemaClass);
-            Class generatedClass = internalGenerate(schemaClass, classLoader);
+            Class generatedClass = internalGenerate(schemaClass, classLoader, loggingFormatter.mainMessageIsLast());
             String formatString = loggingFormatter.buildFormatString(schemaNames);
-            return new Entry(generatedClass, schemaNames.size(), formatString, loggingFormatter.requireAllValues());
+            return new Entry(generatedClass, schemaNames.size(), formatString, loggingFormatter.requireAllValues(), loggingFormatter.mainMessageIsLast());
         });
     }
 
@@ -126,20 +130,20 @@ public class Generator {
     }
 
     @SuppressWarnings("unchecked")
-    private Class internalGenerate(Class schemaClass, ClassLoader classLoader) {
+    private Class internalGenerate(Class schemaClass, ClassLoader classLoader, boolean mainMessageIsLast) {
         DynamicType.Builder builder = new ByteBuddy().subclass(Instance.class).implement(schemaClass);
-        int methodIndex = 0;
+        int schemaIndex = mainMessageIsLast ? 0 : 1;
         for (Method method : schemaClass.getMethods()) {
             Implementation methodCall;
             if (method.getDeclaringClass().equals(WithFormat.class)) {
                 methodCall = invoke(formattedAtIndexMethod)
-                        .with(methodIndex++)
+                        .with(schemaIndex++)
                         .withArgument(0)
                         .withArgument(1)
                         .andThen(FixedValue.self());
             } else {
                 methodCall = invoke(setValueAtIndexMethod)
-                        .with(methodIndex++)
+                        .with(schemaIndex++)
                         .withArgument(0)
                         .andThen(FixedValue.self());
             }

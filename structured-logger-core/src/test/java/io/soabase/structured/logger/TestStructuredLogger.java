@@ -8,10 +8,13 @@ import io.soabase.structured.logger.schemas.Qty;
 import io.soabase.structured.logger.schemas.Time;
 import io.soabase.structured.logger.schemas.WithFormat;
 import io.soabase.structured.logger.util.TestLoggerFacade;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 import static io.soabase.structured.logger.LoggingFormatter.defaultLoggingFormatter;
-import static io.soabase.structured.logger.LoggingFormatter.requiringAllValues;
+import static io.soabase.structured.logger.LoggingFormatter.mainMessageIsFirst;
+import static io.soabase.structured.logger.LoggingFormatter.requireAllValues;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SuppressWarnings({"WeakerAccess", "UnusedReturnValue"})
@@ -21,6 +24,12 @@ public class TestStructuredLogger {
     public interface LocalSchema {
         LocalSchema id(String id);
         LocalSchema count(int n);
+    }
+
+    @After
+    @Before
+    public void tearDown() {
+        StructuredLoggerFactoryBase.clearCache();
     }
 
     @Test
@@ -39,7 +48,7 @@ public class TestStructuredLogger {
 
     @Test(expected = MissingSchemaValueException.class)
     public void testMissingValue() {
-        StructuredLogger<BigMixin> log = StructuredLoggerFactoryBase.getLogger(new TestLoggerFacade(), BigMixin.class, requiringAllValues(defaultLoggingFormatter));
+        StructuredLogger<BigMixin> log = StructuredLoggerFactoryBase.getLogger(new TestLoggerFacade(), BigMixin.class, requireAllValues(defaultLoggingFormatter));
         log.info(m -> m.code("code-123"));
     }
 
@@ -54,5 +63,28 @@ public class TestStructuredLogger {
         assertThat(logger.entries.get(0).arguments).contains("123");
         assertThat(logger.entries.get(0).arguments).contains((Integer)null);
         assertThat(logger.entries.get(0).arguments).contains("");
+    }
+
+    @Test
+    public void testMainMessageIsFirstNoException() {
+        TestLoggerFacade logger = new TestLoggerFacade();
+        StructuredLogger<LocalSchema> log = StructuredLoggerFactoryBase.getLogger(logger, LocalSchema.class, mainMessageIsFirst(defaultLoggingFormatter));
+        log.info("A Message", m -> m.id("123").count(10));
+        assertThat(logger.entries).hasSize(1);
+        assertThat(logger.entries.get(0).arguments[0]).isEqualTo("A Message");
+        assertThat(logger.entries.get(0).arguments[1]).isEqualTo(10);
+        assertThat(logger.entries.get(0).arguments[2]).isEqualTo("123");
+    }
+
+    @Test
+    public void testMainMessageIsFirstWithException() {
+        TestLoggerFacade logger = new TestLoggerFacade();
+        StructuredLogger<LocalSchema> log = StructuredLoggerFactoryBase.getLogger(logger, LocalSchema.class, mainMessageIsFirst(defaultLoggingFormatter));
+        log.info("A Message", new Exception(), m -> m.id("123").count(10));
+        assertThat(logger.entries).hasSize(1);
+        assertThat(logger.entries.get(0).arguments[0]).isEqualTo("A Message");
+        assertThat(logger.entries.get(0).arguments[1]).isEqualTo(10);
+        assertThat(logger.entries.get(0).arguments[2]).isEqualTo("123");
+        assertThat(logger.entries.get(0).arguments[3]).isInstanceOf(Exception.class);
     }
 }
