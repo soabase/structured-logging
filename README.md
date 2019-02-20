@@ -64,6 +64,19 @@ private void myOperation(String id, String eventName, int qty) {
 }
 ```
 
+### Create a Registry With All the Logging Schema For Your Project
+
+```java
+@LoggerSchemas({
+        @LoggerSchema(value = {Id.class, Code.class}, schemaName = "LoggingSchemaIdCode"),
+        @LoggerSchema(value = {Id.class, Event.class}, schemaName = "LoggingSchemaIdEvent"),
+        @LoggerSchema(value = Id.class, schemaName = "LoggingSchemaId"),
+        @LoggerSchema(value = {Id.class, CustomSchema.class}, schemaName = "LoggingSchemaIdCustom")
+})
+public class LoggingSchema {
+}
+```
+
 ## Under The Hood
 
 - The schema concrete instance is generated from the interface using Byte Buddy here: [Generator.java](https://github.com/soabase/structured-logging/blob/master/structured-logger-core/src/main/java/io/soabase/structured/logger/generation/Generator.java)
