@@ -1,10 +1,9 @@
 package io.soabase.structured.logger.generation;
 
-import java.util.Map;
 import java.util.function.BiConsumer;
 
 public interface Generated<T> {
-    Class<T> generated();
+    T newInstance(boolean hasException);
 
-    void apply(String mainMessage, Map<String, Object> values, Throwable t, BiConsumer<String, Object[]> consumer);
+    void apply(T instance, String mainMessage, Throwable t, BiConsumer<String, Object[]> consumer);
 }

@@ -102,13 +102,6 @@ public class AnnotationReader {
         return new ArrayList<>();
     }
 
-    private Object unwrapValue(Object value) {
-        if (value instanceof AnnotationValue) {
-            value = ((AnnotationValue)value).getValue();
-        }
-        return value;
-    }
-
     private void applyAnnotationWithDefaults(ProcessingEnvironment processingEnv, String annotationName, AnnotationMirror annotation, Map<? extends ExecutableElement, ? extends AnnotationValue> specifiedValues) {
         Map<? extends ExecutableElement, ? extends AnnotationValue> valuesWithDefaults = processingEnv.getElementUtils().getElementValuesWithDefaults(annotation);
         valuesWithDefaults.forEach((key, value) -> {

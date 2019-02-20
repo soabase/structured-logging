@@ -13,10 +13,8 @@ public interface LoggingFormatter {
     }
 
     default Object[] buildArguments(List<String> names, String mainMessage, Throwable t, Map<String, Object> values) {
-        int argumentQty = names.size() + 1;
-        if (t != null) {
-            argumentQty += 1;
-        }
+        boolean hasException = (t != null);
+        int argumentQty = hasException ? (names.size() + 2) : (names.size() + 1);
 
         Object[] arguments = new Object[argumentQty];
         int argumentIndex = 0;
@@ -25,7 +23,7 @@ public interface LoggingFormatter {
         }
         arguments[argumentIndex++] = mainMessage;
 
-        if (t != null) {
+        if (hasException) {
             arguments[argumentIndex] = t;
         }
 

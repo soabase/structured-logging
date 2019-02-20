@@ -6,7 +6,7 @@ import io.soabase.structured.logger.schemas.Event;
 import io.soabase.structured.logger.schemas.Id;
 import io.soabase.structured.logger.schemas.Qty;
 import io.soabase.structured.logger.schemas.Time;
-import io.soabase.structured.logger.schemas.WithCustom;
+import io.soabase.structured.logger.schemas.WithFormat;
 import io.soabase.structured.logger.util.TestLoggerFacade;
 import org.junit.Test;
 
@@ -16,7 +16,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @SuppressWarnings({"WeakerAccess", "UnusedReturnValue"})
 public class TestStructuredLogger {
-    public interface BigMixin extends Id<BigMixin>, Event<BigMixin>, Time<BigMixin>, Code<BigMixin>, Qty<BigMixin>, WithCustom<BigMixin> {}
+    public interface BigMixin extends Id<BigMixin>, Event<BigMixin>, Time<BigMixin>, Code<BigMixin>, Qty<BigMixin>, WithFormat<BigMixin> {}
 
     public interface LocalSchema {
         LocalSchema id(String id);

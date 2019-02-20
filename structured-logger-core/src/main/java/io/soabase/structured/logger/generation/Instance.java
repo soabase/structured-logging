@@ -1,17 +1,14 @@
 package io.soabase.structured.logger.generation;
 
-import java.util.HashMap;
-import java.util.Map;
-
+@SuppressWarnings("WeakerAccess")
 public class Instance {
-    private final Map<String, Object> values = new HashMap<>();
+    public Object[] arguments;
 
-    @SuppressWarnings("WeakerAccess")
-    public void slogSetValue(String key, Object value) {
-        values.put(key, value);
+    public void _InternalSetValueAtIndex(int index, Object value) {
+        arguments[index] = value;
     }
 
-    public Map<String, Object> slogGetValues() {
-        return values;
+    public void _InternalFormattedAtIndex(int index, String format, Object[] args) {
+        _InternalSetValueAtIndex(index, String.format(format, args));
     }
 }

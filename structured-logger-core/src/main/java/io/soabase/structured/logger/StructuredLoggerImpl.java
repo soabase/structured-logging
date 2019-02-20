@@ -9,12 +9,10 @@ import java.util.function.Consumer;
 
 class StructuredLoggerImpl<T> implements StructuredLogger<T> {
     private final LoggerFacade logger;
-    private final T schemaInstance;
     private final Generated<T> generated;
 
-    StructuredLoggerImpl(LoggerFacade logger, T schemaInstance, Generated<T> generated) {
+    StructuredLoggerImpl(LoggerFacade logger, Generated<T> generated) {
         this.logger = logger;
-        this.schemaInstance = schemaInstance;
         this.generated = generated;
     }
 
@@ -59,8 +57,8 @@ class StructuredLoggerImpl<T> implements StructuredLogger<T> {
     }
 
     private void consume(Consumer<T> statement, String mainMessage, Throwable t, BiConsumer<String, Object[]> logger) {
-        statement.accept(schemaInstance);
-        Map<String, Object> values = ((Instance) schemaInstance).slogGetValues();
-        generated.apply(mainMessage, values, t, logger);
+        T instance = generated.newInstance(t != null);
+        statement.accept(instance);
+        generated.apply(instance, mainMessage, t, logger);
     }
 }

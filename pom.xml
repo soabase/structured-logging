@@ -14,6 +14,7 @@
         <module>structured-logger-generator</module>
         <module>structured-logger-generator-test</module>
         <module>structured-logger-slf4j</module>
+        <module>structured-logger-benchmark</module>
     </modules>
 
     <properties>
@@ -27,6 +28,7 @@
         <maven-source-plugin-version>3.0.1</maven-source-plugin-version>
         <maven-deploy-plugin-version>3.0.0-M1</maven-deploy-plugin-version>
         <maven-install-plugin-version>3.0.0-M1</maven-install-plugin-version>
+        <maven-shade-plugin-version>3.2.1</maven-shade-plugin-version>
 
         <slf4j-version>1.7.25</slf4j-version>
         <byte-buddy-version>1.9.10</byte-buddy-version>
@@ -98,11 +100,13 @@
         <pluginManagement>
             <plugins>
                 <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
                     <version>${maven-compiler-plugin-version}</version>
                 </plugin>
 
                 <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-source-plugin</artifactId>
                     <version>${maven-source-plugin-version}</version>
                 </plugin>
@@ -117,6 +121,12 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-deploy-plugin</artifactId>
                     <version>${maven-deploy-plugin-version}</version>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-shade-plugin</artifactId>
+                    <version>${maven-shade-plugin-version}</version>
                 </plugin>
             </plugins>
         </pluginManagement>

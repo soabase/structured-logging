@@ -25,11 +25,6 @@ public class StructuredLoggerFactory {
     }
 
     public static <T> StructuredLogger<T> structured(Logger logger, Class<T> schema) {
-        @SuppressWarnings("unchecked")
-        LoggingFormatter registered = getRegisteredLoggingFormatter(schema);
-        if (registered != null) {
-            return getLogger(wrap(logger), schema, registered);
-        }
         return getLogger(wrap(logger), schema, getDefaultLoggingFormatter());
     }
 
@@ -43,10 +38,6 @@ public class StructuredLoggerFactory {
 
     public static void clearCache() {
         StructuredLoggerFactoryBase.clearCache();
-    }
-
-    public static void clearRegistrations() {
-        StructuredLoggerFactoryBase.clearRegistrations();
     }
 
     public static void setDefaultLoggingFormatter(LoggingFormatter defaultLoggingFormatter) {
