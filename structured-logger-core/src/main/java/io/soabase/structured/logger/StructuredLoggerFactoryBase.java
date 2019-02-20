@@ -32,12 +32,8 @@ public class StructuredLoggerFactoryBase {
     }
 
     public static <T> StructuredLogger<T> getLogger(LoggerFacade logger, Class<T> schema, LoggingFormatter loggingFormatter) {
-        try {
-            Generated<T> generated = generator.generate(schema, classloaderProc.apply(schema), loggingFormatter);
-            return new StructuredLoggerImpl<>(logger, generated);
-        } catch (Exception e) {
-            throw new RuntimeException("Could not generate schema for: " + schema.getName(), e);
-        }
+        Generated<T> generated = generator.generate(schema, classloaderProc.apply(schema), loggingFormatter);
+        return new StructuredLoggerImpl<>(logger, generated);
     }
 
     private StructuredLoggerFactoryBase() {
