@@ -7,9 +7,20 @@ import org.slf4j.LoggerFactory;
 import java.time.Instant;
 
 public class StandardLoggerBenchmark {
+    private static final Logger logger = LoggerFactory.getLogger(StandardLoggerBenchmark.class);
+
     @Benchmark
-    public void test() {
-        Logger logger = LoggerFactory.getLogger(getClass());
+    public void testFreshLogger() {
+        Logger newLogger = LoggerFactory.getLogger(getClass());
+        newLogger.trace("message id={} qty={} time={}", Utils.str(), Utils.value(), Instant.now());
+        newLogger.warn("message id={} qty={} time={}", Utils.str(), Utils.value(), Instant.now());
+        newLogger.debug("message id={} qty={} time={}", Utils.str(), Utils.value(), Instant.now());
+        newLogger.error("message id={} qty={} time={}", Utils.str(), Utils.value(), Instant.now());
+        newLogger.info("message id={} qty={} time={}", Utils.str(), Utils.value(), Instant.now());
+    }
+
+    @Benchmark
+    public void testSavedLogger() {
         logger.trace("message id={} qty={} time={}", Utils.str(), Utils.value(), Instant.now());
         logger.warn("message id={} qty={} time={}", Utils.str(), Utils.value(), Instant.now());
         logger.debug("message id={} qty={} time={}", Utils.str(), Utils.value(), Instant.now());
