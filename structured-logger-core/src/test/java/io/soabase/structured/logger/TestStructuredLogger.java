@@ -12,14 +12,14 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import static io.soabase.structured.logger.LoggingFormatter.defaultLoggingFormatter;
-import static io.soabase.structured.logger.LoggingFormatter.mainMessageIsFirst;
-import static io.soabase.structured.logger.LoggingFormatter.requireAllValues;
+import static io.soabase.structured.logger.LoggingFormatter.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SuppressWarnings({"WeakerAccess", "UnusedReturnValue"})
 public class TestStructuredLogger {
     public interface BigMixin extends Id<BigMixin>, Event<BigMixin>, Time<BigMixin>, Code<BigMixin>, Qty<BigMixin>, WithFormat<BigMixin> {}
+
+    public interface Empty {}
 
     public interface LocalSchema {
         LocalSchema id(String id);
@@ -86,5 +86,14 @@ public class TestStructuredLogger {
         assertThat(logger.entries.get(0).arguments[1]).isEqualTo(10);
         assertThat(logger.entries.get(0).arguments[2]).isEqualTo("123");
         assertThat(logger.entries.get(0).arguments[3]).isInstanceOf(Exception.class);
+    }
+
+    @Test
+    public void testEmptySchema() {
+        TestLoggerFacade logger = new TestLoggerFacade();
+        StructuredLogger<Empty> log = StructuredLoggerFactoryBase.getLogger(logger, Empty.class, defaultLoggingFormatter);
+        log.info("test", e -> {});
+        assertThat(logger.entries).hasSize(1);
+        assertThat(logger.entries.get(0).arguments[0]).isEqualTo("test");
     }
 }
