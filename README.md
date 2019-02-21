@@ -1,3 +1,4 @@
+[![Build Status](https://api.travis-ci.org/soabase/structured-logging.svg?branch=master)](https://travis-ci.org/soabase/structured-logging.svg?branch=master)
 [![Maven Central](https://img.shields.io/maven-central/v/io.soabase.structured-logger/structured-logger-core.svg)](http://search.maven.org/#search%7Cga%7C1%7Cstructured-logger)
 
 # Structured Logging
