@@ -1,3 +1,18 @@
+/**
+ * Copyright 2019 Jordan Zimmerman
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package io.soabase.structured.logger.generation;
 
 import io.soabase.structured.logger.LoggingFormatter;
@@ -46,26 +61,26 @@ public class Generator {
 
     private static class Entry<T> implements Generated<T> {
         private final Class<T> generated;
-        private final int schemaQty;
+        private final List<String> schemaNames;
         private final String formatString;
         private final boolean requireAllValues;
         private final int mainMessageIndex;
         private final int exceptionIndex;
 
-        Entry(Class<T> generated, int schemaQty, String formatString, boolean requireAllValues, boolean mainMessageIsLast) {
+        Entry(Class<T> generated, List<String> schemaNames, String formatString, boolean requireAllValues, boolean mainMessageIsLast) {
             this.generated = generated;
-            this.schemaQty = schemaQty;
+            this.schemaNames = schemaNames;
             this.formatString = formatString;
             this.requireAllValues = requireAllValues;
-            this.mainMessageIndex = mainMessageIsLast ? schemaQty : 0;
-            this.exceptionIndex = schemaQty + 1;
+            this.mainMessageIndex = mainMessageIsLast ? schemaNames.size() : 0;
+            this.exceptionIndex = schemaNames.size() + 1;
         }
 
         @Override
         public T newInstance(boolean hasException) {
             try {
                 T instance = generated.getDeclaredConstructor().newInstance();
-                ((Instance)instance).arguments = new Object[hasException ? (schemaQty + 2) : (schemaQty + 1)];
+                ((Instance)instance).arguments = new Object[hasException ? (exceptionIndex + 1) : exceptionIndex];  // exceptionIndex is a proxy for the number of schema names
                 return instance;
             } catch (Exception e) {
                 throw new RuntimeException("Could not allocate schema instance: " + generated.getName(), e);
@@ -81,10 +96,12 @@ public class Generator {
             }
 
             if (requireAllValues) {
+                int index = 0;
                 for (Object argument : arguments) {
                     if (argument == null) {
-                        throw new MissingSchemaValueException("Entire schema must be specified. Missing: " + "foo");    // TODO
+                        throw new MissingSchemaValueException("Entire schema must be specified. Missing: " + schemaNames.get(index));
                     }
+                    ++index;
                 }
             }
 
@@ -98,7 +115,7 @@ public class Generator {
             List<String> schemaNames = validateSchemaClass(schemaClass);
             Class generatedClass = internalGenerate(schemaClass, classLoader, loggingFormatter.mainMessageIsLast());
             String formatString = loggingFormatter.buildFormatString(schemaNames);
-            return new Entry(generatedClass, schemaNames.size(), formatString, loggingFormatter.requireAllValues(), loggingFormatter.mainMessageIsLast());
+            return new Entry(generatedClass, schemaNames, formatString, loggingFormatter.requireAllValues(), loggingFormatter.mainMessageIsLast());
         });
     }
 

@@ -29,6 +29,9 @@
         <maven-deploy-plugin-version>3.0.0-M1</maven-deploy-plugin-version>
         <maven-install-plugin-version>3.0.0-M1</maven-install-plugin-version>
         <maven-shade-plugin-version>3.2.1</maven-shade-plugin-version>
+        <maven-license-plugin-version>1.9.0</maven-license-plugin-version>
+        <maven-javadoc-plugin-version>3.0.1</maven-javadoc-plugin-version>
+        <maven-gpg-plugin-version>1.6</maven-gpg-plugin-version>
 
         <slf4j-version>1.7.25</slf4j-version>
         <byte-buddy-version>1.9.10</byte-buddy-version>
@@ -36,6 +39,61 @@
         <javapoet-version>1.11.1</javapoet-version>
         <assertj-version>3.12.0</assertj-version>
     </properties>
+
+    <name>Soabase Structured Logger</name>
+    <description>Structured Logging Facade for Java</description>
+    <url>https://github.com/soabase/structured-logging</url>
+    <inceptionYear>2019</inceptionYear>
+
+    <organization>
+        <name>Soabase Structured Logger</name>
+        <url>https://github.com/soabase/structured-logging</url>
+    </organization>
+
+    <licenses>
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <name>Jordan Zimmerman</name>
+            <email>jordan@jordanzimmerman.com</email>
+            <timezone>-5</timezone>
+            <url>https://github.com/randgalt/</url>
+            <roles>
+                <role>Author</role>
+            </roles>
+        </developer>
+    </developers>
+
+    <scm>
+        <url>https://github.com/soabase/structured-logging</url>
+        <connection>scm:git:https://github.com/soabase/structured-logging.git</connection>
+        <developerConnection>scm:git:git@github.com:soabase/structured-logging.git</developerConnection>
+        <tag>HEAD</tag>
+    </scm>
+
+    <issueManagement>
+        <system>Github</system>
+        <url>https://github.com/soabase/structured-logging/issues</url>
+    </issueManagement>
+
+    <distributionManagement>
+        <repository>
+            <id>sonatype-nexus-staging</id>
+            <name>Sonatype Nexus Staging</name>
+            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
+        </repository>
+        <snapshotRepository>
+            <id>sonatype-nexus-snapshots</id>
+            <name>Sonatype Nexus Snapshots</name>
+            <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+        </snapshotRepository>
+    </distributionManagement>
 
     <dependencyManagement>
         <dependencies>
@@ -128,6 +186,72 @@
                     <artifactId>maven-shade-plugin</artifactId>
                     <version>${maven-shade-plugin-version}</version>
                 </plugin>
+
+                <plugin>
+                    <groupId>com.mycila.maven-license-plugin</groupId>
+                    <artifactId>maven-license-plugin</artifactId>
+                    <version>${maven-license-plugin-version}</version>
+                    <configuration>
+                        <header>src/etc/header.txt</header>
+                        <excludes>
+                            <exclude>**/*.apt</exclude>
+                            <exclude>**/*.md</exclude>
+                            <exclude>**/*.graffle</exclude>
+                            <exclude>**/.gitignore</exclude>
+                            <exclude>**/*.json</exclude>
+                            <exclude>**/.idea/**</exclude>
+                            <exclude>**/DISCLAIMER</exclude>
+                            <exclude>**/DEPENDENCIES</exclude>
+                            <exclude>**/KEYS</exclude>
+                            <exclude>**/LICENSE</exclude>
+                            <exclude>**/NOTICE</exclude>
+                            <exclude>**/README</exclude>
+                            <exclude>**/CHANGES</exclude>
+                            <exclude>**/RELEASE-NOTES</exclude>
+                            <exclude>**/generated/**</exclude>
+                            <exclude>**/test-file.txt</exclude>
+                            <exclude>**/assets/**</exclude>
+                            <exclude>**/examples/**</exclude>
+                            <exclude>**/io/soabase/com/google/**</exclude>
+                            <exclude>**/com/company/**</exclude>
+                            <exclude>**/StreamFor.java
+                            </exclude>    <!-- this is generated and too hard to get the header in -->
+                        </excludes>
+                        <strictCheck>true</strictCheck>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <id>license</id>
+                            <goals>
+                                <goal>check</goal>
+                            </goals>
+                            <phase>verify</phase>
+                        </execution>
+                    </executions>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-javadoc-plugin</artifactId>
+                    <version>${maven-javadoc-plugin-version}</version>
+                    <configuration>
+                        <failOnError>false</failOnError>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <id>attach-javadocs</id>
+                            <goals>
+                                <goal>jar</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-gpg-plugin</artifactId>
+                    <version>${maven-gpg-plugin-version}</version>
+                </plugin>
             </plugins>
         </pluginManagement>
 
@@ -151,6 +275,43 @@
                     </execution>
                 </executions>
             </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+            </plugin>
+
+            <plugin>
+                <groupId>com.mycila.maven-license-plugin</groupId>
+                <artifactId>maven-license-plugin</artifactId>
+            </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <profile>
+            <id>oss</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <configuration>
+                            <passphrase>${gpg.passphrase}</passphrase>
+                            <useAgent>true</useAgent>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>gpg</id>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                                <phase>verify</phase>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>
