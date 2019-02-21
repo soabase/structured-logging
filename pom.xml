@@ -260,6 +260,7 @@
                     <version>${maven-release-plugin-version}</version>
                     <configuration>
                         <autoVersionSubmodules>true</autoVersionSubmodules>
+                        <tagNameFormat>structured-logger-@{project.version}</tagNameFormat>
                     </configuration>
                 </plugin>
             </plugins>
