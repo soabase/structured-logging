@@ -15,9 +15,9 @@
  */
 package io.soabase.structured.logger.generation;
 
-import io.soabase.structured.logger.LoggingFormatter;
 import io.soabase.structured.logger.exception.InvalidSchemaException;
 import io.soabase.structured.logger.exception.MissingSchemaValueException;
+import io.soabase.structured.logger.formatting.LoggingFormatter;
 import io.soabase.structured.logger.schemas.WithFormat;
 import net.bytebuddy.ByteBuddy;
 import net.bytebuddy.dynamic.DynamicType;
@@ -63,16 +63,16 @@ public class Generator {
         private final Class<T> generated;
         private final List<String> schemaNames;
         private final String formatString;
-        private final boolean requireAllValues;
+        private final LoggingFormatter loggingFormatter;
         private final int mainMessageIndex;
         private final int exceptionIndex;
 
-        Entry(Class<T> generated, List<String> schemaNames, String formatString, boolean requireAllValues, boolean mainMessageIsLast) {
+        Entry(Class<T> generated, List<String> schemaNames, String formatString, LoggingFormatter loggingFormatter) {
             this.generated = generated;
             this.schemaNames = schemaNames;
             this.formatString = formatString;
-            this.requireAllValues = requireAllValues;
-            this.mainMessageIndex = mainMessageIsLast ? schemaNames.size() : 0;
+            this.loggingFormatter = loggingFormatter;
+            this.mainMessageIndex = loggingFormatter.mainMessageIsLast() ? schemaNames.size() : 0;
             this.exceptionIndex = schemaNames.size() + 1;
         }
 
@@ -91,11 +91,12 @@ public class Generator {
         public void apply(T instance, String mainMessage, Throwable t, BiConsumer<String, Object[]> consumer) {
             Object[] arguments = ((Instance)instance).arguments;
             arguments[mainMessageIndex] = mainMessage;
-            if (t != null) {
+            boolean hasException = (t != null);
+            if (hasException) {
                 arguments[exceptionIndex] = t;
             }
 
-            if (requireAllValues) {
+            if (loggingFormatter.requireAllValues()) {
                 int index = 0;
                 for (Object argument : arguments) {
                     if (argument == null) {
@@ -105,7 +106,7 @@ public class Generator {
                 }
             }
 
-            consumer.accept(formatString, arguments);
+            loggingFormatter.callConsumer(consumer, formatString, schemaNames, arguments, hasException);
         }
     }
 
@@ -115,7 +116,7 @@ public class Generator {
             List<String> schemaNames = validateSchemaClass(schemaClass);
             Class generatedClass = internalGenerate(schemaClass, classLoader, loggingFormatter.mainMessageIsLast());
             String formatString = loggingFormatter.buildFormatString(schemaNames);
-            return new Entry(generatedClass, schemaNames, formatString, loggingFormatter.requireAllValues(), loggingFormatter.mainMessageIsLast());
+            return new Entry(generatedClass, schemaNames, formatString, loggingFormatter);
         });
     }
 

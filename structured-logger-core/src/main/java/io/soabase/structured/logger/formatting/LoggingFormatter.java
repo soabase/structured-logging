@@ -13,9 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.soabase.structured.logger;
+package io.soabase.structured.logger.formatting;
 
 import java.util.Collection;
+import java.util.function.BiConsumer;
 
 @FunctionalInterface
 public interface LoggingFormatter {
@@ -29,7 +30,12 @@ public interface LoggingFormatter {
         return true;
     }
 
-    LoggingFormatter defaultLoggingFormatter = new DefaultLoggingFormatter(false, true, false);
+    // TODO logging level
+    default void callConsumer(BiConsumer<String, Object[]> consumer, String format, Collection<String> names, Object[] arguments, boolean lastArgumentIsException) {
+        consumer.accept(format, arguments);
+    }
+
+    LoggingFormatter defaultLoggingFormatter = new DefaultLoggingFormatter(false, true, true);
 
     static LoggingFormatter requireAllValues(LoggingFormatter formatter) {
         return new LoggingFormatter() {

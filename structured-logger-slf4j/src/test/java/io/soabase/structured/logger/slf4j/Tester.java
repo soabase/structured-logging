@@ -31,8 +31,8 @@ import org.slf4j.LoggerFactory;
 
 import java.time.Instant;
 
-import static io.soabase.structured.logger.LoggingFormatter.defaultLoggingFormatter;
-import static io.soabase.structured.logger.LoggingFormatter.requireAllValues;
+import static io.soabase.structured.logger.formatting.LoggingFormatter.defaultLoggingFormatter;
+import static io.soabase.structured.logger.formatting.LoggingFormatter.requireAllValues;
 
 public class Tester {
     @Before

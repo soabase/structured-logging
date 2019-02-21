@@ -15,6 +15,7 @@
  */
 package io.soabase.structured.logger;
 
+import io.soabase.structured.logger.formatting.LoggingFormatter;
 import io.soabase.structured.logger.generation.Generated;
 import io.soabase.structured.logger.generation.Generator;
 

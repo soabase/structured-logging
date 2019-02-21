@@ -16,7 +16,7 @@
 package io.soabase.structured.logger.slf4j;
 
 import io.soabase.structured.logger.LoggerFacade;
-import io.soabase.structured.logger.LoggingFormatter;
+import io.soabase.structured.logger.formatting.LoggingFormatter;
 import io.soabase.structured.logger.StructuredLogger;
 import io.soabase.structured.logger.StructuredLoggerFactoryBase;
 import org.slf4j.Logger;

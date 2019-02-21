@@ -31,7 +31,7 @@ import org.junit.Test;
 import java.util.HashSet;
 import java.util.Set;
 
-import static io.soabase.structured.logger.LoggingFormatter.*;
+import static io.soabase.structured.logger.formatting.LoggingFormatter.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SuppressWarnings({"WeakerAccess", "UnusedReturnValue"})
