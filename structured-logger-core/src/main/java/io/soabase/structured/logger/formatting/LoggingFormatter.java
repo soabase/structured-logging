@@ -15,8 +15,10 @@
  */
 package io.soabase.structured.logger.formatting;
 
+import io.soabase.structured.logger.LoggerFacade;
+import io.soabase.structured.logger.LoggerLevel;
+
 import java.util.List;
-import java.util.function.BiConsumer;
 
 public interface LoggingFormatter {
     int indexForArgument(String schemaMethodName, int ordinalIndex);
@@ -27,7 +29,7 @@ public interface LoggingFormatter {
 
     String buildFormatString(List<String> schemaNames);
 
-    void apply(String formatString, List<String> schemaNames, Object[] arguments, String mainMessage, Throwable t, BiConsumer<String, Object[]> consumer);
+    void apply(LoggerLevel level, LoggerFacade logger, String formatString, List<String> schemaNames, Object[] arguments, String mainMessage, Throwable t);
 
     LoggingFormatter defaultLoggingFormatter = new DefaultLoggingFormatter(false, true, true);
 }

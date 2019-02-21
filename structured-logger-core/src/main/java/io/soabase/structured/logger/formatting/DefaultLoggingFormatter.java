@@ -15,8 +15,10 @@
  */
 package io.soabase.structured.logger.formatting;
 
+import io.soabase.structured.logger.LoggerFacade;
+import io.soabase.structured.logger.LoggerLevel;
+
 import java.util.List;
-import java.util.function.BiConsumer;
 
 public class DefaultLoggingFormatter implements LoggingFormatter {
     private final boolean requireAllValues;
@@ -49,14 +51,14 @@ public class DefaultLoggingFormatter implements LoggingFormatter {
     }
 
     @Override
-    public void apply(String formatString, List<String> schemaNames, Object[] arguments, String mainMessage, Throwable t, BiConsumer<String, Object[]> consumer) {
+    public void apply(LoggerLevel level, LoggerFacade logger, String formatString, List<String> schemaNames, Object[] arguments, String mainMessage, Throwable t) {
         if (t != null) {
             arguments[mainMessageIsLast ? (arguments.length - 2) : 0] = mainMessage;
             arguments[arguments.length - 1] = t;
         } else {
             arguments[mainMessageIsLast ? (arguments.length - 1) : 0] = mainMessage;
         }
-        consumer.accept(formatString, arguments);
+        level.log(logger, formatString, arguments);
     }
 
     @Override

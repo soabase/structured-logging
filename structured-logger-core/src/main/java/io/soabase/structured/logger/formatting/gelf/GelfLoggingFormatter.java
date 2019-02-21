@@ -15,11 +15,12 @@
  */
 package io.soabase.structured.logger.formatting.gelf;
 
+import io.soabase.structured.logger.LoggerFacade;
+import io.soabase.structured.logger.LoggerLevel;
 import io.soabase.structured.logger.formatting.LoggingFormatter;
 
 import java.time.Instant;
 import java.util.List;
-import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
 public class GelfLoggingFormatter implements LoggingFormatter {
@@ -59,7 +60,7 @@ public class GelfLoggingFormatter implements LoggingFormatter {
 
     @SuppressWarnings("unchecked")
     @Override
-    public void apply(String formatString, List<String> schemaNames, Object[] arguments, String mainMessage, Throwable t, BiConsumer<String, Object[]> consumer) {
+    public void apply(LoggerLevel level, LoggerFacade logger, String formatString, List<String> schemaNames, Object[] arguments, String mainMessage, Throwable t) {
         Object obj = jsonBuilder.newObject();
         addStandardFields(obj, mainMessage, host, timestampSupplier.get());
 
@@ -70,7 +71,7 @@ public class GelfLoggingFormatter implements LoggingFormatter {
         if (t != null) {
             jsonBuilder.addExceptionField(obj, t);
         }
-        consumer.accept("{}", new Object[]{jsonBuilder.finalizeToJson(obj)});
+        level.log(logger, jsonBuilder.finalizeToJson(obj));
     }
 
     @Override

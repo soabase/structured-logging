@@ -15,6 +15,8 @@
  */
 package io.soabase.structured.logger.generation;
 
+import io.soabase.structured.logger.LoggerFacade;
+import io.soabase.structured.logger.LoggerLevel;
 import io.soabase.structured.logger.exception.InvalidSchemaException;
 import io.soabase.structured.logger.exception.MissingSchemaValueException;
 import io.soabase.structured.logger.formatting.LoggingFormatter;
@@ -32,7 +34,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -84,7 +85,7 @@ public class Generator {
         }
 
         @Override
-        public void apply(T instance, String mainMessage, Throwable t, BiConsumer<String, Object[]> consumer) {
+        public void apply(LoggerLevel level, LoggerFacade logger, T instance, String mainMessage, Throwable t) {
             Object[] arguments = ((Instance)instance).arguments;
 
             if (loggingFormatter.requireAllValues()) {
@@ -97,7 +98,7 @@ public class Generator {
                 }
             }
 
-            loggingFormatter.apply(formatString, schemaNames, arguments, mainMessage, t, consumer);
+            loggingFormatter.apply(level, logger, formatString, schemaNames, arguments, mainMessage, t);
         }
     }
 

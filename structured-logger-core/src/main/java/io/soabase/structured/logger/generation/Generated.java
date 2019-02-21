@@ -15,10 +15,13 @@
  */
 package io.soabase.structured.logger.generation;
 
+import io.soabase.structured.logger.LoggerFacade;
+import io.soabase.structured.logger.LoggerLevel;
+
 import java.util.function.BiConsumer;
 
 public interface Generated<T> {
     T newInstance(boolean hasException);
 
-    void apply(T instance, String mainMessage, Throwable t, BiConsumer<String, Object[]> consumer);
+    void apply(LoggerLevel level, LoggerFacade logger, T instance, String mainMessage, Throwable t);
 }

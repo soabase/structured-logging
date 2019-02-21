@@ -16,10 +16,7 @@
 package io.soabase.structured.logger;
 
 import io.soabase.structured.logger.generation.Generated;
-import io.soabase.structured.logger.generation.Instance;
 
-import java.util.Map;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 class StructuredLoggerImpl<T> implements StructuredLogger<T> {
@@ -39,41 +36,41 @@ class StructuredLoggerImpl<T> implements StructuredLogger<T> {
     @Override
     public void trace(String mainMessage, Throwable t, Consumer<T> statement) {
         if (logger.isTraceEnabled()) {
-            consume(statement, mainMessage, t, logger::trace);
+            consume(LoggerLevel.TRACE, logger, statement, mainMessage, t);
         }
     }
 
     @Override
     public void debug(String mainMessage, Throwable t, Consumer<T> statement) {
         if (logger.isDebugEnabled()) {
-            consume(statement, mainMessage, t, logger::debug);
+            consume(LoggerLevel.DEBUG, logger, statement, mainMessage, t);
         }
     }
 
     @Override
     public void warn(String mainMessage, Throwable t, Consumer<T> statement) {
         if (logger.isWarnEnabled()) {
-            consume(statement, mainMessage, t, logger::warn);
+            consume(LoggerLevel.WARN, logger, statement, mainMessage, t);
         }
     }
 
     @Override
     public void info(String mainMessage, Throwable t, Consumer<T> statement) {
         if (logger.isInfoEnabled()) {
-            consume(statement, mainMessage, t, logger::info);
+            consume(LoggerLevel.INFO, logger, statement, mainMessage, t);
         }
     }
 
     @Override
     public void error(String mainMessage, Throwable t, Consumer<T> statement) {
         if (logger.isErrorEnabled()) {
-            consume(statement, mainMessage, t, logger::error);
+            consume(LoggerLevel.ERROR, logger, statement, mainMessage, t);
         }
     }
 
-    private void consume(Consumer<T> statement, String mainMessage, Throwable t, BiConsumer<String, Object[]> logger) {
+    private void consume(LoggerLevel level, LoggerFacade logger, Consumer<T> statement, String mainMessage, Throwable t) {
         T instance = generated.newInstance(t != null);
         statement.accept(instance);
-        generated.apply(instance, mainMessage, t, logger);
+        generated.apply(level, logger, instance, mainMessage, t);
     }
 }

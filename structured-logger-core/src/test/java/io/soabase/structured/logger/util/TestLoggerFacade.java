@@ -30,7 +30,7 @@ public class TestLoggerFacade implements LoggerFacade {
         public Entry(String type, String message, Object[] arguments) {
             this.type = type;
             this.message = message;
-            this.arguments = Arrays.copyOf(arguments, arguments.length);
+            this.arguments = (arguments != null) ? Arrays.copyOf(arguments, arguments.length) : null;
         }
     }
 
@@ -59,6 +59,31 @@ public class TestLoggerFacade implements LoggerFacade {
     @Override
     public boolean isErrorEnabled() {
         return true;
+    }
+
+    @Override
+    public void trace(String message) {
+        trace(message, null);
+    }
+
+    @Override
+    public void debug(String message) {
+        debug(message, null);
+    }
+
+    @Override
+    public void warn(String message) {
+        warn(message, null);
+    }
+
+    @Override
+    public void info(String message) {
+        info(message, null);
+    }
+
+    @Override
+    public void error(String message) {
+        error(message, null);
     }
 
     @Override

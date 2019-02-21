@@ -21,4 +21,6 @@ public interface Schema {
     Schema id(String id);
 
     Schema context(String c);
+
+    Schema count(int c);
 }
