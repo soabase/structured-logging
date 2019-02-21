@@ -1,4 +1,4 @@
-[![Maven Central](https://img.shields.io/maven-central/v/io.soabase.structured-logger/structured-logger.svg)](http://search.maven.org/#search%7Cga%7C1%7Cstructured-logger)
+[![Maven Central](https://img.shields.io/maven-central/v/io.soabase.structured-logger:structured-logger-core.svg)](http://search.maven.org/#search%7Cga%7C1%7Cstructured-logger)
 
 # Structured Logging
 
