@@ -15,64 +15,19 @@
  */
 package io.soabase.structured.logger.formatting;
 
-import java.util.Collection;
+import java.util.List;
 import java.util.function.BiConsumer;
 
-// TODO default values (auto host, timestamp, ???)
-
-@FunctionalInterface
 public interface LoggingFormatter {
-    String buildFormatString(Collection<String> names);
+    int indexForArgument(String schemaMethodName, int ordinalIndex);
 
-    default boolean requireAllValues() {
-        return false;
-    }
+    int argumentQty(int schemaQty, boolean hasException);
 
-    default boolean mainMessageIsLast() {
-        return true;
-    }
+    boolean requireAllValues();
 
-    default void callConsumer(BiConsumer<String, Object[]> consumer, String format, Collection<String> names, Object[] arguments, boolean lastArgumentIsException) {
-        consumer.accept(format, arguments);
-    }
+    String buildFormatString(List<String> schemaNames);
+
+    void apply(String formatString, List<String> schemaNames, Object[] arguments, String mainMessage, Throwable t, BiConsumer<String, Object[]> consumer);
 
     LoggingFormatter defaultLoggingFormatter = new DefaultLoggingFormatter(false, true, true);
-
-    static LoggingFormatter requireAllValues(LoggingFormatter formatter) {
-        return new LoggingFormatter() {
-            @Override
-            public String buildFormatString(Collection<String> names) {
-                return formatter.buildFormatString(names);
-            }
-
-            @Override
-            public boolean requireAllValues() {
-                return true;
-            }
-
-            @Override
-            public boolean mainMessageIsLast() {
-                return formatter.mainMessageIsLast();
-            }
-        };
-    }
-
-    static LoggingFormatter mainMessageIsFirst(LoggingFormatter formatter) {
-        return new LoggingFormatter() {
-            @Override
-            public String buildFormatString(Collection<String> names) {
-                return formatter.buildFormatString(names);
-            }
-
-            @Override
-            public boolean requireAllValues() {
-                return formatter.requireAllValues();
-            }
-
-            @Override
-            public boolean mainMessageIsLast() {
-                return false;
-            }
-        };
-    }
 }

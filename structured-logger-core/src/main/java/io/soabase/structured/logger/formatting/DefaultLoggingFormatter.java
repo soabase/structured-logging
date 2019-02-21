@@ -15,8 +15,8 @@
  */
 package io.soabase.structured.logger.formatting;
 
-import java.util.Arrays;
-import java.util.Collection;
+import java.util.List;
+import java.util.function.BiConsumer;
 
 public class DefaultLoggingFormatter implements LoggingFormatter {
     private final boolean requireAllValues;
@@ -39,7 +39,28 @@ public class DefaultLoggingFormatter implements LoggingFormatter {
     }
 
     @Override
-    public String buildFormatString(Collection<String> names) {
+    public int indexForArgument(String schemaMethodName, int ordinalIndex) {
+        return mainMessageIsLast ? ordinalIndex : (ordinalIndex + 1);
+    }
+
+    @Override
+    public int argumentQty(int schemaQty, boolean hasException) {
+        return hasException ? (schemaQty + 2) : (schemaQty + 1);
+    }
+
+    @Override
+    public void apply(String formatString, List<String> schemaNames, Object[] arguments, String mainMessage, Throwable t, BiConsumer<String, Object[]> consumer) {
+        if (t != null) {
+            arguments[mainMessageIsLast ? (arguments.length - 2) : 0] = mainMessage;
+            arguments[arguments.length - 1] = t;
+        } else {
+            arguments[mainMessageIsLast ? (arguments.length - 1) : 0] = mainMessage;
+        }
+        consumer.accept(formatString, arguments);
+    }
+
+    @Override
+    public String buildFormatString(List<String> names) {
         StringBuilder format = new StringBuilder();
         if (!mainMessageIsLast) {
             checkPaddingAppend(format, REPLACEMENT_STR);

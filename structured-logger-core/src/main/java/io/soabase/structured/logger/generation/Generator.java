@@ -40,7 +40,7 @@ import static net.bytebuddy.implementation.MethodCall.invoke;
 import static net.bytebuddy.matcher.ElementMatchers.named;
 
 public class Generator {
-    private final Map<Class, Entry> generated = new ConcurrentHashMap<>();
+    private final Map<Class, Generated> generated = new ConcurrentHashMap<>();
     private static final Set<String> reservedMethodNames = Collections.unmodifiableSet(
             Stream.of(Instance.class.getMethods()).map(Method::getName).collect(Collectors.toSet())
     );
@@ -60,41 +60,32 @@ public class Generator {
     }
 
     private static class Entry<T> implements Generated<T> {
-        private final Class<T> generated;
+        private final Class<T> generatedClass;
         private final List<String> schemaNames;
-        private final String formatString;
         private final LoggingFormatter loggingFormatter;
-        private final int mainMessageIndex;
-        private final int exceptionIndex;
+        private final String formatString;
 
-        Entry(Class<T> generated, List<String> schemaNames, String formatString, LoggingFormatter loggingFormatter) {
-            this.generated = generated;
+        Entry(Class<T> generatedClass, List<String> schemaNames, LoggingFormatter loggingFormatter) {
+            this.generatedClass = generatedClass;
             this.schemaNames = schemaNames;
-            this.formatString = formatString;
             this.loggingFormatter = loggingFormatter;
-            this.mainMessageIndex = loggingFormatter.mainMessageIsLast() ? schemaNames.size() : 0;
-            this.exceptionIndex = schemaNames.size() + 1;
+            this.formatString = loggingFormatter.buildFormatString(schemaNames);
         }
 
         @Override
         public T newInstance(boolean hasException) {
             try {
-                T instance = generated.getDeclaredConstructor().newInstance();
-                ((Instance)instance).arguments = new Object[hasException ? (exceptionIndex + 1) : exceptionIndex];  // exceptionIndex is a proxy for the number of schema names
+                T instance = generatedClass.getDeclaredConstructor().newInstance();
+                ((Instance)instance).arguments = new Object[loggingFormatter.argumentQty(schemaNames.size(), hasException)];
                 return instance;
             } catch (Exception e) {
-                throw new RuntimeException("Could not allocate schema instance: " + generated.getName(), e);
+                throw new RuntimeException("Could not allocate schema instance: " + generatedClass.getName(), e);
             }
         }
 
         @Override
         public void apply(T instance, String mainMessage, Throwable t, BiConsumer<String, Object[]> consumer) {
             Object[] arguments = ((Instance)instance).arguments;
-            arguments[mainMessageIndex] = mainMessage;
-            boolean hasException = (t != null);
-            if (hasException) {
-                arguments[exceptionIndex] = t;
-            }
 
             if (loggingFormatter.requireAllValues()) {
                 int index = 0;
@@ -106,7 +97,7 @@ public class Generator {
                 }
             }
 
-            loggingFormatter.callConsumer(consumer, formatString, schemaNames, arguments, hasException);
+            loggingFormatter.apply(formatString, schemaNames, arguments, mainMessage, t, consumer);
         }
     }
 
@@ -114,9 +105,8 @@ public class Generator {
     public <T> Generated<T> generate(Class<T> schemaClass, ClassLoader classLoader, LoggingFormatter loggingFormatter) {
         return generated.computeIfAbsent(schemaClass, __ -> {
             List<String> schemaNames = validateSchemaClass(schemaClass);
-            Class generatedClass = internalGenerate(schemaClass, classLoader, loggingFormatter.mainMessageIsLast());
-            String formatString = loggingFormatter.buildFormatString(schemaNames);
-            return new Entry(generatedClass, schemaNames, formatString, loggingFormatter);
+            Class generatedClass = internalGenerate(schemaClass, classLoader, loggingFormatter);
+            return new Entry<>(generatedClass, schemaNames, loggingFormatter);
         });
     }
 
@@ -148,20 +138,21 @@ public class Generator {
     }
 
     @SuppressWarnings("unchecked")
-    private Class internalGenerate(Class schemaClass, ClassLoader classLoader, boolean mainMessageIsLast) {
+    private Class internalGenerate(Class schemaClass, ClassLoader classLoader, LoggingFormatter loggingFormatter) {
         DynamicType.Builder builder = new ByteBuddy().subclass(Instance.class).implement(schemaClass);
-        int schemaIndex = mainMessageIsLast ? 0 : 1;
+        int schemaIndex = 0;
         for (Method method : schemaClass.getMethods()) {
+            int thisIndex = loggingFormatter.indexForArgument(method.getName(), schemaIndex++);
             Implementation methodCall;
             if (method.getDeclaringClass().equals(WithFormat.class)) {
                 methodCall = invoke(formattedAtIndexMethod)
-                        .with(schemaIndex++)
+                        .with(thisIndex)
                         .withArgument(0)
                         .withArgument(1)
                         .andThen(FixedValue.self());
             } else {
                 methodCall = invoke(setValueAtIndexMethod)
-                        .with(schemaIndex++)
+                        .with(thisIndex)
                         .withArgument(0)
                         .andThen(FixedValue.self());
             }

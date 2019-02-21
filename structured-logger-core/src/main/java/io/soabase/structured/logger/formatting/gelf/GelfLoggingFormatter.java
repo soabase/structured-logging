@@ -18,7 +18,7 @@ package io.soabase.structured.logger.formatting.gelf;
 import io.soabase.structured.logger.formatting.LoggingFormatter;
 
 import java.time.Instant;
-import java.util.Collection;
+import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
@@ -26,41 +26,61 @@ public class GelfLoggingFormatter implements LoggingFormatter {
     private final String host;
     private final JsonBuilder jsonBuilder;
     private final Supplier<Long> timestampSupplier;
+    private final boolean requireAllValues;
 
     public GelfLoggingFormatter(String host, JsonBuilder jsonBuilder) {
-        this(host, jsonBuilder, () -> Instant.now().toEpochMilli());
+        this(host, jsonBuilder, () -> Instant.now().toEpochMilli(), false);
+    }
+
+    public GelfLoggingFormatter(String host, JsonBuilder jsonBuilder, boolean requireAllValues) {
+        this(host, jsonBuilder, () -> Instant.now().toEpochMilli(), requireAllValues);
     }
 
     public GelfLoggingFormatter(String host, JsonBuilder jsonBuilder, Supplier<Long> timestampSupplier) {
+        this(host, jsonBuilder, timestampSupplier, false);
+    }
+
+    public GelfLoggingFormatter(String host, JsonBuilder jsonBuilder, Supplier<Long> timestampSupplier, boolean requireAllValues) {
         this.host = host;
         this.jsonBuilder = jsonBuilder;
         this.timestampSupplier = timestampSupplier;
+        this.requireAllValues = requireAllValues;
     }
 
     @Override
-    public String buildFormatString(Collection<String> names) {
-        return "";  // not used
+    public int indexForArgument(String schemaMethodName, int ordinalIndex) {
+        return ordinalIndex;
     }
 
     @Override
-    public boolean mainMessageIsLast() {
-        return false;
+    public int argumentQty(int schemaQty, boolean hasException) {
+        return schemaQty;
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public void callConsumer(BiConsumer<String, Object[]> consumer, String format, Collection<String> names, Object[] arguments, boolean lastArgumentIsException) {
+    public void apply(String formatString, List<String> schemaNames, Object[] arguments, String mainMessage, Throwable t, BiConsumer<String, Object[]> consumer) {
         Object obj = jsonBuilder.newObject();
-        addStandardFields(obj, arguments[0], host, timestampSupplier.get());
+        addStandardFields(obj, mainMessage, host, timestampSupplier.get());
 
-        int index = 1;  // 0 is the message
-        for (String name : names) {
+        int index = 0;  // 0 is the message
+        for (String name : schemaNames) {
             jsonBuilder.addField(obj, "_" + name, arguments[index++]);
         }
-        if (lastArgumentIsException) {
-            jsonBuilder.addExceptionField(obj, (Throwable)arguments[index]);
+        if (t != null) {
+            jsonBuilder.addExceptionField(obj, t);
         }
         consumer.accept("{}", new Object[]{jsonBuilder.finalizeToJson(obj)});
+    }
+
+    @Override
+    public boolean requireAllValues() {
+        return requireAllValues;
+    }
+
+    @Override
+    public String buildFormatString(List<String> schemaNames) {
+        return "";
     }
 
     @SuppressWarnings("unchecked")

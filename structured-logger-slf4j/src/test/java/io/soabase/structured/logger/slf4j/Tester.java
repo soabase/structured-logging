@@ -17,6 +17,7 @@ package io.soabase.structured.logger.slf4j;
 
 import io.soabase.structured.logger.StructuredLogger;
 import io.soabase.structured.logger.exception.MissingSchemaValueException;
+import io.soabase.structured.logger.formatting.DefaultLoggingFormatter;
 import io.soabase.structured.logger.schemas.Code;
 import io.soabase.structured.logger.schemas.Event;
 import io.soabase.structured.logger.schemas.Id;
@@ -30,9 +31,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.Instant;
-
-import static io.soabase.structured.logger.formatting.LoggingFormatter.defaultLoggingFormatter;
-import static io.soabase.structured.logger.formatting.LoggingFormatter.requireAllValues;
 
 public class Tester {
     @Before
@@ -65,7 +63,7 @@ public class Tester {
 
     @Test(expected = MissingSchemaValueException.class)
     public void testMissingValue() {
-        StructuredLogger<Mixin> log = StructuredLoggerFactory.structured(Mixin.class, requireAllValues(defaultLoggingFormatter));
+        StructuredLogger<Mixin> log = StructuredLoggerFactory.structured(Mixin.class, new DefaultLoggingFormatter(true, true, true));
         log.info(m -> m.code("code-123"));
     }
 }
