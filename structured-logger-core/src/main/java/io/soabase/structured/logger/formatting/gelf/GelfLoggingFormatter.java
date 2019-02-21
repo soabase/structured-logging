@@ -51,10 +51,8 @@ public class GelfLoggingFormatter implements LoggingFormatter {
     @Override
     public void callConsumer(BiConsumer<String, Object[]> consumer, String format, Collection<String> names, Object[] arguments, boolean lastArgumentIsException) {
         Object obj = jsonBuilder.newObject();
-        jsonBuilder.addField(obj, "version", "1.1");
-        jsonBuilder.addField(obj, "host", host);
-        jsonBuilder.addField(obj, "short_message", arguments[0]);
-        jsonBuilder.addField(obj, "timestamp", timestampSupplier.get());
+        addStandardFields(obj, arguments[0], host, timestampSupplier.get());
+
         int index = 1;  // 0 is the message
         for (String name : names) {
             jsonBuilder.addField(obj, "_" + name, arguments[index++]);
@@ -63,5 +61,13 @@ public class GelfLoggingFormatter implements LoggingFormatter {
             jsonBuilder.addExceptionField(obj, (Throwable)arguments[index]);
         }
         consumer.accept("{}", new Object[]{jsonBuilder.finalizeToJson(obj)});
+    }
+
+    @SuppressWarnings("unchecked")
+    protected void addStandardFields(Object jsonObject, Object mainMessage, String host, long timestamp) {
+        jsonBuilder.addField(jsonObject, "version", "1.1");
+        jsonBuilder.addField(jsonObject, "host", host);
+        jsonBuilder.addField(jsonObject, "short_message", mainMessage);
+        jsonBuilder.addField(jsonObject, "timestamp", timestamp);
     }
 }

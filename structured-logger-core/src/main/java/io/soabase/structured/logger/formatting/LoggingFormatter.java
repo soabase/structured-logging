@@ -18,6 +18,8 @@ package io.soabase.structured.logger.formatting;
 import java.util.Collection;
 import java.util.function.BiConsumer;
 
+// TODO default values (auto host, timestamp, ???)
+
 @FunctionalInterface
 public interface LoggingFormatter {
     String buildFormatString(Collection<String> names);
@@ -30,7 +32,6 @@ public interface LoggingFormatter {
         return true;
     }
 
-    // TODO logging level
     default void callConsumer(BiConsumer<String, Object[]> consumer, String format, Collection<String> names, Object[] arguments, boolean lastArgumentIsException) {
         consumer.accept(format, arguments);
     }
