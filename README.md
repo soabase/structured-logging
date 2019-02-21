@@ -1,3 +1,5 @@
+[![Maven Central](https://img.shields.io/maven-central/v/io.soabase.halva/structured-logging.svg)](http://search.maven.org/#search%7Cga%7C1%7Cstructured-logging)
+
 # Structured Logging
 
 Per Thoughtworks (https://www.thoughtworks.com/radar/techniques/structured-logging) we should log in a structured manner
