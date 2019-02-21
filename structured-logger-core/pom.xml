@@ -3,7 +3,7 @@
     <parent>
         <groupId>io.soabase.structured-logger</groupId>
         <artifactId>structured-logger-parent</artifactId>
-        <version>1</version>
+        <version>2-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
