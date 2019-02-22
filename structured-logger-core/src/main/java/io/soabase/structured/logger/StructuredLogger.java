@@ -15,6 +15,8 @@
  */
 package io.soabase.structured.logger;
 
+import io.soabase.structured.logger.formatting.LoggingFormatter;
+
 import java.util.function.Consumer;
 
 public interface StructuredLogger<T> {
@@ -69,4 +71,8 @@ public interface StructuredLogger<T> {
     void info(String mainMessage, Throwable t, Consumer<T> statement);
 
     void error(String mainMessage, Throwable t, Consumer<T> statement);
+
+    <S> StructuredLogger<S> as(Class<S> schema);
+
+    <S> StructuredLogger<S> as(Class<S> schema, LoggingFormatter formatter);
 }

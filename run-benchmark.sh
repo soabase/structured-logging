@@ -16,8 +16,8 @@
 #
 
 echo compiling...
-mvn -q clean compile
+mvn -q -P benchmark clean compile
 echo packaging...
-mvn -q -pl structured-logger-benchmark package
+mvn -q -P benchmark package
 echo running benchmark...
 java -jar structured-logger-benchmark/target/benchmarks.jar "$@"

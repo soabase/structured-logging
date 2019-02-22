@@ -15,14 +15,32 @@
  */
 package io.soabase.structured.logger.generation;
 
-import io.soabase.structured.logger.LoggerFacade;
-import io.soabase.structured.logger.LoggerLevel;
 import io.soabase.structured.logger.formatting.LoggingFormatter;
 
-public interface Generated<T> {
-    T newInstance(boolean hasException);
+// TODO test different combinations of schema class and logging formatter
+class Key {
+    private final Class clazz;
+    private final LoggingFormatter formatter;
 
-    LoggingFormatter loggingFormatter();
+    Key(Class clazz, LoggingFormatter formatter) {
+        this.clazz = clazz;
+        this.formatter = formatter;
+    }
 
-    void apply(LoggerLevel level, LoggerFacade logger, T instance, String mainMessage, Throwable t);
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (getClass() != o.getClass()) return false;
+
+        Key key = (Key) o;
+
+        if (!clazz.equals(key.clazz)) return false;
+        return formatter.equals(key.formatter);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = clazz.hashCode();
+        return 31 * result + formatter.hashCode();
+    }
 }

@@ -15,6 +15,7 @@
  */
 package io.soabase.structured.logger;
 
+import io.soabase.structured.logger.formatting.LoggingFormatter;
 import io.soabase.structured.logger.generation.Generated;
 
 import java.util.function.Consumer;
@@ -66,6 +67,16 @@ class StructuredLoggerImpl<T> implements StructuredLogger<T> {
         if (logger.isErrorEnabled()) {
             consume(LoggerLevel.ERROR, logger, statement, mainMessage, t);
         }
+    }
+
+    @Override
+    public <S> StructuredLogger<S> as(Class<S> schema) {
+        return StructuredLoggerFactoryBase.getLogger(logger, schema, generated.loggingFormatter());
+    }
+
+    @Override
+    public <S> StructuredLogger<S> as(Class<S> schema, LoggingFormatter formatter) {
+        return StructuredLoggerFactoryBase.getLogger(logger, schema, formatter);
     }
 
     private void consume(LoggerLevel level, LoggerFacade logger, Consumer<T> statement, String mainMessage, Throwable t) {

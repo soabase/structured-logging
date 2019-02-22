@@ -15,10 +15,7 @@
  */
 package io.soabase.structured.logger.generation;
 
-import io.soabase.structured.logger.LoggerFacade;
-import io.soabase.structured.logger.LoggerLevel;
 import io.soabase.structured.logger.exception.InvalidSchemaException;
-import io.soabase.structured.logger.exception.MissingSchemaValueException;
 import io.soabase.structured.logger.formatting.LoggingFormatter;
 import io.soabase.structured.logger.schemas.WithFormat;
 import net.bytebuddy.ByteBuddy;
@@ -41,7 +38,7 @@ import static net.bytebuddy.implementation.MethodCall.invoke;
 import static net.bytebuddy.matcher.ElementMatchers.named;
 
 public class Generator {
-    private final Map<Class, Generated> generated = new ConcurrentHashMap<>();
+    private final Map<Key, Generated> generated = new ConcurrentHashMap<>();
     private static final Set<String> reservedMethodNames = Collections.unmodifiableSet(
             Stream.of(Instance.class.getMethods()).map(Method::getName).collect(Collectors.toSet())
     );
@@ -60,54 +57,12 @@ public class Generator {
         generated.clear();
     }
 
-    private static class Entry<T> implements Generated<T> {
-        private final Class<T> generatedClass;
-        private final List<String> schemaNames;
-        private final LoggingFormatter loggingFormatter;
-        private final String formatString;
-
-        Entry(Class<T> generatedClass, List<String> schemaNames, LoggingFormatter loggingFormatter) {
-            this.generatedClass = generatedClass;
-            this.schemaNames = schemaNames;
-            this.loggingFormatter = loggingFormatter;
-            this.formatString = loggingFormatter.buildFormatString(schemaNames);
-        }
-
-        @Override
-        public T newInstance(boolean hasException) {
-            try {
-                T instance = generatedClass.getDeclaredConstructor().newInstance();
-                ((Instance)instance).arguments = new Object[loggingFormatter.argumentQty(schemaNames.size(), hasException)];
-                return instance;
-            } catch (Exception e) {
-                throw new RuntimeException("Could not allocate schema instance: " + generatedClass.getName(), e);
-            }
-        }
-
-        @Override
-        public void apply(LoggerLevel level, LoggerFacade logger, T instance, String mainMessage, Throwable t) {
-            Object[] arguments = ((Instance)instance).arguments;
-
-            if (loggingFormatter.requireAllValues()) {
-                int index = 0;
-                for (Object argument : arguments) {
-                    if (argument == null) {
-                        throw new MissingSchemaValueException("Entire schema must be specified. Missing: " + schemaNames.get(index));
-                    }
-                    ++index;
-                }
-            }
-
-            loggingFormatter.apply(level, logger, formatString, schemaNames, arguments, mainMessage, t);
-        }
-    }
-
-    @SuppressWarnings({"SynchronizationOnLocalVariableOrMethodParameter", "unchecked"})
+    @SuppressWarnings("unchecked")
     public <T> Generated<T> generate(Class<T> schemaClass, ClassLoader classLoader, LoggingFormatter loggingFormatter) {
-        return generated.computeIfAbsent(schemaClass, __ -> {
+        return generated.computeIfAbsent(new Key(schemaClass, loggingFormatter), __ -> {
             List<String> schemaNames = validateSchemaClass(schemaClass);
             Class generatedClass = internalGenerate(schemaClass, classLoader, loggingFormatter);
-            return new Entry<>(generatedClass, schemaNames, loggingFormatter);
+            return new GeneratedImpl<>(generatedClass, schemaNames, loggingFormatter);
         });
     }
 
@@ -138,7 +93,6 @@ public class Generator {
         return Collections.unmodifiableList(schemaNames);
     }
 
-    @SuppressWarnings("unchecked")
     private Class internalGenerate(Class schemaClass, ClassLoader classLoader, LoggingFormatter loggingFormatter) {
         DynamicType.Builder builder = new ByteBuddy().subclass(Instance.class).implement(schemaClass);
         int schemaIndex = 0;

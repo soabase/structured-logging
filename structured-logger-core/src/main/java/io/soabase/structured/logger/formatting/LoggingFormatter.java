@@ -25,7 +25,7 @@ public interface LoggingFormatter {
 
     int argumentQty(int schemaQty, boolean hasException);
 
-    boolean requireAllValues();
+    boolean requireAllValues();     // TODO this seems out of place here - where to put it?
 
     String buildFormatString(List<String> schemaNames);
 
