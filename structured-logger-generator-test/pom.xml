@@ -12,7 +12,7 @@
     <dependencies>
         <dependency>
             <groupId>io.soabase.structured-logger</groupId>
-            <artifactId>structured-logger-slf4j</artifactId>
+            <artifactId>structured-logger-core</artifactId>
         </dependency>
 
         <dependency>

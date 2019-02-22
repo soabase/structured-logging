@@ -15,8 +15,8 @@
  */
 package io.soabase.structured.logger.formatting;
 
-import io.soabase.structured.logger.LoggerFacade;
 import io.soabase.structured.logger.LoggerLevel;
+import org.slf4j.Logger;
 
 import java.util.List;
 
@@ -51,7 +51,7 @@ public class DefaultLoggingFormatter implements LoggingFormatter {
     }
 
     @Override
-    public void apply(LoggerLevel level, LoggerFacade logger, String formatString, List<String> schemaNames, Object[] arguments, String mainMessage, Throwable t) {
+    public void apply(LoggerLevel level, Logger logger, String formatString, List<String> schemaNames, Object[] arguments, String mainMessage, Throwable t) {
         if (t != null) {
             arguments[mainMessageIsLast ? (arguments.length - 2) : 0] = mainMessage;
             arguments[arguments.length - 1] = t;

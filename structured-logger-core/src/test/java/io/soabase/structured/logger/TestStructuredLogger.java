@@ -69,14 +69,14 @@ public class TestStructuredLogger {
     @After
     @Before
     public void tearDown() {
-        StructuredLoggerFactoryBase.clearCache();
-        StructuredLoggerFactoryBase.setDefaultLoggingFormatter(defaultLoggingFormatter);
+        StructuredLoggerFactory.clearCache();
+        StructuredLoggerFactory.setDefaultLoggingFormatter(defaultLoggingFormatter);
     }
 
     @Test
     public void testBasic() {
         TestLoggerFacade logger = new TestLoggerFacade();
-        StructuredLogger<LocalSchema> log = StructuredLoggerFactoryBase.getLogger(logger, LocalSchema.class, defaultLoggingFormatter);
+        StructuredLogger<LocalSchema> log = StructuredLoggerFactory.getLogger(logger, LocalSchema.class, defaultLoggingFormatter);
         log.debug("message", new Exception("hey"), m -> m.id("123").count(100));
         assertThat(logger.entries).hasSize(1);
         assertThat(logger.entries.get(0).type).isEqualTo("debug");
@@ -89,14 +89,14 @@ public class TestStructuredLogger {
 
     @Test(expected = MissingSchemaValueException.class)
     public void testMissingValue() {
-        StructuredLogger<BigMixin> log = StructuredLoggerFactoryBase.getLogger(new TestLoggerFacade(), BigMixin.class, new DefaultLoggingFormatter(true, false, true));
+        StructuredLogger<BigMixin> log = StructuredLoggerFactory.getLogger(new TestLoggerFacade(), BigMixin.class, new DefaultLoggingFormatter(true, false, true));
         log.info(m -> m.code("code-123"));
     }
 
     @Test
     public void testMissingValueNotEnabled() {
         TestLoggerFacade logger = new TestLoggerFacade();
-        StructuredLogger<LocalSchema> log = StructuredLoggerFactoryBase.getLogger(logger, LocalSchema.class, defaultLoggingFormatter);
+        StructuredLogger<LocalSchema> log = StructuredLoggerFactory.getLogger(logger, LocalSchema.class, defaultLoggingFormatter);
         log.info(m -> m.id("123"));  // no error expected
         assertThat(logger.entries).hasSize(1);
         assertThat(logger.entries.get(0).type).isEqualTo("info");
@@ -109,7 +109,7 @@ public class TestStructuredLogger {
     @Test
     public void testMainMessageIsFirstNoException() {
         TestLoggerFacade logger = new TestLoggerFacade();
-        StructuredLogger<LocalSchema> log = StructuredLoggerFactoryBase.getLogger(logger, LocalSchema.class, new DefaultLoggingFormatter(false, false, true));
+        StructuredLogger<LocalSchema> log = StructuredLoggerFactory.getLogger(logger, LocalSchema.class, new DefaultLoggingFormatter(false, false, true));
         log.info("A Message", m -> m.id("123").count(10));
         assertThat(logger.entries).hasSize(1);
         assertThat(logger.entries.get(0).arguments[0]).isEqualTo("A Message");
@@ -120,7 +120,7 @@ public class TestStructuredLogger {
     @Test
     public void testMainMessageIsFirstWithException() {
         TestLoggerFacade logger = new TestLoggerFacade();
-        StructuredLogger<LocalSchema> log = StructuredLoggerFactoryBase.getLogger(logger, LocalSchema.class, new DefaultLoggingFormatter(false, false, true));
+        StructuredLogger<LocalSchema> log = StructuredLoggerFactory.getLogger(logger, LocalSchema.class, new DefaultLoggingFormatter(false, false, true));
         log.info("A Message", new Exception(), m -> m.id("123").count(10));
         assertThat(logger.entries).hasSize(1);
         assertThat(logger.entries.get(0).arguments[0]).isEqualTo("A Message");
@@ -132,7 +132,7 @@ public class TestStructuredLogger {
     @Test
     public void testEmptySchema() {
         TestLoggerFacade logger = new TestLoggerFacade();
-        StructuredLogger<Empty> log = StructuredLoggerFactoryBase.getLogger(logger, Empty.class, defaultLoggingFormatter);
+        StructuredLogger<Empty> log = StructuredLoggerFactory.getLogger(logger, Empty.class, defaultLoggingFormatter);
         log.info("test", e -> {});
         assertThat(logger.entries).hasSize(1);
         assertThat(logger.entries.get(0).arguments[0]).isEqualTo("test");
@@ -141,30 +141,30 @@ public class TestStructuredLogger {
     @Test(expected = InvalidSchemaException.class)
     public void testDuplicateMixins() {
         TestLoggerFacade logger = new TestLoggerFacade();
-        StructuredLoggerFactoryBase.getLogger(logger, Duplicates.class, defaultLoggingFormatter);
+        StructuredLoggerFactory.getLogger(logger, Duplicates.class, defaultLoggingFormatter);
     }
 
     @Test
     public void testCachingOfGenerated() {
         Set<Integer> ids = new HashSet<>();
         TestLoggerFacade logger = new TestLoggerFacade();
-        StructuredLogger<LocalSchema> log = StructuredLoggerFactoryBase.getLogger(logger, LocalSchema.class, defaultLoggingFormatter);
+        StructuredLogger<LocalSchema> log = StructuredLoggerFactory.getLogger(logger, LocalSchema.class, defaultLoggingFormatter);
         log.info(s -> ids.add(System.identityHashCode(s.getClass())));
-        log = StructuredLoggerFactoryBase.getLogger(logger, LocalSchema.class, defaultLoggingFormatter);
+        log = StructuredLoggerFactory.getLogger(logger, LocalSchema.class, defaultLoggingFormatter);
         log.info(s -> ids.add(System.identityHashCode(s.getClass())));
-        log = StructuredLoggerFactoryBase.getLogger(logger, LocalSchema.class, defaultLoggingFormatter);
+        log = StructuredLoggerFactory.getLogger(logger, LocalSchema.class, defaultLoggingFormatter);
         log.info(s -> ids.add(System.identityHashCode(s.getClass())));
         assertThat(ids).hasSize(1);
 
         ids.clear();
-        StructuredLoggerFactoryBase.clearCache();
-        log = StructuredLoggerFactoryBase.getLogger(logger, LocalSchema.class, defaultLoggingFormatter);
+        StructuredLoggerFactory.clearCache();
+        log = StructuredLoggerFactory.getLogger(logger, LocalSchema.class, defaultLoggingFormatter);
         log.info(s -> ids.add(System.identityHashCode(s.getClass())));
-        StructuredLoggerFactoryBase.clearCache();
-        log = StructuredLoggerFactoryBase.getLogger(logger, LocalSchema.class, defaultLoggingFormatter);
+        StructuredLoggerFactory.clearCache();
+        log = StructuredLoggerFactory.getLogger(logger, LocalSchema.class, defaultLoggingFormatter);
         log.info(s -> ids.add(System.identityHashCode(s.getClass())));
-        StructuredLoggerFactoryBase.clearCache();
-        log = StructuredLoggerFactoryBase.getLogger(logger, LocalSchema.class, defaultLoggingFormatter);
+        StructuredLoggerFactory.clearCache();
+        log = StructuredLoggerFactory.getLogger(logger, LocalSchema.class, defaultLoggingFormatter);
         log.info(s -> ids.add(System.identityHashCode(s.getClass())));
         assertThat(ids).hasSize(3);
     }
@@ -172,13 +172,13 @@ public class TestStructuredLogger {
     @Test(expected = InvalidSchemaException.class)
     public void testBadReturnType() {
         TestLoggerFacade logger = new TestLoggerFacade();
-        StructuredLoggerFactoryBase.getLogger(logger, BadReturnType.class, defaultLoggingFormatter);
+        StructuredLoggerFactory.getLogger(logger, BadReturnType.class, defaultLoggingFormatter);
     }
 
     @Test
     public void testMixedBase() {
         TestLoggerFacade logger = new TestLoggerFacade();
-        StructuredLoggerFactoryBase.getLogger(logger, MixedBase.class, defaultLoggingFormatter);
+        StructuredLoggerFactory.getLogger(logger, MixedBase.class, defaultLoggingFormatter);
     }
 
 /*

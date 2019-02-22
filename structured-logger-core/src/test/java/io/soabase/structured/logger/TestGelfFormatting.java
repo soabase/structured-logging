@@ -38,14 +38,14 @@ public class TestGelfFormatting {
     @Before
     @After
     public void tearDown() {
-        StructuredLoggerFactoryBase.clearCache();
-        StructuredLoggerFactoryBase.setDefaultLoggingFormatter(defaultLoggingFormatter);
+        StructuredLoggerFactory.clearCache();
+        StructuredLoggerFactory.setDefaultLoggingFormatter(defaultLoggingFormatter);
     }
 
     @Test
     public void testBasicFormatting() throws IOException {
         TestLoggerFacade logger = new TestLoggerFacade();
-        StructuredLogger<Schema> log = StructuredLoggerFactoryBase.getLogger(logger, Schema.class, gelfLoggingFormatter);
+        StructuredLogger<Schema> log = StructuredLoggerFactory.getLogger(logger, Schema.class, gelfLoggingFormatter);
         log.debug("message", new Exception("hey"), m -> m.id("123").context(null).event("y").count(456));
         validate(logger);
     }
@@ -53,7 +53,7 @@ public class TestGelfFormatting {
     @Test
     public void testEscapingAndMultiLine() throws IOException {
         TestLoggerFacade logger = new TestLoggerFacade();
-        StructuredLogger<Schema> log = StructuredLoggerFactoryBase.getLogger(logger, Schema.class, gelfLoggingFormatter);
+        StructuredLogger<Schema> log = StructuredLoggerFactory.getLogger(logger, Schema.class, gelfLoggingFormatter);
         log.debug("message", new Exception("hey"), m -> m.id("123").context(null).event("y").count(456));
         validate(logger);
     }
@@ -62,7 +62,7 @@ public class TestGelfFormatting {
     public void testJacksonMapper() {
         GelfLoggingFormatter formatter = new GelfLoggingFormatter("test", new JacksonJsonBuilder(new ObjectMapper()));
         TestLoggerFacade logger = new TestLoggerFacade();
-        StructuredLogger<Schema> log = StructuredLoggerFactoryBase.getLogger(logger, Schema.class, formatter);
+        StructuredLogger<Schema> log = StructuredLoggerFactory.getLogger(logger, Schema.class, formatter);
         log.debug("message", m -> m.context("\"quoted\"").event("line1\nline2"));
         System.out.println();
     }

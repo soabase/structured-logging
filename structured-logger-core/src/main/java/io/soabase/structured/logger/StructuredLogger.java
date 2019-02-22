@@ -16,11 +16,12 @@
 package io.soabase.structured.logger;
 
 import io.soabase.structured.logger.formatting.LoggingFormatter;
+import org.slf4j.Logger;
 
 import java.util.function.Consumer;
 
 public interface StructuredLogger<T> {
-    LoggerFacade logger();
+    Logger logger();
 
     default void trace(Consumer<T> statement) {
         trace("", null, statement);

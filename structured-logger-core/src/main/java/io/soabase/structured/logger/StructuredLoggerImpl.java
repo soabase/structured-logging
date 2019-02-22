@@ -17,20 +17,21 @@ package io.soabase.structured.logger;
 
 import io.soabase.structured.logger.formatting.LoggingFormatter;
 import io.soabase.structured.logger.generation.Generated;
+import org.slf4j.Logger;
 
 import java.util.function.Consumer;
 
 class StructuredLoggerImpl<T> implements StructuredLogger<T> {
-    private final LoggerFacade logger;
+    private final Logger logger;
     private final Generated<T> generated;
 
-    StructuredLoggerImpl(LoggerFacade logger, Generated<T> generated) {
+    StructuredLoggerImpl(Logger logger, Generated<T> generated) {
         this.logger = logger;
         this.generated = generated;
     }
 
     @Override
-    public LoggerFacade logger() {
+    public Logger logger() {
         return logger;
     }
 
@@ -71,15 +72,15 @@ class StructuredLoggerImpl<T> implements StructuredLogger<T> {
 
     @Override
     public <S> StructuredLogger<S> as(Class<S> schema) {
-        return StructuredLoggerFactoryBase.getLogger(logger, schema, generated.loggingFormatter());
+        return StructuredLoggerFactory.getLogger(logger, schema, generated.loggingFormatter());
     }
 
     @Override
     public <S> StructuredLogger<S> as(Class<S> schema, LoggingFormatter formatter) {
-        return StructuredLoggerFactoryBase.getLogger(logger, schema, formatter);
+        return StructuredLoggerFactory.getLogger(logger, schema, formatter);
     }
 
-    private void consume(LoggerLevel level, LoggerFacade logger, Consumer<T> statement, String mainMessage, Throwable t) {
+    private void consume(LoggerLevel level, Logger logger, Consumer<T> statement, String mainMessage, Throwable t) {
         T instance = generated.newInstance(t != null);
         statement.accept(instance);
         generated.apply(level, logger, instance, mainMessage, t);

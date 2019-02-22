@@ -15,10 +15,10 @@
  */
 package io.soabase.structured.logger.generation;
 
-import io.soabase.structured.logger.LoggerFacade;
 import io.soabase.structured.logger.LoggerLevel;
 import io.soabase.structured.logger.exception.MissingSchemaValueException;
 import io.soabase.structured.logger.formatting.LoggingFormatter;
+import org.slf4j.Logger;
 
 import java.lang.reflect.Constructor;
 import java.util.List;
@@ -59,7 +59,7 @@ class GeneratedImpl<T> implements Generated<T> {
     }
 
     @Override
-    public void apply(LoggerLevel level, LoggerFacade logger, T instance, String mainMessage, Throwable t) {
+    public void apply(LoggerLevel level, Logger logger, T instance, String mainMessage, Throwable t) {
         Object[] arguments = ((Instance)instance).arguments;
 
         if (loggingFormatter.requireAllValues()) {

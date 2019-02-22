@@ -15,13 +15,14 @@
  */
 package io.soabase.structured.logger.util;
 
-import io.soabase.structured.logger.LoggerFacade;
+import org.slf4j.Logger;
+import org.slf4j.Marker;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-public class TestLoggerFacade implements LoggerFacade {
+public class TestLoggerFacade implements Logger {
     public static class Entry {
         public final String type;
         public final String message;
@@ -35,6 +36,236 @@ public class TestLoggerFacade implements LoggerFacade {
     }
 
     public final List<Entry> entries = new CopyOnWriteArrayList<>();
+
+    @Override
+    public String getName() {
+        return null;
+    }
+
+    @Override
+    public void trace(String format, Object arg) {
+
+    }
+
+    @Override
+    public void trace(String format, Object arg1, Object arg2) {
+
+    }
+
+    @Override
+    public void trace(String msg, Throwable t) {
+
+    }
+
+    @Override
+    public boolean isTraceEnabled(Marker marker) {
+        return false;
+    }
+
+    @Override
+    public void trace(Marker marker, String msg) {
+
+    }
+
+    @Override
+    public void trace(Marker marker, String format, Object arg) {
+
+    }
+
+    @Override
+    public void trace(Marker marker, String format, Object arg1, Object arg2) {
+
+    }
+
+    @Override
+    public void trace(Marker marker, String format, Object... argArray) {
+
+    }
+
+    @Override
+    public void trace(Marker marker, String msg, Throwable t) {
+
+    }
+
+    @Override
+    public void debug(String format, Object arg) {
+
+    }
+
+    @Override
+    public void debug(String format, Object arg1, Object arg2) {
+
+    }
+
+    @Override
+    public void debug(String msg, Throwable t) {
+
+    }
+
+    @Override
+    public boolean isDebugEnabled(Marker marker) {
+        return false;
+    }
+
+    @Override
+    public void debug(Marker marker, String msg) {
+
+    }
+
+    @Override
+    public void debug(Marker marker, String format, Object arg) {
+
+    }
+
+    @Override
+    public void debug(Marker marker, String format, Object arg1, Object arg2) {
+
+    }
+
+    @Override
+    public void debug(Marker marker, String format, Object... arguments) {
+
+    }
+
+    @Override
+    public void debug(Marker marker, String msg, Throwable t) {
+
+    }
+
+    @Override
+    public void info(String format, Object arg) {
+
+    }
+
+    @Override
+    public void info(String format, Object arg1, Object arg2) {
+
+    }
+
+    @Override
+    public void info(String msg, Throwable t) {
+
+    }
+
+    @Override
+    public boolean isInfoEnabled(Marker marker) {
+        return false;
+    }
+
+    @Override
+    public void info(Marker marker, String msg) {
+
+    }
+
+    @Override
+    public void info(Marker marker, String format, Object arg) {
+
+    }
+
+    @Override
+    public void info(Marker marker, String format, Object arg1, Object arg2) {
+
+    }
+
+    @Override
+    public void info(Marker marker, String format, Object... arguments) {
+
+    }
+
+    @Override
+    public void info(Marker marker, String msg, Throwable t) {
+
+    }
+
+    @Override
+    public void warn(String format, Object arg) {
+
+    }
+
+    @Override
+    public void warn(String format, Object arg1, Object arg2) {
+
+    }
+
+    @Override
+    public void warn(String msg, Throwable t) {
+
+    }
+
+    @Override
+    public boolean isWarnEnabled(Marker marker) {
+        return false;
+    }
+
+    @Override
+    public void warn(Marker marker, String msg) {
+
+    }
+
+    @Override
+    public void warn(Marker marker, String format, Object arg) {
+
+    }
+
+    @Override
+    public void warn(Marker marker, String format, Object arg1, Object arg2) {
+
+    }
+
+    @Override
+    public void warn(Marker marker, String format, Object... arguments) {
+
+    }
+
+    @Override
+    public void warn(Marker marker, String msg, Throwable t) {
+
+    }
+
+    @Override
+    public void error(String format, Object arg) {
+
+    }
+
+    @Override
+    public void error(String format, Object arg1, Object arg2) {
+
+    }
+
+    @Override
+    public void error(String msg, Throwable t) {
+
+    }
+
+    @Override
+    public boolean isErrorEnabled(Marker marker) {
+        return false;
+    }
+
+    @Override
+    public void error(Marker marker, String msg) {
+
+    }
+
+    @Override
+    public void error(Marker marker, String format, Object arg) {
+
+    }
+
+    @Override
+    public void error(Marker marker, String format, Object arg1, Object arg2) {
+
+    }
+
+    @Override
+    public void error(Marker marker, String format, Object... arguments) {
+
+    }
+
+    @Override
+    public void error(Marker marker, String msg, Throwable t) {
+
+    }
 
     @Override
     public boolean isTraceEnabled() {
@@ -63,27 +294,27 @@ public class TestLoggerFacade implements LoggerFacade {
 
     @Override
     public void trace(String message) {
-        trace(message, null);
+        trace(message, (Object[])null);
     }
 
     @Override
     public void debug(String message) {
-        debug(message, null);
+        debug(message, (Object[])null);
     }
 
     @Override
     public void warn(String message) {
-        warn(message, null);
+        warn(message, (Object[])null);
     }
 
     @Override
     public void info(String message) {
-        info(message, null);
+        info(message, (Object[])null);
     }
 
     @Override
     public void error(String message) {
-        error(message, null);
+        error(message, (Object[])null);
     }
 
     @Override

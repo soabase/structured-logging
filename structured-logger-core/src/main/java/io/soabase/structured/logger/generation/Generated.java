@@ -15,14 +15,14 @@
  */
 package io.soabase.structured.logger.generation;
 
-import io.soabase.structured.logger.LoggerFacade;
 import io.soabase.structured.logger.LoggerLevel;
 import io.soabase.structured.logger.formatting.LoggingFormatter;
+import org.slf4j.Logger;
 
 public interface Generated<T> {
     T newInstance(boolean hasException);
 
     LoggingFormatter loggingFormatter();
 
-    void apply(LoggerLevel level, LoggerFacade logger, T instance, String mainMessage, Throwable t);
+    void apply(LoggerLevel level, Logger logger, T instance, String mainMessage, Throwable t);
 }

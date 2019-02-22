@@ -18,7 +18,6 @@ package io.soabase.structured.logger;
 import io.soabase.structured.logger.annotations.LoggerSchema;
 import io.soabase.structured.logger.schemas.Id;
 import io.soabase.structured.logger.schemas.Qty;
-import io.soabase.structured.logger.slf4j.StructuredLoggerFactory;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

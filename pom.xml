@@ -11,7 +11,6 @@
         <module>structured-logger-core</module>
         <module>structured-logger-generator</module>
         <module>structured-logger-generator-test</module>
-        <module>structured-logger-slf4j</module>
         <module>structured-logger-benchmark</module>
     </modules>
 
@@ -133,12 +132,6 @@
             <dependency>
                 <groupId>io.soabase.structured-logger</groupId>
                 <artifactId>structured-logger-generator</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>io.soabase.structured-logger</groupId>
-                <artifactId>structured-logger-slf4j</artifactId>
                 <version>${project.version}</version>
             </dependency>
 

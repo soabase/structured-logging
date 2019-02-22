@@ -15,69 +15,71 @@
  */
 package io.soabase.structured.logger;
 
+import org.slf4j.Logger;
+
 public enum LoggerLevel {
     TRACE() {
         @Override
-        public void log(LoggerFacade logger, String message) {
+        public void log(Logger logger, String message) {
             logger.trace(message);
         }
 
         @Override
-        public void log(LoggerFacade logger, String message, Object[] arguments) {
+        public void log(Logger logger, String message, Object[] arguments) {
             logger.trace(message, arguments);
         }
     },
 
     DEBUG {
         @Override
-        public void log(LoggerFacade logger, String message) {
+        public void log(Logger logger, String message) {
             logger.debug(message);
         }
 
         @Override
-        public void log(LoggerFacade logger, String message, Object[] arguments) {
+        public void log(Logger logger, String message, Object[] arguments) {
             logger.debug(message, arguments);
         }
     },
 
     WARN {
         @Override
-        public void log(LoggerFacade logger, String message) {
+        public void log(Logger logger, String message) {
             logger.warn(message);
         }
 
         @Override
-        public void log(LoggerFacade logger, String message, Object[] arguments) {
+        public void log(Logger logger, String message, Object[] arguments) {
             logger.warn(message, arguments);
         }
     },
 
     INFO {
         @Override
-        public void log(LoggerFacade logger, String message) {
+        public void log(Logger logger, String message) {
             logger.info(message);
         }
 
         @Override
-        public void log(LoggerFacade logger, String message, Object[] arguments) {
+        public void log(Logger logger, String message, Object[] arguments) {
             logger.info(message, arguments);
         }
     },
 
     ERROR {
         @Override
-        public void log(LoggerFacade logger, String message) {
+        public void log(Logger logger, String message) {
             logger.error(message);
         }
 
         @Override
-        public void log(LoggerFacade logger, String message, Object[] arguments) {
+        public void log(Logger logger, String message, Object[] arguments) {
             logger.error(message, arguments);
         }
     }
     ;
 
-    public abstract void log(LoggerFacade logger, String message);
+    public abstract void log(Logger logger, String message);
 
-    public abstract void log(LoggerFacade logger, String message, Object[] arguments);
+    public abstract void log(Logger logger, String message, Object[] arguments);
 }
