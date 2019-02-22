@@ -20,19 +20,26 @@ import io.soabase.structured.logger.LoggerLevel;
 import io.soabase.structured.logger.exception.MissingSchemaValueException;
 import io.soabase.structured.logger.formatting.LoggingFormatter;
 
+import java.lang.reflect.Constructor;
 import java.util.List;
 
 class GeneratedImpl<T> implements Generated<T> {
     private final Class<T> generatedClass;
+    private final Constructor<T> declaredConstructor;
     private final List<String> schemaNames;
     private final LoggingFormatter loggingFormatter;
     private final String formatString;
 
     GeneratedImpl(Class<T> generatedClass, List<String> schemaNames, LoggingFormatter loggingFormatter) {
-        this.generatedClass = generatedClass;
-        this.schemaNames = schemaNames;
-        this.loggingFormatter = loggingFormatter;
-        this.formatString = loggingFormatter.buildFormatString(schemaNames);
+        try {
+            this.generatedClass = generatedClass;
+            this.schemaNames = schemaNames;
+            this.loggingFormatter = loggingFormatter;
+            this.formatString = loggingFormatter.buildFormatString(schemaNames);
+            this.declaredConstructor = this.generatedClass.getDeclaredConstructor();
+        } catch (NoSuchMethodException e) {
+            throw new RuntimeException("Could not cache schema meta data: " + generatedClass.getName(), e);
+        }
     }
 
     @Override
@@ -43,7 +50,7 @@ class GeneratedImpl<T> implements Generated<T> {
     @Override
     public T newInstance(boolean hasException) {
         try {
-            T instance = generatedClass.getDeclaredConstructor().newInstance();
+            T instance = declaredConstructor.newInstance();
             ((Instance)instance).arguments = new Object[loggingFormatter.argumentQty(schemaNames.size(), hasException)];
             return instance;
         } catch (Exception e) {
