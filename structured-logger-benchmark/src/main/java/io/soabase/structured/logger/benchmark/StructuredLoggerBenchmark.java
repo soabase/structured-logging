@@ -20,11 +20,15 @@ import io.soabase.structured.logger.StructuredLoggerFactory;
 import io.soabase.structured.logger.benchmark.internals.Schema;
 import io.soabase.structured.logger.benchmark.internals.StubbedLogger;
 import io.soabase.structured.logger.benchmark.internals.Utils;
+import io.soabase.structured.logger.formatting.DefaultLoggingFormatter;
+import io.soabase.structured.logger.formatting.LoggingFormatter;
 import org.openjdk.jmh.annotations.Benchmark;
 
 import java.time.Instant;
 
 public class StructuredLoggerBenchmark {
+    private static final LoggingFormatter benchmarkFormatter = new DefaultLoggingFormatter();
+
     @Benchmark
     public void testFreshLogger() {
         testAllLevels(null);
@@ -32,19 +36,19 @@ public class StructuredLoggerBenchmark {
 
     @Benchmark
     public void testSavedLogger() {
-        StructuredLogger<Schema> logger = StructuredLoggerFactory.getLogger(Schema.class);
+        StructuredLogger<Schema> logger = StructuredLoggerFactory.getLogger(Schema.class, benchmarkFormatter);
         testAllLevels(logger);
     }
 
     @Benchmark
     public void testStubbedLogger() {
-        StructuredLogger<Schema> logger = StructuredLoggerFactory.getLogger(new StubbedLogger(), Schema.class);
+        StructuredLogger<Schema> logger = StructuredLoggerFactory.getLogger(new StubbedLogger(), Schema.class, benchmarkFormatter);
         testAllLevels(logger);
     }
 
     private void testAllLevels(StructuredLogger<Schema> logger) {
         if (logger == null) {
-            logger = StructuredLoggerFactory.getLogger(Schema.class);
+            logger = StructuredLoggerFactory.getLogger(Schema.class, benchmarkFormatter);
         }
         logger.trace("message", schema -> schema.id(Utils.str()).qty(Utils.value()).time(Instant.now()));
         logger.warn("message", schema -> schema.id(Utils.str()).qty(Utils.value()).time(Instant.now()));

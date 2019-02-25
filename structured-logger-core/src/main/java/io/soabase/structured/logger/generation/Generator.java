@@ -106,18 +106,20 @@ public class Generator {
             int sortOrderValue = (sortOrder != null) ? sortOrder.value() : (methodQty + 1);
             schemaNameToSortOrder.put(method.getName(), sortOrderValue);
         }
-        schemaNames.sort((o1, o2) -> {
-            int o1SortValue = schemaNameToSortOrder.get(o1);
-            int o2SortValue = schemaNameToSortOrder.get(o2);
-            int diff = o1SortValue - o2SortValue;
-            if (diff == 0) {
-                diff = o1.compareTo(o2);
-            }
-            return diff;
-        });
+        schemaNames.sort((name1, name2) -> compareSchemaNames(schemaNameToSortOrder, name1, name2));
 
         Set<Integer> requireds = requiredNames.stream().map(schemaNames::indexOf).collect(Collectors.toSet());
         return new SchemaNames(schemaNames, requireds);
+    }
+
+    private int compareSchemaNames(Map<String, Integer> schemaNameToSortOrder, String name1, String name2) {
+        int sortValue1 = schemaNameToSortOrder.get(name1);
+        int sortValue2 = schemaNameToSortOrder.get(name2);
+        int diff = sortValue1 - sortValue2;
+        if (diff == 0) {
+            diff = name1.compareTo(name2);
+        }
+        return diff;
     }
 
     private Class internalGenerate(ByteBuddy byteBuddy, Class schemaClass, ClassLoader classLoader, List<String> names) {
