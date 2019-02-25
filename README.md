@@ -24,7 +24,7 @@ public class MyClass {
 }
 ```
 
-Logs similar to: `id=10064 event="creation event" qty="100" Something happened`
+Logs similar to: `id="10064" event="creation event" qty="100" Something happened`
 
 ### With Just Structured Logging
 
@@ -51,7 +51,7 @@ private void myOperation() {
 }
 ```
 
-Logs similar to: `id=10064 event="creation event" qty="100" Something happened`
+Logs similar to: `id="10064" event="creation event" qty="100" Something happened`
 
 ### Without Structured Logging
 
