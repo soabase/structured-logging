@@ -16,15 +16,15 @@ Per Thoughtworks (https://www.thoughtworks.com/radar/techniques/structured-loggi
 public class MyClass {
     private static final StructuredLogger<MyClassSchema> log = StructuredLoggerFactory.structured(MyClassSchema.class);  // note: the library auto-generates the schema instance class
 
-    private void myOperation(String id, String eventName, int qty) {
+    private void myOperation() {
     ...
     
-        log.info("Something happened", schema -> schema.event(eventName).id(id).qty(qty));
+        log.info("Something happened", schema -> schema.event("creation event").id(10064).qty(qty));
     }
 }
 ```
 
-Logs similar to: `id=7892323 event=EventName qty=100 Something happened`
+Logs similar to: `id=10064 event="creation event" qty="100" Something happened`
 
 ### With Just Structured Logging
 
@@ -44,14 +44,14 @@ StructuredLogger<LogSchema> log = StructuredLoggerFactory.structured(LogSchema.c
 
 ...
 
-private void myOperation(String id, String eventName, int qty) {
+private void myOperation() {
     ...
     
-    log.info("Something happened", schema -> schema.event(eventName).id(id).qty(qty));
+        log.info("Something happened", schema -> schema.event("creation event").id(10064).qty(qty));
 }
 ```
 
-Logs similar to: `id=7892323 event=EventName qty=100 Something happened`
+Logs similar to: `id=10064 event="creation event" qty="100" Something happened`
 
 ### Without Structured Logging
 
