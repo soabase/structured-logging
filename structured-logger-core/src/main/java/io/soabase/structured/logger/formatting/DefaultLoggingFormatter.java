@@ -37,26 +37,26 @@ public class DefaultLoggingFormatter implements LoggingFormatter {
     }
 
     @Override
-    public void apply(LevelLogger levelLogger, Logger logger, List<String> schemaNames, Object[] arguments, String mainMessage, Throwable t) {
+    public void apply(LevelLogger levelLogger, Logger logger, List<String> schemaNames, Arguments arguments, String mainMessage, Throwable t) {
         StringBuilder logMessage = new StringBuilder(stringBuilderCapacity);
         if (!mainMessageIsLast) {
             logMessage.append(mainMessage);
         }
 
-        for (int i = 0; i < arguments.length; ++i) {
+        for (int i = 0; i < arguments.size(); ++i) {
             if (!mainMessageIsLast || (i > 0)) {
                 logMessage.append(" ");
             }
             logMessage.append(schemaNames.get(i)).append("=");
             if (quoted) {
-                logMessage.append("\"").append(arguments[i]).append("\"");
+                logMessage.append("\"").append(arguments.get(i)).append("\"");
             } else {
-                logMessage.append(arguments[i]);
+                logMessage.append(arguments.get(i));
             }
         }
 
         if (mainMessageIsLast) {
-            if (arguments.length > 0) {
+            if (arguments.size() > 0) {
                 logMessage.append(" ");
             }
             logMessage.append(mainMessage);

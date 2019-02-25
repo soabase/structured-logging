@@ -64,8 +64,8 @@ public class Generator {
         return generated.computeIfAbsent(new Key(schemaClass, loggingFormatter), __ -> {
             SchemaNames schemaNames = validateSchemaClass(schemaClass, loggingFormatter);
             ByteBuddy byteBuddy = new ByteBuddy();
-            Class generatedClass = internalGenerate(byteBuddy, schemaClass, classLoader, loggingFormatter);
-            InstanceFactory<T> instanceFactory = generateInstanceFactory(byteBuddy, generatedClass, classLoader);
+            Class generatedClass = internalGenerate(byteBuddy, schemaClass, classLoader, schemaNames.names);
+            InstanceFactory<T> instanceFactory = generateInstanceFactory(byteBuddy, generatedClass);
             return new GeneratedImpl<>(generatedClass, instanceFactory, schemaNames, loggingFormatter);
         });
     }
@@ -75,12 +75,10 @@ public class Generator {
             throw new InvalidSchemaException("Schema must be an interface. Schema: " + schemaClass.getName());
         }
 
-        Set<Integer> requireds = new HashSet<>();
+        Set<String> requiredNames = new HashSet<>();
         List<String> schemaNames = new ArrayList<>();
         Set<String> usedMethodNames = new HashSet<>();
-        int schemaIndex = 0;
         for (Method method : schemaClass.getMethods()) {
-            int thisSchemaIndex = schemaIndex++;
             if (!method.getReturnType().isAssignableFrom(schemaClass)) {
                 throw new InvalidSchemaException("Schema methods must return " + schemaClass.getSimpleName() + " or a subclass of it. Method: " + method.getName());
             }
@@ -96,18 +94,20 @@ public class Generator {
                 }
             }
             if (method.getDeclaredAnnotation(Required.class) != null) {
-                requireds.add(thisSchemaIndex);
+                requiredNames.add(method.getName());
             }
             schemaNames.add(method.getName());
         }
+        loggingFormatter.sortSchemaNames(schemaNames);
+
+        Set<Integer> requireds = requiredNames.stream().map(schemaNames::indexOf).collect(Collectors.toSet());
         return new SchemaNames(schemaNames, requireds);
     }
 
-    private Class internalGenerate(ByteBuddy byteBuddy, Class schemaClass, ClassLoader classLoader, LoggingFormatter loggingFormatter) {
+    private Class internalGenerate(ByteBuddy byteBuddy, Class schemaClass, ClassLoader classLoader, List<String> names) {
         DynamicType.Builder builder = byteBuddy.subclass(Instance.class).implement(schemaClass);
-        int schemaIndex = 0;
         for (Method method : schemaClass.getMethods()) {
-            int thisIndex = schemaIndex++;
+            int thisIndex = names.indexOf(method.getName());
             Implementation methodCall;
             if (method.getDeclaringClass().equals(WithFormat.class)) {
                 methodCall = invoke(formattedAtIndexMethod)
@@ -127,7 +127,7 @@ public class Generator {
     }
 
     @SuppressWarnings("unchecked")
-    private <T> InstanceFactory generateInstanceFactory(ByteBuddy byteBuddy, Class<T> clazz, ClassLoader classLoader) {
+    private <T> InstanceFactory generateInstanceFactory(ByteBuddy byteBuddy, Class<T> clazz) {
         try {
             DynamicType.Builder<InstanceFactory> builder = byteBuddy
                     .subclass(InstanceFactory.class)

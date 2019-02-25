@@ -15,6 +15,7 @@
  */
 package io.soabase.structured.logger.formatting.gelf;
 
+import io.soabase.structured.logger.formatting.Arguments;
 import io.soabase.structured.logger.formatting.LevelLogger;
 import io.soabase.structured.logger.formatting.LoggingFormatter;
 import org.slf4j.Logger;
@@ -40,13 +41,13 @@ public class GelfLoggingFormatter implements LoggingFormatter {
 
     @SuppressWarnings("unchecked")
     @Override
-    public void apply(LevelLogger levelLogger, Logger logger, List<String> schemaNames, Object[] arguments, String mainMessage, Throwable t) {
+    public void apply(LevelLogger levelLogger, Logger logger, List<String> schemaNames, Arguments arguments, String mainMessage, Throwable t) {
         Object obj = jsonBuilder.newObject();
         addStandardFields(obj, mainMessage, host, timestampSupplier.get());
 
         int index = 0;  // 0 is the message
         for (String name : schemaNames) {
-            jsonBuilder.addField(obj, "_" + name, arguments[index++]);
+            jsonBuilder.addField(obj, "_" + name, arguments.get(index++));
         }
         if (t != null) {
             jsonBuilder.addExceptionField(obj, t);

@@ -16,6 +16,7 @@
 package io.soabase.structured.logger.generation;
 
 import io.soabase.structured.logger.exception.MissingSchemaValueException;
+import io.soabase.structured.logger.formatting.Arguments;
 import io.soabase.structured.logger.formatting.LevelLogger;
 import io.soabase.structured.logger.formatting.LoggingFormatter;
 import org.slf4j.Logger;
@@ -61,6 +62,17 @@ class GeneratedImpl<T> implements Generated<T> {
             });
         }
 
-        loggingFormatter.apply(levelLogger, logger, schemaNames.names, arguments, mainMessage, t);
+        Arguments argumentsWrapper = new Arguments() {
+            @Override
+            public int size() {
+                return arguments.length;
+            }
+
+            @Override
+            public Object get(int index) {
+                return arguments[index];
+            }
+        };
+        loggingFormatter.apply(levelLogger, logger, schemaNames.names, argumentsWrapper, mainMessage, t);
     }
 }

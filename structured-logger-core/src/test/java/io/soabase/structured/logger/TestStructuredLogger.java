@@ -83,9 +83,9 @@ public class TestStructuredLogger {
         log.debug("message", new Exception("hey"), m -> m.id("123").count(100));
         assertThat(loggingFormatter.entries).hasSize(1);
         assertThat(loggingFormatter.entries.get(0).levelLogger.getLevel()).isEqualTo(Level.DEBUG);
-        assertThat(loggingFormatter.entries.get(0).arguments).hasSize(2);
-        assertThat(loggingFormatter.entries.get(0).arguments).contains("123");
-        assertThat(loggingFormatter.entries.get(0).arguments).contains(100);
+        assertThat(loggingFormatter.entries.get(0).arguments.size()).isEqualTo(2);
+        assertThat(loggingFormatter.entries.get(0).arguments.get(0)).isEqualTo(100);
+        assertThat(loggingFormatter.entries.get(0).arguments.get(1)).isEqualTo("123");
         assertThat(loggingFormatter.entries.get(0).mainMessage).isEqualTo("message");
         assertThat(loggingFormatter.entries.get(0).t).isInstanceOf(Exception.class);
     }
@@ -102,9 +102,9 @@ public class TestStructuredLogger {
         log.info(m -> m.id("123"));  // no error expected
         assertThat(loggingFormatter.entries).hasSize(1);
         assertThat(loggingFormatter.entries.get(0).levelLogger.getLevel()).isEqualTo(Level.INFO);
-        assertThat(loggingFormatter.entries.get(0).arguments).hasSize(2);
-        assertThat(loggingFormatter.entries.get(0).arguments).contains("123");
-        assertThat(loggingFormatter.entries.get(0).arguments).contains((Integer)null);
+        assertThat(loggingFormatter.entries.get(0).arguments.size()).isEqualTo(2);
+        assertThat(loggingFormatter.entries.get(0).arguments.get(0)).isNull();
+        assertThat(loggingFormatter.entries.get(0).arguments.get(1)).isEqualTo("123");
     }
 /*
 

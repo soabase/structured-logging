@@ -15,6 +15,7 @@
  */
 package io.soabase.structured.logger.util;
 
+import io.soabase.structured.logger.formatting.Arguments;
 import io.soabase.structured.logger.formatting.LevelLogger;
 import io.soabase.structured.logger.formatting.LoggingFormatter;
 import org.slf4j.Logger;
@@ -26,7 +27,7 @@ public class RecordingLoggingFormatter implements LoggingFormatter {
     public final List<LoggingEntry> entries = new ArrayList<>();
 
     @Override
-    public void apply(LevelLogger levelLogger, Logger logger, List<String> schemaNames, Object[] arguments, String mainMessage, Throwable t) {
+    public void apply(LevelLogger levelLogger, Logger logger, List<String> schemaNames, Arguments arguments, String mainMessage, Throwable t) {
         entries.add(new LoggingEntry(levelLogger, schemaNames, arguments, mainMessage, t));
     }
 }
