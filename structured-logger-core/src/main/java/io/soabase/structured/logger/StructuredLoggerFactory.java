@@ -53,28 +53,24 @@ public class StructuredLoggerFactory {
         Generated<T> generated = generator.generate(schema, classloaderProc.apply(schema), loggingFormatter);
         return new StructuredLoggerImpl<>(logger, generated);
     }
-    public static <T> StructuredLogger<T> structured(Class<T> schema) {
-        return structured(LoggerFactory.getLogger(schema), schema);
+    public static <T> StructuredLogger<T> getLogger(Class<T> schema) {
+        return getLogger(LoggerFactory.getLogger(schema), schema);
     }
 
-    public static <T> StructuredLogger<T> structured(Class<?> clazz, Class<T> schema) {
-        return structured(LoggerFactory.getLogger(clazz), schema);
+    public static <T> StructuredLogger<T> getLogger(Class<?> clazz, Class<T> schema) {
+        return getLogger(LoggerFactory.getLogger(clazz), schema);
     }
 
-    public static <T> StructuredLogger<T> structured(String name, Class<T> schema) {
-        return structured(LoggerFactory.getLogger(name), schema, getDefaultLoggingFormatter());
+    public static <T> StructuredLogger<T> getLogger(String name, Class<T> schema) {
+        return getLogger(LoggerFactory.getLogger(name), schema, getDefaultLoggingFormatter());
     }
 
-    public static <T> StructuredLogger<T> structured(Logger logger, Class<T> schema) {
+    public static <T> StructuredLogger<T> getLogger(Logger logger, Class<T> schema) {
         return getLogger(logger, schema, getDefaultLoggingFormatter());
     }
 
-    public static <T> StructuredLogger<T> structured(Class<T> schema, LoggingFormatter loggingFormatter) {
+    public static <T> StructuredLogger<T> getLogger(Class<T> schema, LoggingFormatter loggingFormatter) {
         return getLogger(LoggerFactory.getLogger(schema), schema, loggingFormatter);
-    }
-
-    public static <T> StructuredLogger<T> structured(Logger logger, Class<T> schema, LoggingFormatter loggingFormatter) {
-        return getLogger(logger, schema, loggingFormatter);
     }
 
     private StructuredLoggerFactory() {

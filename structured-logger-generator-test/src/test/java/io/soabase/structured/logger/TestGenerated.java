@@ -34,13 +34,13 @@ public class TestGenerated {
 
     @Test
     public void testGenerated() {
-        StructuredLogger<TestSchema> log = StructuredLoggerFactory.structured(TestSchema.class);
+        StructuredLogger<TestSchema> log = StructuredLoggerFactory.getLogger(TestSchema.class);
         log.info("hey", schema -> schema.id("my id").qty(100));
     }
 
     @Test
     public void testFactoryGenerated() {
-        StructuredLogger<IdCustomSchema> log = StructuredLoggerFactory.structured(IdCustomSchema.class);
+        StructuredLogger<IdCustomSchema> log = StructuredLoggerFactory.getLogger(IdCustomSchema.class);
         log.warn(schema -> schema.value(BigInteger.TEN).id("XYZZY"));
     }
 }

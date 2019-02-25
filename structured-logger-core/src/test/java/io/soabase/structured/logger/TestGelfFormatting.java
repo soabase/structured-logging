@@ -17,15 +17,16 @@ package io.soabase.structured.logger;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.soabase.structured.logger.formatting.LevelLogger;
 import io.soabase.structured.logger.formatting.LoggingFormatter;
 import io.soabase.structured.logger.formatting.gelf.GelfLoggingFormatter;
 import io.soabase.structured.logger.formatting.gelf.JacksonJsonBuilder;
 import io.soabase.structured.logger.formatting.gelf.SimpleJsonBuilder;
 import io.soabase.structured.logger.util.Schema;
-import io.soabase.structured.logger.util.TestLoggerFacade;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
 
 import java.io.IOException;
 
@@ -33,7 +34,13 @@ import static io.soabase.structured.logger.formatting.LoggingFormatter.defaultLo
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestGelfFormatting {
-    private static final LoggingFormatter gelfLoggingFormatter = new GelfLoggingFormatter("test", new SimpleJsonBuilder(), () -> 2468L);
+    private String testJson = null;
+    private final LoggingFormatter gelfLoggingFormatter = new GelfLoggingFormatter("test", new SimpleJsonBuilder(), () -> 2468L) {
+        @Override
+        protected void log(LevelLogger levelLogger, Logger logger, String json) {
+            testJson = json;
+        };
+    };
 
     @Before
     @After
@@ -44,35 +51,33 @@ public class TestGelfFormatting {
 
     @Test
     public void testBasicFormatting() throws IOException {
-        TestLoggerFacade logger = new TestLoggerFacade();
-        StructuredLogger<Schema> log = StructuredLoggerFactory.getLogger(logger, Schema.class, gelfLoggingFormatter);
+        StructuredLogger<Schema> log = StructuredLoggerFactory.getLogger(Schema.class, gelfLoggingFormatter);
         log.debug("message", new Exception("hey"), m -> m.id("123").context(null).event("y").count(456));
-        validate(logger);
+        validate();
     }
 
     @Test
     public void testEscapingAndMultiLine() throws IOException {
-        TestLoggerFacade logger = new TestLoggerFacade();
-        StructuredLogger<Schema> log = StructuredLoggerFactory.getLogger(logger, Schema.class, gelfLoggingFormatter);
+        StructuredLogger<Schema> log = StructuredLoggerFactory.getLogger(Schema.class, gelfLoggingFormatter);
         log.debug("message", new Exception("hey"), m -> m.id("123").context(null).event("y").count(456));
-        validate(logger);
+        validate();
     }
 
     @Test
     public void testJacksonMapper() {
-        GelfLoggingFormatter formatter = new GelfLoggingFormatter("test", new JacksonJsonBuilder(new ObjectMapper()));
-        TestLoggerFacade logger = new TestLoggerFacade();
-        StructuredLogger<Schema> log = StructuredLoggerFactory.getLogger(logger, Schema.class, formatter);
+        GelfLoggingFormatter formatter = new GelfLoggingFormatter("test", new JacksonJsonBuilder(new ObjectMapper())) {
+            @Override
+            protected void log(LevelLogger levelLogger, Logger logger, String json) {
+                testJson = json;
+            };
+        };
+        StructuredLogger<Schema> log = StructuredLoggerFactory.getLogger(Schema.class, formatter);
         log.debug("message", m -> m.context("\"quoted\"").event("line1\nline2"));
-        System.out.println();
     }
 
-    private void validate(TestLoggerFacade logger) throws IOException {
-        assertThat(logger.entries).hasSize(1);
-        assertThat(logger.entries.get(0).arguments).hasSize(0);
-
+    private void validate() throws IOException {
         ObjectMapper mapper = new ObjectMapper();
-        JsonNode tree = mapper.readTree(logger.entries.get(0).message);
+        JsonNode tree = mapper.readTree(testJson);
         assertThat(tree.get("version")).isNotNull();
         assertThat(tree.get("version").asText()).isEqualTo("1.1");
         assertThat(tree.get("short_message")).isNotNull();

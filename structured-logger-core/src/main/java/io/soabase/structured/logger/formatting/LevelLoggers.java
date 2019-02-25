@@ -2,9 +2,15 @@ package io.soabase.structured.logger.formatting;
 
 import org.slf4j.Logger;
 import org.slf4j.Marker;
+import org.slf4j.event.Level;
 
 public class LevelLoggers {
     public static final LevelLogger trace = new LevelLogger() {
+        @Override
+        public Level getLevel() {
+            return Level.TRACE;
+        }
+
         @Override
         public boolean isEnabled(Logger logger) {
             return logger.isTraceEnabled();
@@ -63,6 +69,11 @@ public class LevelLoggers {
 
     public static final LevelLogger debug = new LevelLogger() {
         @Override
+        public Level getLevel() {
+            return Level.DEBUG;
+        }
+
+        @Override
         public boolean isEnabled(Logger logger) {
             return logger.isDebugEnabled();
         }
@@ -119,6 +130,11 @@ public class LevelLoggers {
     };
 
     public static final LevelLogger info = new LevelLogger() {
+        @Override
+        public Level getLevel() {
+            return Level.INFO;
+        }
+
         @Override
         public boolean isEnabled(Logger logger) {
             return logger.isInfoEnabled();
@@ -177,6 +193,11 @@ public class LevelLoggers {
 
     public static final LevelLogger warn = new LevelLogger() {
         @Override
+        public Level getLevel() {
+            return Level.WARN;
+        }
+
+        @Override
         public boolean isEnabled(Logger logger) {
             return logger.isWarnEnabled();
         }
@@ -233,6 +254,11 @@ public class LevelLoggers {
     };
 
     public static final LevelLogger error = new LevelLogger() {
+        @Override
+        public Level getLevel() {
+            return Level.ERROR;
+        }
+
         @Override
         public boolean isEnabled(Logger logger) {
             return logger.isErrorEnabled();

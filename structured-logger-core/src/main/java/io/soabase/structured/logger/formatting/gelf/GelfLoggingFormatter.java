@@ -72,6 +72,11 @@ public class GelfLoggingFormatter implements LoggingFormatter {
             jsonBuilder.addExceptionField(obj, t);
         }
         String json = jsonBuilder.finalizeToJson(obj);
+        log(levelLogger, logger, json);
+    }
+
+    // Visible for testing
+    protected void log(LevelLogger levelLogger, Logger logger, String json) {
         levelLogger.log(logger, json);
     }
 

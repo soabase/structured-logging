@@ -2,8 +2,11 @@ package io.soabase.structured.logger.formatting;
 
 import org.slf4j.Logger;
 import org.slf4j.Marker;
+import org.slf4j.event.Level;
 
 public interface LevelLogger {
+    Level getLevel();
+
     boolean isEnabled(Logger logger);
 
     void log(Logger logger, String msg);

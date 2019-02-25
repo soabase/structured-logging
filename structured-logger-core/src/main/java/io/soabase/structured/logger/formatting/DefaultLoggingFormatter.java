@@ -23,15 +23,19 @@ public class DefaultLoggingFormatter implements LoggingFormatter {
     private final boolean requireAllValues;
     private final boolean mainMessageIsLast;
     private final boolean quoted;
+    private final int stringBuilderCapacity;
 
-    private static final String REPLACEMENT_STR = "{}";
-    private static final String QUOTED_REPLACEMENT_EQUALS_STR = "=\"{}\"";
-    private static final String REPLACEMENT_EQUALS_STR = "={}";
+    private static final int DEFAULT_CAPACITY = 128;
 
     public DefaultLoggingFormatter(boolean requireAllValues, boolean mainMessageIsLast, boolean quoted) {
+        this(requireAllValues, mainMessageIsLast, quoted, DEFAULT_CAPACITY);
+    }
+
+    public DefaultLoggingFormatter(boolean requireAllValues, boolean mainMessageIsLast, boolean quoted, int stringBuilderCapacity) {
         this.requireAllValues = requireAllValues;
         this.mainMessageIsLast = mainMessageIsLast;
         this.quoted = quoted;
+        this.stringBuilderCapacity = stringBuilderCapacity;
     }
 
     @Override
@@ -46,64 +50,44 @@ public class DefaultLoggingFormatter implements LoggingFormatter {
 
     @Override
     public int argumentQty(int schemaQty, boolean hasException) {
-        return hasException ? (schemaQty + 2) : (schemaQty + 1);
+        return schemaQty;
     }
 
     @Override
     public void apply(LevelLogger levelLogger, Logger logger, String formatString, List<String> schemaNames, Object[] arguments, String mainMessage, Throwable t) {
-        if (t != null) {
-            arguments[mainMessageIsLast ? (arguments.length - 2) : 0] = mainMessage;
-            arguments[arguments.length - 1] = t;
-        } else {
-            arguments[mainMessageIsLast ? (arguments.length - 1) : 0] = mainMessage;
+        StringBuilder logMessage = new StringBuilder(stringBuilderCapacity);
+        if (!mainMessageIsLast) {
+            logMessage.append(mainMessage);
         }
-        switch (arguments.length) {
-            case 0: {
-                levelLogger.log(logger, formatString);
-                break;
-            }
 
-            case 1: {
-                levelLogger.log(logger, formatString, arguments[0]);
-                break;
+        for (int i = 0; i < arguments.length; ++i) {
+            if (!mainMessageIsLast || (i > 0)) {
+                logMessage.append(" ");
             }
+            logMessage.append(schemaNames.get(i)).append("=");
+            if (quoted) {
+                logMessage.append("\"").append(arguments[i]).append("\"");
+            } else {
+                logMessage.append(arguments[i]);
+            }
+        }
 
-            case 2: {
-                levelLogger.log(logger, formatString, arguments[0], arguments[1]);
-                break;
+        if (mainMessageIsLast) {
+            if (arguments.length > 0) {
+                logMessage.append(" ");
             }
+            logMessage.append(mainMessage);
+        }
 
-            default: {
-                levelLogger.log(logger, formatString, arguments);
-                break;
-            }
+        if (t != null) {
+            levelLogger.log(logger, logMessage.toString(), t);
+        } else {
+            levelLogger.log(logger, logMessage.toString());
         }
     }
 
     @Override
     public String buildFormatString(List<String> names) {
-        StringBuilder format = new StringBuilder();
-        if (!mainMessageIsLast) {
-            checkPaddingAppend(format, REPLACEMENT_STR);
-        }
-        for (String name : names) {
-            checkPaddingAppend(format, name);
-            if (quoted) {
-                format.append(QUOTED_REPLACEMENT_EQUALS_STR);
-            } else {
-                format.append(REPLACEMENT_EQUALS_STR);
-            }
-        };
-        if (mainMessageIsLast) {
-            checkPaddingAppend(format, REPLACEMENT_STR);
-        }
-        return format.toString();
-    }
-
-    private void checkPaddingAppend(StringBuilder format, String str) {
-        if (format.length() > 0) {
-            format.append(' ');
-        }
-        format.append(str);
+        return "";
     }
 }
