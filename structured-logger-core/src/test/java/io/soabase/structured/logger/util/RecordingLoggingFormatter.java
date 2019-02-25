@@ -36,11 +36,6 @@ public class RecordingLoggingFormatter implements LoggingFormatter {
     }
 
     @Override
-    public boolean requireAllValues() {
-        return false;
-    }
-
-    @Override
     public String buildFormatString(List<String> schemaNames) {
         return "";
     }

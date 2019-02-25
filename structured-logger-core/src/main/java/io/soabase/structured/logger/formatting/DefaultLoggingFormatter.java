@@ -20,32 +20,25 @@ import org.slf4j.Logger;
 import java.util.List;
 
 public class DefaultLoggingFormatter implements LoggingFormatter {
-    private final boolean requireAllValues;
     private final boolean mainMessageIsLast;
     private final boolean quoted;
     private final int stringBuilderCapacity;
 
     private static final int DEFAULT_CAPACITY = 128;
 
-    public DefaultLoggingFormatter(boolean requireAllValues, boolean mainMessageIsLast, boolean quoted) {
-        this(requireAllValues, mainMessageIsLast, quoted, DEFAULT_CAPACITY);
+    public DefaultLoggingFormatter(boolean mainMessageIsLast, boolean quoted) {
+        this(mainMessageIsLast, quoted, DEFAULT_CAPACITY);
     }
 
-    public DefaultLoggingFormatter(boolean requireAllValues, boolean mainMessageIsLast, boolean quoted, int stringBuilderCapacity) {
-        this.requireAllValues = requireAllValues;
+    public DefaultLoggingFormatter(boolean mainMessageIsLast, boolean quoted, int stringBuilderCapacity) {
         this.mainMessageIsLast = mainMessageIsLast;
         this.quoted = quoted;
         this.stringBuilderCapacity = stringBuilderCapacity;
     }
 
     @Override
-    public boolean requireAllValues() {
-        return requireAllValues;
-    }
-
-    @Override
     public int indexForArgument(String schemaMethodName, int ordinalIndex) {
-        return mainMessageIsLast ? ordinalIndex : (ordinalIndex + 1);
+        return ordinalIndex;
     }
 
     @Override

@@ -27,7 +27,7 @@ import org.openjdk.jmh.annotations.Benchmark;
 import java.time.Instant;
 
 public class StructuredLoggerBenchmark {
-    private static final LoggingFormatter fastLoggingFormatter = new DefaultLoggingFormatter(false, true, false);
+    private static final LoggingFormatter fastLoggingFormatter = new DefaultLoggingFormatter(true, false);
 
     //@Benchmark
     public void testFreshLoggerDefaultFormatter() {

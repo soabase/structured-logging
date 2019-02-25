@@ -16,6 +16,7 @@
 package io.soabase.structured.logger;
 
 import io.soabase.structured.logger.annotations.LoggerSchema;
+import io.soabase.structured.logger.exception.MissingSchemaValueException;
 import io.soabase.structured.logger.schemas.Id;
 import io.soabase.structured.logger.schemas.Qty;
 import org.junit.After;
@@ -42,5 +43,11 @@ public class TestGenerated {
     public void testFactoryGenerated() {
         StructuredLogger<IdCustomSchema> log = StructuredLoggerFactory.getLogger(IdCustomSchema.class);
         log.warn(schema -> schema.value(BigInteger.TEN).id("XYZZY"));
+    }
+
+    @Test(expected = MissingSchemaValueException.class)
+    public void testMissingValueFromGenerated() {
+        StructuredLogger<RequiredNumberEventSchema> log = StructuredLoggerFactory.getLogger(RequiredNumberEventSchema.class);
+        log.debug(schema -> schema.event("hey"));
     }
 }

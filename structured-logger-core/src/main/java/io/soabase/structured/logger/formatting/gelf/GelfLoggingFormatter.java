@@ -27,25 +27,15 @@ public class GelfLoggingFormatter implements LoggingFormatter {
     private final String host;
     private final JsonBuilder jsonBuilder;
     private final Supplier<Long> timestampSupplier;
-    private final boolean requireAllValues;
 
     public GelfLoggingFormatter(String host, JsonBuilder jsonBuilder) {
-        this(host, jsonBuilder, () -> Instant.now().toEpochMilli(), false);
-    }
-
-    public GelfLoggingFormatter(String host, JsonBuilder jsonBuilder, boolean requireAllValues) {
-        this(host, jsonBuilder, () -> Instant.now().toEpochMilli(), requireAllValues);
+        this(host, jsonBuilder, () -> Instant.now().toEpochMilli());
     }
 
     public GelfLoggingFormatter(String host, JsonBuilder jsonBuilder, Supplier<Long> timestampSupplier) {
-        this(host, jsonBuilder, timestampSupplier, false);
-    }
-
-    public GelfLoggingFormatter(String host, JsonBuilder jsonBuilder, Supplier<Long> timestampSupplier, boolean requireAllValues) {
         this.host = host;
         this.jsonBuilder = jsonBuilder;
         this.timestampSupplier = timestampSupplier;
-        this.requireAllValues = requireAllValues;
     }
 
     @Override
@@ -78,11 +68,6 @@ public class GelfLoggingFormatter implements LoggingFormatter {
     // Visible for testing
     protected void log(LevelLogger levelLogger, Logger logger, String json) {
         levelLogger.log(logger, json);
-    }
-
-    @Override
-    public boolean requireAllValues() {
-        return requireAllValues;
     }
 
     @Override

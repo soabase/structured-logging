@@ -17,6 +17,7 @@ package io.soabase.structured.logger.generation;
 
 import io.soabase.structured.logger.exception.InvalidSchemaException;
 import io.soabase.structured.logger.formatting.LoggingFormatter;
+import io.soabase.structured.logger.schemas.Required;
 import io.soabase.structured.logger.schemas.WithFormat;
 import net.bytebuddy.ByteBuddy;
 import net.bytebuddy.dynamic.DynamicType;
@@ -61,7 +62,7 @@ public class Generator {
     @SuppressWarnings("unchecked")
     public <T> Generated<T> generate(Class<T> schemaClass, ClassLoader classLoader, LoggingFormatter loggingFormatter) {
         return generated.computeIfAbsent(new Key(schemaClass, loggingFormatter), __ -> {
-            List<String> schemaNames = validateSchemaClass(schemaClass);
+            SchemaNames schemaNames = validateSchemaClass(schemaClass, loggingFormatter);
             ByteBuddy byteBuddy = new ByteBuddy();
             Class generatedClass = internalGenerate(byteBuddy, schemaClass, classLoader, loggingFormatter);
             InstanceFactory<T> instanceFactory = generateInstanceFactory(byteBuddy, generatedClass, classLoader);
@@ -69,14 +70,17 @@ public class Generator {
         });
     }
 
-    private <T> List<String> validateSchemaClass(Class<T> schemaClass) {
+    private <T> SchemaNames validateSchemaClass(Class<T> schemaClass, LoggingFormatter loggingFormatter) {
         if (!schemaClass.isInterface()) {
             throw new InvalidSchemaException("Schema must be an interface. Schema: " + schemaClass.getName());
         }
 
+        Set<Integer> requireds = new HashSet<>();
         List<String> schemaNames = new ArrayList<>();
         Set<String> usedMethodNames = new HashSet<>();
+        int schemaIndex = 0;
         for (Method method : schemaClass.getMethods()) {
+            int thisSchemaIndex = loggingFormatter.indexForArgument(method.getName(), schemaIndex++);
             if (!method.getReturnType().isAssignableFrom(schemaClass)) {
                 throw new InvalidSchemaException("Schema methods must return " + schemaClass.getSimpleName() + " or a subclass of it. Method: " + method.getName());
             }
@@ -91,9 +95,12 @@ public class Generator {
                     throw new InvalidSchemaException("Schema method name is reserved for internal use. Name: " + method.getName());
                 }
             }
+            if (method.getDeclaredAnnotation(Required.class) != null) {
+                requireds.add(thisSchemaIndex);
+            }
             schemaNames.add(method.getName());
         }
-        return Collections.unmodifiableList(schemaNames);
+        return new SchemaNames(schemaNames, requireds);
     }
 
     private Class internalGenerate(ByteBuddy byteBuddy, Class schemaClass, ClassLoader classLoader, LoggingFormatter loggingFormatter) {

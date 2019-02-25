@@ -13,20 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.soabase.structured.logger.formatting;
+package io.soabase.structured.logger.schemas;
 
-import org.slf4j.Logger;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-import java.util.List;
-
-public interface LoggingFormatter {
-    int indexForArgument(String schemaMethodName, int ordinalIndex);
-
-    int argumentQty(int schemaQty, boolean hasException);
-
-    String buildFormatString(List<String> schemaNames);
-
-    void apply(LevelLogger levelLogger, Logger logger, String formatString, List<String> schemaNames, Object[] arguments, String mainMessage, Throwable t);
-
-    LoggingFormatter defaultLoggingFormatter = new DefaultLoggingFormatter(true, true);
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.METHOD)
+public @interface Required {
 }

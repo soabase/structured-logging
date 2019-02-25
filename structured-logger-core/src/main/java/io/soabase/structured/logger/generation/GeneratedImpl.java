@@ -20,21 +20,19 @@ import io.soabase.structured.logger.formatting.LevelLogger;
 import io.soabase.structured.logger.formatting.LoggingFormatter;
 import org.slf4j.Logger;
 
-import java.util.List;
-
 class GeneratedImpl<T> implements Generated<T> {
     private final Class<T> generatedClass;
-    private final List<String> schemaNames;
+    private final SchemaNames schemaNames;
     private final LoggingFormatter loggingFormatter;
     private final String formatString;
     private final InstanceFactory<T> instanceFactory;
 
-    GeneratedImpl(Class<T> generatedClass, InstanceFactory<T> instanceFactory, List<String> schemaNames, LoggingFormatter loggingFormatter) {
+    GeneratedImpl(Class<T> generatedClass, InstanceFactory<T> instanceFactory, SchemaNames schemaNames, LoggingFormatter loggingFormatter) {
         this.instanceFactory = instanceFactory;
         this.generatedClass = generatedClass;
         this.schemaNames = schemaNames;
         this.loggingFormatter = loggingFormatter;
-        this.formatString = loggingFormatter.buildFormatString(schemaNames);
+        this.formatString = loggingFormatter.buildFormatString(schemaNames.names);
     }
 
     @Override
@@ -46,7 +44,7 @@ class GeneratedImpl<T> implements Generated<T> {
     public T newInstance(boolean hasException) {
         try {
             T instance = instanceFactory.newInstance();
-            int argumentQty = loggingFormatter.argumentQty(schemaNames.size(), hasException);
+            int argumentQty = loggingFormatter.argumentQty(schemaNames.names.size(), hasException);
             ((Instance)instance).arguments = new Object[argumentQty];
             return instance;
         } catch (Exception e) {
@@ -58,16 +56,14 @@ class GeneratedImpl<T> implements Generated<T> {
     public void apply(LevelLogger levelLogger, Logger logger, T instance, String mainMessage, Throwable t) {
         Object[] arguments = ((Instance)instance).arguments;
 
-        if (loggingFormatter.requireAllValues()) {
-            int index = 0;
-            for (Object argument : arguments) {
-                if (argument == null) {
-                    throw new MissingSchemaValueException("Entire schema must be specified. Missing: " + schemaNames.get(index));
+        if (!schemaNames.requireds.isEmpty()) {
+            schemaNames.requireds.forEach(index -> {
+                if (arguments[index] == null) {
+                    throw new MissingSchemaValueException("Entire schema must be specified. Missing: " + schemaNames.names.get(index));
                 }
-                ++index;
-            }
+            });
         }
 
-        loggingFormatter.apply(levelLogger, logger, formatString, schemaNames, arguments, mainMessage, t);
+        loggingFormatter.apply(levelLogger, logger, formatString, schemaNames.names, arguments, mainMessage, t);
     }
 }

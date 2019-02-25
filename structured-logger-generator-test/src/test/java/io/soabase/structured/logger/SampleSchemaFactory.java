@@ -25,7 +25,9 @@ import io.soabase.structured.logger.schemas.Id;
         @LoggerSchema(value = {Id.class, Code.class}, schemaName = "IdCodeSchema"),
         @LoggerSchema(value = {Id.class, Event.class}, schemaName = "IdEventSchema"),
         @LoggerSchema(value = Id.class, schemaName = "IdSchema"),
-        @LoggerSchema(value = {Id.class, CustomSchema.class}, schemaName = "IdCustomSchema")
+        @LoggerSchema(value = {Id.class, CustomSchema.class}, schemaName = "IdCustomSchema"),
+        @LoggerSchema(value = {Id.class, CustomSchema.class}, schemaName = "IdCustomSchema"),
+        @LoggerSchema(value = {RequiredNumber.class, Event.class}, schemaName = "RequiredNumberEventSchema")
 })
 public class SampleSchemaFactory {
     private SampleSchemaFactory() {

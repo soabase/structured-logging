@@ -25,6 +25,7 @@ import io.soabase.structured.logger.schemas.Qty;
 import io.soabase.structured.logger.schemas.Time;
 import io.soabase.structured.logger.schemas.WithFormat;
 import io.soabase.structured.logger.util.RecordingLoggingFormatter;
+import io.soabase.structured.logger.util.RequiredId;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -40,6 +41,8 @@ public class TestStructuredLogger {
     private final RecordingLoggingFormatter loggingFormatter = new RecordingLoggingFormatter();
 
     public interface BigMixin extends Id<BigMixin>, Event<BigMixin>, Time<BigMixin>, Code<BigMixin>, Qty<BigMixin>, WithFormat<BigMixin> {}
+
+    public interface RequiredMixin extends RequiredId<RequiredMixin>, Code<RequiredMixin> {}
 
     public interface Empty {}
 
@@ -89,7 +92,7 @@ public class TestStructuredLogger {
 
     @Test(expected = MissingSchemaValueException.class)
     public void testMissingValue() {
-        StructuredLogger<BigMixin> log = StructuredLoggerFactory.getLogger(BigMixin.class, new DefaultLoggingFormatter(true, false, true));
+        StructuredLogger<RequiredMixin> log = StructuredLoggerFactory.getLogger(RequiredMixin.class, new DefaultLoggingFormatter(false, true));
         log.info(m -> m.code("code-123"));
     }
 
