@@ -37,17 +37,7 @@ public class DefaultLoggingFormatter implements LoggingFormatter {
     }
 
     @Override
-    public int indexForArgument(String schemaMethodName, int ordinalIndex) {
-        return ordinalIndex;
-    }
-
-    @Override
-    public int argumentQty(int schemaQty, boolean hasException) {
-        return schemaQty;
-    }
-
-    @Override
-    public void apply(LevelLogger levelLogger, Logger logger, String formatString, List<String> schemaNames, Object[] arguments, String mainMessage, Throwable t) {
+    public void apply(LevelLogger levelLogger, Logger logger, List<String> schemaNames, Object[] arguments, String mainMessage, Throwable t) {
         StringBuilder logMessage = new StringBuilder(stringBuilderCapacity);
         if (!mainMessageIsLast) {
             logMessage.append(mainMessage);
@@ -77,10 +67,5 @@ public class DefaultLoggingFormatter implements LoggingFormatter {
         } else {
             levelLogger.log(logger, logMessage.toString());
         }
-    }
-
-    @Override
-    public String buildFormatString(List<String> names) {
-        return "";
     }
 }

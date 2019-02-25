@@ -38,19 +38,9 @@ public class GelfLoggingFormatter implements LoggingFormatter {
         this.timestampSupplier = timestampSupplier;
     }
 
-    @Override
-    public int indexForArgument(String schemaMethodName, int ordinalIndex) {
-        return ordinalIndex;
-    }
-
-    @Override
-    public int argumentQty(int schemaQty, boolean hasException) {
-        return schemaQty;
-    }
-
     @SuppressWarnings("unchecked")
     @Override
-    public void apply(LevelLogger levelLogger, Logger logger, String formatString, List<String> schemaNames, Object[] arguments, String mainMessage, Throwable t) {
+    public void apply(LevelLogger levelLogger, Logger logger, List<String> schemaNames, Object[] arguments, String mainMessage, Throwable t) {
         Object obj = jsonBuilder.newObject();
         addStandardFields(obj, mainMessage, host, timestampSupplier.get());
 
@@ -68,11 +58,6 @@ public class GelfLoggingFormatter implements LoggingFormatter {
     // Visible for testing
     protected void log(LevelLogger levelLogger, Logger logger, String json) {
         levelLogger.log(logger, json);
-    }
-
-    @Override
-    public String buildFormatString(List<String> schemaNames) {
-        return "";
     }
 
     @SuppressWarnings("unchecked")

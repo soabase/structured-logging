@@ -19,14 +19,9 @@ import org.slf4j.Logger;
 
 import java.util.List;
 
+@FunctionalInterface
 public interface LoggingFormatter {
-    int indexForArgument(String schemaMethodName, int ordinalIndex);
-
-    int argumentQty(int schemaQty, boolean hasException);
-
-    String buildFormatString(List<String> schemaNames);
-
-    void apply(LevelLogger levelLogger, Logger logger, String formatString, List<String> schemaNames, Object[] arguments, String mainMessage, Throwable t);
+    void apply(LevelLogger levelLogger, Logger logger, List<String> schemaNames, Object[] arguments, String mainMessage, Throwable t);
 
     LoggingFormatter defaultLoggingFormatter = new DefaultLoggingFormatter(true, true);
 }

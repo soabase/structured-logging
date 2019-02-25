@@ -24,7 +24,6 @@ class GeneratedImpl<T> implements Generated<T> {
     private final Class<T> generatedClass;
     private final SchemaNames schemaNames;
     private final LoggingFormatter loggingFormatter;
-    private final String formatString;
     private final InstanceFactory<T> instanceFactory;
 
     GeneratedImpl(Class<T> generatedClass, InstanceFactory<T> instanceFactory, SchemaNames schemaNames, LoggingFormatter loggingFormatter) {
@@ -32,7 +31,6 @@ class GeneratedImpl<T> implements Generated<T> {
         this.generatedClass = generatedClass;
         this.schemaNames = schemaNames;
         this.loggingFormatter = loggingFormatter;
-        this.formatString = loggingFormatter.buildFormatString(schemaNames.names);
     }
 
     @Override
@@ -41,11 +39,10 @@ class GeneratedImpl<T> implements Generated<T> {
     }
 
     @Override
-    public T newInstance(boolean hasException) {
+    public T newInstance() {
         try {
             T instance = instanceFactory.newInstance();
-            int argumentQty = loggingFormatter.argumentQty(schemaNames.names.size(), hasException);
-            ((Instance)instance).arguments = new Object[argumentQty];
+            ((Instance)instance).arguments = new Object[schemaNames.names.size()];
             return instance;
         } catch (Exception e) {
             throw new RuntimeException("Could not allocate schema instance: " + generatedClass.getName(), e);
@@ -64,6 +61,6 @@ class GeneratedImpl<T> implements Generated<T> {
             });
         }
 
-        loggingFormatter.apply(levelLogger, logger, formatString, schemaNames.names, arguments, mainMessage, t);
+        loggingFormatter.apply(levelLogger, logger, schemaNames.names, arguments, mainMessage, t);
     }
 }

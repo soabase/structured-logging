@@ -20,7 +20,7 @@ import io.soabase.structured.logger.formatting.LoggingFormatter;
 import org.slf4j.Logger;
 
 public interface Generated<T> {
-    T newInstance(boolean hasException);
+    T newInstance();
 
     LoggingFormatter loggingFormatter();
 

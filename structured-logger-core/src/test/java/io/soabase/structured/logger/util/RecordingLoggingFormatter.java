@@ -26,22 +26,7 @@ public class RecordingLoggingFormatter implements LoggingFormatter {
     public final List<LoggingEntry> entries = new ArrayList<>();
 
     @Override
-    public int indexForArgument(String schemaMethodName, int ordinalIndex) {
-        return ordinalIndex;
-    }
-
-    @Override
-    public int argumentQty(int schemaQty, boolean hasException) {
-        return schemaQty;
-    }
-
-    @Override
-    public String buildFormatString(List<String> schemaNames) {
-        return "";
-    }
-
-    @Override
-    public void apply(LevelLogger levelLogger, Logger logger, String formatString, List<String> schemaNames, Object[] arguments, String mainMessage, Throwable t) {
+    public void apply(LevelLogger levelLogger, Logger logger, List<String> schemaNames, Object[] arguments, String mainMessage, Throwable t) {
         entries.add(new LoggingEntry(levelLogger, schemaNames, arguments, mainMessage, t));
     }
 }

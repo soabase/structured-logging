@@ -74,7 +74,7 @@ class StructuredLoggerImpl<T> implements StructuredLogger<T> {
 
     private void consume(LevelLogger levelLogger, Logger logger, Consumer<T> statement, String mainMessage, Throwable t) {
         if (levelLogger.isEnabled(logger)) {
-            T instance = generated.newInstance(t != null);
+            T instance = generated.newInstance();
             statement.accept(instance);
             generated.apply(levelLogger, logger, instance, mainMessage, t);
         }

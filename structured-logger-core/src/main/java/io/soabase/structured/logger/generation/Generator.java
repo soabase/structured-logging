@@ -80,7 +80,7 @@ public class Generator {
         Set<String> usedMethodNames = new HashSet<>();
         int schemaIndex = 0;
         for (Method method : schemaClass.getMethods()) {
-            int thisSchemaIndex = loggingFormatter.indexForArgument(method.getName(), schemaIndex++);
+            int thisSchemaIndex = schemaIndex++;
             if (!method.getReturnType().isAssignableFrom(schemaClass)) {
                 throw new InvalidSchemaException("Schema methods must return " + schemaClass.getSimpleName() + " or a subclass of it. Method: " + method.getName());
             }
@@ -107,7 +107,7 @@ public class Generator {
         DynamicType.Builder builder = byteBuddy.subclass(Instance.class).implement(schemaClass);
         int schemaIndex = 0;
         for (Method method : schemaClass.getMethods()) {
-            int thisIndex = loggingFormatter.indexForArgument(method.getName(), schemaIndex++);
+            int thisIndex = schemaIndex++;
             Implementation methodCall;
             if (method.getDeclaringClass().equals(WithFormat.class)) {
                 methodCall = invoke(formattedAtIndexMethod)
