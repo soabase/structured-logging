@@ -13,11 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.soabase.structured.logger;
+package io.soabase.structured.logger.annotations;
 
-import io.soabase.structured.logger.annotations.Required;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-public interface RequiredNumber<R extends RequiredNumber<R>> {
-    @Required
-    R number(Number n);
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.METHOD)
+public @interface Required {
 }

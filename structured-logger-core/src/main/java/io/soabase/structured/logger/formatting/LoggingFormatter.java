@@ -17,16 +17,15 @@ package io.soabase.structured.logger.formatting;
 
 import org.slf4j.Logger;
 
-import java.util.Collections;
 import java.util.List;
+
+import static io.soabase.structured.logger.formatting.DefaultLoggingFormatter.Option.ESCAPE_VALUES;
+import static io.soabase.structured.logger.formatting.DefaultLoggingFormatter.Option.MAIN_MESSAGE_IS_LAST;
+import static io.soabase.structured.logger.formatting.DefaultLoggingFormatter.Option.QUOTE_VALUES;
 
 @FunctionalInterface
 public interface LoggingFormatter {
     void apply(LevelLogger levelLogger, Logger logger, List<String> schemaNames, Arguments arguments, String mainMessage, Throwable t);
 
-    default void sortSchemaNames(List<String> schemaNames) {
-        Collections.sort(schemaNames);
-    }
-
-    LoggingFormatter defaultLoggingFormatter = new DefaultLoggingFormatter(true, true);
+    LoggingFormatter defaultLoggingFormatter = new DefaultLoggingFormatter(MAIN_MESSAGE_IS_LAST, ESCAPE_VALUES, QUOTE_VALUES);
 }

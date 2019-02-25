@@ -15,9 +15,10 @@
  */
 package io.soabase.structured.logger.generation;
 
+import io.soabase.structured.logger.annotations.SortOrder;
 import io.soabase.structured.logger.exception.InvalidSchemaException;
 import io.soabase.structured.logger.formatting.LoggingFormatter;
-import io.soabase.structured.logger.schemas.Required;
+import io.soabase.structured.logger.annotations.Required;
 import io.soabase.structured.logger.schemas.WithFormat;
 import net.bytebuddy.ByteBuddy;
 import net.bytebuddy.dynamic.DynamicType;
@@ -28,6 +29,7 @@ import net.bytebuddy.implementation.MethodDelegation;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -62,7 +64,7 @@ public class Generator {
     @SuppressWarnings("unchecked")
     public <T> Generated<T> generate(Class<T> schemaClass, ClassLoader classLoader, LoggingFormatter loggingFormatter) {
         return generated.computeIfAbsent(new Key(schemaClass, loggingFormatter), __ -> {
-            SchemaNames schemaNames = validateSchemaClass(schemaClass, loggingFormatter);
+            SchemaNames schemaNames = validateSchemaClass(schemaClass);
             ByteBuddy byteBuddy = new ByteBuddy();
             Class generatedClass = internalGenerate(byteBuddy, schemaClass, classLoader, schemaNames.names);
             InstanceFactory<T> instanceFactory = generateInstanceFactory(byteBuddy, generatedClass);
@@ -70,7 +72,7 @@ public class Generator {
         });
     }
 
-    private <T> SchemaNames validateSchemaClass(Class<T> schemaClass, LoggingFormatter loggingFormatter) {
+    private <T> SchemaNames validateSchemaClass(Class<T> schemaClass) {
         if (!schemaClass.isInterface()) {
             throw new InvalidSchemaException("Schema must be an interface. Schema: " + schemaClass.getName());
         }
@@ -78,6 +80,8 @@ public class Generator {
         Set<String> requiredNames = new HashSet<>();
         List<String> schemaNames = new ArrayList<>();
         Set<String> usedMethodNames = new HashSet<>();
+        Map<String, Integer> schemaNameToSortOrder = new HashMap<>();
+        int methodQty = schemaClass.getMethods().length;
         for (Method method : schemaClass.getMethods()) {
             if (!method.getReturnType().isAssignableFrom(schemaClass)) {
                 throw new InvalidSchemaException("Schema methods must return " + schemaClass.getSimpleName() + " or a subclass of it. Method: " + method.getName());
@@ -97,8 +101,20 @@ public class Generator {
                 requiredNames.add(method.getName());
             }
             schemaNames.add(method.getName());
+
+            SortOrder sortOrder = method.getDeclaredAnnotation(SortOrder.class);
+            int sortOrderValue = (sortOrder != null) ? sortOrder.value() : (methodQty + 1);
+            schemaNameToSortOrder.put(method.getName(), sortOrderValue);
         }
-        loggingFormatter.sortSchemaNames(schemaNames);
+        schemaNames.sort((o1, o2) -> {
+            int o1SortValue = schemaNameToSortOrder.get(o1);
+            int o2SortValue = schemaNameToSortOrder.get(o2);
+            int diff = o1SortValue - o2SortValue;
+            if (diff == 0) {
+                diff = o1.compareTo(o2);
+            }
+            return diff;
+        });
 
         Set<Integer> requireds = requiredNames.stream().map(schemaNames::indexOf).collect(Collectors.toSet());
         return new SchemaNames(schemaNames, requireds);

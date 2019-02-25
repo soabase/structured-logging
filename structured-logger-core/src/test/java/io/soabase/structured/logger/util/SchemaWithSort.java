@@ -13,11 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.soabase.structured.logger;
+package io.soabase.structured.logger.util;
 
-import io.soabase.structured.logger.annotations.Required;
+import io.soabase.structured.logger.annotations.SortOrder;
 
-public interface RequiredNumber<R extends RequiredNumber<R>> {
-    @Required
-    R number(Number n);
+public interface SchemaWithSort {
+    SchemaWithSort id(String id);
+
+    SchemaWithSort bool(boolean b);
+
+    @SortOrder(1)
+    SchemaWithSort qty(int qty);
+
+    @SortOrder(0)
+    SchemaWithSort zero(int z);
 }

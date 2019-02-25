@@ -18,6 +18,7 @@ package io.soabase.structured.logger;
 import io.soabase.structured.logger.exception.InvalidSchemaException;
 import io.soabase.structured.logger.exception.MissingSchemaValueException;
 import io.soabase.structured.logger.formatting.DefaultLoggingFormatter;
+import io.soabase.structured.logger.formatting.LoggingFormatter;
 import io.soabase.structured.logger.schemas.Code;
 import io.soabase.structured.logger.schemas.Event;
 import io.soabase.structured.logger.schemas.Id;
@@ -26,6 +27,7 @@ import io.soabase.structured.logger.schemas.Time;
 import io.soabase.structured.logger.schemas.WithFormat;
 import io.soabase.structured.logger.util.RecordingLoggingFormatter;
 import io.soabase.structured.logger.util.RequiredId;
+import io.soabase.structured.logger.util.SchemaWithSort;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -33,6 +35,7 @@ import org.slf4j.event.Level;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -92,7 +95,7 @@ public class TestStructuredLogger {
 
     @Test(expected = MissingSchemaValueException.class)
     public void testMissingValue() {
-        StructuredLogger<RequiredMixin> log = StructuredLoggerFactory.getLogger(RequiredMixin.class, new DefaultLoggingFormatter(false, true));
+        StructuredLogger<RequiredMixin> log = StructuredLoggerFactory.getLogger(RequiredMixin.class);
         log.info(m -> m.code("code-123"));
     }
 
@@ -181,17 +184,27 @@ public class TestStructuredLogger {
         StructuredLoggerFactory.getLogger(MixedBase.class);
     }
 
-/*
-TODO
-
     @Test
     public void testSetDefaultLoggingFormatter() {
-        StructuredLoggerFactoryBase.setDefaultLoggingFormatter(__ -> "TEST");
-        TestLoggerFacade logger = new TestLoggerFacade();
-        StructuredLogger<LocalSchema> log = StructuredLoggerFactoryBase.getLogger(logger, LocalSchema.class, StructuredLoggerFactoryBase.getDefaultLoggingFormatter());
-        log.info(s -> s.id("an id").count(100));
-        assertThat(logger.entries).hasSize(1);
-        assertThat(logger.entries.get(0).message).isEqualTo("TEST");
+        try {
+            AtomicInteger counter = new AtomicInteger(0);
+            StructuredLoggerFactory.setDefaultLoggingFormatter((levelLogger, logger, schemaNames, arguments, mainMessage, t) -> counter.incrementAndGet());
+            StructuredLogger<LocalSchema> log = StructuredLoggerFactory.getLogger(LocalSchema.class);
+            log.info(s -> s.id("an id").count(100));
+            assertThat(counter.get()).isEqualTo(1);
+        } finally {
+            StructuredLoggerFactory.setDefaultLoggingFormatter(LoggingFormatter.defaultLoggingFormatter);
+        }
     }
-*/
+
+    @Test
+    public void testSorted() {
+        StructuredLogger<SchemaWithSort> log = StructuredLoggerFactory.getLogger(SchemaWithSort.class, loggingFormatter);
+        log.debug(s -> s.bool(true).id("hey").qty(100).zero(0));
+        assertThat(loggingFormatter.entries).hasSize(1);
+        assertThat(loggingFormatter.entries.get(0).arguments.get(0)).isEqualTo(0);
+        assertThat(loggingFormatter.entries.get(0).arguments.get(1)).isEqualTo(100);
+        assertThat(loggingFormatter.entries.get(0).arguments.get(2)).isEqualTo(true);
+        assertThat(loggingFormatter.entries.get(0).arguments.get(3)).isEqualTo("hey");
+    }
 }
