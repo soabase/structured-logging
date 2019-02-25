@@ -33,7 +33,7 @@ THE POSSIBILITY OF SUCH DAMAGE.
     <parent>
         <groupId>io.soabase.structured-logger</groupId>
         <artifactId>structured-logger-parent</artifactId>
-        <version>2</version>
+        <version>3-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 

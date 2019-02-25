@@ -5,7 +5,7 @@
     <groupId>io.soabase.structured-logger</groupId>
     <artifactId>structured-logger-parent</artifactId>
     <packaging>pom</packaging>
-    <version>2</version>
+    <version>3-SNAPSHOT</version>
 
     <modules>
         <module>structured-logger-core</module>
@@ -75,7 +75,7 @@
         <url>https://github.com/soabase/structured-logging</url>
         <connection>scm:git:https://github.com/soabase/structured-logging.git</connection>
         <developerConnection>scm:git:git@github.com:soabase/structured-logging.git</developerConnection>
-        <tag>structured-logger-2</tag>
+        <tag>HEAD</tag>
     </scm>
 
     <issueManagement>
