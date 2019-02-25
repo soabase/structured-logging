@@ -15,6 +15,8 @@
  */
 package io.soabase.structured.logger;
 
+import io.soabase.structured.logger.formatting.LevelLogger;
+import io.soabase.structured.logger.formatting.LevelLoggers;
 import io.soabase.structured.logger.formatting.LoggingFormatter;
 import io.soabase.structured.logger.generation.Generated;
 import org.slf4j.Logger;
@@ -37,37 +39,27 @@ class StructuredLoggerImpl<T> implements StructuredLogger<T> {
 
     @Override
     public void trace(String mainMessage, Throwable t, Consumer<T> statement) {
-        if (logger.isTraceEnabled()) {
-            consume(LoggerLevel.TRACE, logger, statement, mainMessage, t);
-        }
+        consume(LevelLoggers.trace, logger, statement, mainMessage, t);
     }
 
     @Override
     public void debug(String mainMessage, Throwable t, Consumer<T> statement) {
-        if (logger.isDebugEnabled()) {
-            consume(LoggerLevel.DEBUG, logger, statement, mainMessage, t);
-        }
+        consume(LevelLoggers.debug, logger, statement, mainMessage, t);
     }
 
     @Override
     public void warn(String mainMessage, Throwable t, Consumer<T> statement) {
-        if (logger.isWarnEnabled()) {
-            consume(LoggerLevel.WARN, logger, statement, mainMessage, t);
-        }
+        consume(LevelLoggers.warn, logger, statement, mainMessage, t);
     }
 
     @Override
     public void info(String mainMessage, Throwable t, Consumer<T> statement) {
-        if (logger.isInfoEnabled()) {
-            consume(LoggerLevel.INFO, logger, statement, mainMessage, t);
-        }
+        consume(LevelLoggers.info, logger, statement, mainMessage, t);
     }
 
     @Override
     public void error(String mainMessage, Throwable t, Consumer<T> statement) {
-        if (logger.isErrorEnabled()) {
-            consume(LoggerLevel.ERROR, logger, statement, mainMessage, t);
-        }
+        consume(LevelLoggers.error, logger, statement, mainMessage, t);
     }
 
     @Override
@@ -80,9 +72,11 @@ class StructuredLoggerImpl<T> implements StructuredLogger<T> {
         return StructuredLoggerFactory.getLogger(logger, schema, formatter);
     }
 
-    private void consume(LoggerLevel level, Logger logger, Consumer<T> statement, String mainMessage, Throwable t) {
-        T instance = generated.newInstance(t != null);
-        statement.accept(instance);
-        generated.apply(level, logger, instance, mainMessage, t);
+    private void consume(LevelLogger levelLogger, Logger logger, Consumer<T> statement, String mainMessage, Throwable t) {
+        if (levelLogger.isEnabled(logger)) {
+            T instance = generated.newInstance(t != null);
+            statement.accept(instance);
+            generated.apply(levelLogger, logger, instance, mainMessage, t);
+        }
     }
 }

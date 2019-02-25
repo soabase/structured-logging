@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.soabase.structured.logger.benchmark;
+package io.soabase.structured.logger.benchmark.internals;
 
 public class Utils {
     public static String str() {

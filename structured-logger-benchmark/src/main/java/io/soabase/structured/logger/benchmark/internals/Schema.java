@@ -13,12 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.soabase.structured.logger.benchmark;
+package io.soabase.structured.logger.benchmark.internals;
 
 import io.soabase.structured.logger.schemas.Id;
 import io.soabase.structured.logger.schemas.Qty;
 import io.soabase.structured.logger.schemas.Time;
-import io.soabase.structured.logger.schemas.WithFormat;
 
-public interface SchemaWithFormat extends Id<SchemaWithFormat>, Qty<SchemaWithFormat>, Time<SchemaWithFormat>, WithFormat<SchemaWithFormat> {
+public interface Schema extends Id<Schema>, Qty<Schema>, Time<Schema> {
 }

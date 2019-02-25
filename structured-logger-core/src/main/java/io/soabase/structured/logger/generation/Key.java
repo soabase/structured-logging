@@ -21,16 +21,18 @@ import io.soabase.structured.logger.formatting.LoggingFormatter;
 class Key {
     private final Class clazz;
     private final LoggingFormatter formatter;
+    private final int hash;
 
     Key(Class clazz, LoggingFormatter formatter) {
         this.clazz = clazz;
         this.formatter = formatter;
+        hash = calcHash();
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (getClass() != o.getClass()) return false;
+        if (o == null || getClass() != o.getClass()) return false;
 
         Key key = (Key) o;
 
@@ -40,7 +42,12 @@ class Key {
 
     @Override
     public int hashCode() {
+        return hash;
+    }
+
+    private int calcHash() {
         int result = clazz.hashCode();
-        return 31 * result + formatter.hashCode();
+        result = 31 * result + formatter.hashCode();
+        return result;
     }
 }

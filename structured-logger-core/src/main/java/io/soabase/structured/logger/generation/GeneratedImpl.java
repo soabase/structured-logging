@@ -15,31 +15,26 @@
  */
 package io.soabase.structured.logger.generation;
 
-import io.soabase.structured.logger.LoggerLevel;
 import io.soabase.structured.logger.exception.MissingSchemaValueException;
+import io.soabase.structured.logger.formatting.LevelLogger;
 import io.soabase.structured.logger.formatting.LoggingFormatter;
 import org.slf4j.Logger;
 
-import java.lang.reflect.Constructor;
 import java.util.List;
 
 class GeneratedImpl<T> implements Generated<T> {
     private final Class<T> generatedClass;
-    private final Constructor<T> declaredConstructor;
     private final List<String> schemaNames;
     private final LoggingFormatter loggingFormatter;
     private final String formatString;
+    private final InstanceFactory<T> instanceFactory;
 
-    GeneratedImpl(Class<T> generatedClass, List<String> schemaNames, LoggingFormatter loggingFormatter) {
-        try {
-            this.generatedClass = generatedClass;
-            this.schemaNames = schemaNames;
-            this.loggingFormatter = loggingFormatter;
-            this.formatString = loggingFormatter.buildFormatString(schemaNames);
-            this.declaredConstructor = this.generatedClass.getDeclaredConstructor();
-        } catch (NoSuchMethodException e) {
-            throw new RuntimeException("Could not cache schema meta data: " + generatedClass.getName(), e);
-        }
+    GeneratedImpl(Class<T> generatedClass, InstanceFactory<T> instanceFactory, List<String> schemaNames, LoggingFormatter loggingFormatter) {
+        this.instanceFactory = instanceFactory;
+        this.generatedClass = generatedClass;
+        this.schemaNames = schemaNames;
+        this.loggingFormatter = loggingFormatter;
+        this.formatString = loggingFormatter.buildFormatString(schemaNames);
     }
 
     @Override
@@ -50,8 +45,9 @@ class GeneratedImpl<T> implements Generated<T> {
     @Override
     public T newInstance(boolean hasException) {
         try {
-            T instance = declaredConstructor.newInstance();
-            ((Instance)instance).arguments = new Object[loggingFormatter.argumentQty(schemaNames.size(), hasException)];
+            T instance = instanceFactory.newInstance();
+            int argumentQty = loggingFormatter.argumentQty(schemaNames.size(), hasException);
+            ((Instance)instance).arguments = new Object[argumentQty];
             return instance;
         } catch (Exception e) {
             throw new RuntimeException("Could not allocate schema instance: " + generatedClass.getName(), e);
@@ -59,7 +55,7 @@ class GeneratedImpl<T> implements Generated<T> {
     }
 
     @Override
-    public void apply(LoggerLevel level, Logger logger, T instance, String mainMessage, Throwable t) {
+    public void apply(LevelLogger levelLogger, Logger logger, T instance, String mainMessage, Throwable t) {
         Object[] arguments = ((Instance)instance).arguments;
 
         if (loggingFormatter.requireAllValues()) {
@@ -72,6 +68,6 @@ class GeneratedImpl<T> implements Generated<T> {
             }
         }
 
-        loggingFormatter.apply(level, logger, formatString, schemaNames, arguments, mainMessage, t);
+        loggingFormatter.apply(levelLogger, logger, formatString, schemaNames, arguments, mainMessage, t);
     }
 }

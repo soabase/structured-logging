@@ -15,7 +15,7 @@
  */
 package io.soabase.structured.logger.generation;
 
-import io.soabase.structured.logger.LoggerLevel;
+import io.soabase.structured.logger.formatting.LevelLogger;
 import io.soabase.structured.logger.formatting.LoggingFormatter;
 import org.slf4j.Logger;
 
@@ -24,5 +24,5 @@ public interface Generated<T> {
 
     LoggingFormatter loggingFormatter();
 
-    void apply(LoggerLevel level, Logger logger, T instance, String mainMessage, Throwable t);
+    void apply(LevelLogger levelLogger, Logger logger, T instance, String mainMessage, Throwable t);
 }

@@ -22,6 +22,7 @@ import net.bytebuddy.ByteBuddy;
 import net.bytebuddy.dynamic.DynamicType;
 import net.bytebuddy.implementation.FixedValue;
 import net.bytebuddy.implementation.Implementation;
+import net.bytebuddy.implementation.MethodDelegation;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -61,8 +62,10 @@ public class Generator {
     public <T> Generated<T> generate(Class<T> schemaClass, ClassLoader classLoader, LoggingFormatter loggingFormatter) {
         return generated.computeIfAbsent(new Key(schemaClass, loggingFormatter), __ -> {
             List<String> schemaNames = validateSchemaClass(schemaClass);
-            Class generatedClass = internalGenerate(schemaClass, classLoader, loggingFormatter);
-            return new GeneratedImpl<>(generatedClass, schemaNames, loggingFormatter);
+            ByteBuddy byteBuddy = new ByteBuddy();
+            Class generatedClass = internalGenerate(byteBuddy, schemaClass, classLoader, loggingFormatter);
+            InstanceFactory<T> instanceFactory = generateInstanceFactory(byteBuddy, generatedClass, classLoader);
+            return new GeneratedImpl<>(generatedClass, instanceFactory, schemaNames, loggingFormatter);
         });
     }
 
@@ -93,8 +96,8 @@ public class Generator {
         return Collections.unmodifiableList(schemaNames);
     }
 
-    private Class internalGenerate(Class schemaClass, ClassLoader classLoader, LoggingFormatter loggingFormatter) {
-        DynamicType.Builder builder = new ByteBuddy().subclass(Instance.class).implement(schemaClass);
+    private Class internalGenerate(ByteBuddy byteBuddy, Class schemaClass, ClassLoader classLoader, LoggingFormatter loggingFormatter) {
+        DynamicType.Builder builder = byteBuddy.subclass(Instance.class).implement(schemaClass);
         int schemaIndex = 0;
         for (Method method : schemaClass.getMethods()) {
             int thisIndex = loggingFormatter.indexForArgument(method.getName(), schemaIndex++);
@@ -114,5 +117,17 @@ public class Generator {
             builder = builder.method(named(method.getName())).intercept(methodCall);
         }
         return builder.make().load(classLoader).getLoaded();
+    }
+
+    @SuppressWarnings("unchecked")
+    private <T> InstanceFactory generateInstanceFactory(ByteBuddy byteBuddy, Class<T> clazz, ClassLoader classLoader) {
+        try {
+            DynamicType.Builder<InstanceFactory> builder = byteBuddy
+                    .subclass(InstanceFactory.class)
+                    .method(named("newInstance")).intercept(MethodDelegation.toConstructor(clazz));
+            return builder.make().load(clazz.getClassLoader()).getLoaded().getDeclaredConstructor().newInstance();
+        } catch (Exception e) {
+            throw new RuntimeException("Couldn't not create InstanceFactory for: " + clazz.getName(), e);
+        }
     }
 }

@@ -15,7 +15,6 @@
  */
 package io.soabase.structured.logger.formatting;
 
-import io.soabase.structured.logger.LoggerLevel;
 import org.slf4j.Logger;
 
 import java.util.List;
@@ -29,7 +28,7 @@ public interface LoggingFormatter {
 
     String buildFormatString(List<String> schemaNames);
 
-    void apply(LoggerLevel level, Logger logger, String formatString, List<String> schemaNames, Object[] arguments, String mainMessage, Throwable t);
+    void apply(LevelLogger levelLogger, Logger logger, String formatString, List<String> schemaNames, Object[] arguments, String mainMessage, Throwable t);
 
     LoggingFormatter defaultLoggingFormatter = new DefaultLoggingFormatter(false, true, true);
 }

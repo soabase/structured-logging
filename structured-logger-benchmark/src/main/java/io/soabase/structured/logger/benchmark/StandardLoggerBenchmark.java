@@ -15,6 +15,7 @@
  */
 package io.soabase.structured.logger.benchmark;
 
+import io.soabase.structured.logger.benchmark.internals.Utils;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

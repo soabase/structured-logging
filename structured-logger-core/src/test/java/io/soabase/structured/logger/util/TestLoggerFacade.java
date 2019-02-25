@@ -44,7 +44,7 @@ public class TestLoggerFacade implements Logger {
 
     @Override
     public void trace(String format, Object arg) {
-
+        trace(format, new Object[]{arg});
     }
 
     @Override
@@ -89,7 +89,7 @@ public class TestLoggerFacade implements Logger {
 
     @Override
     public void debug(String format, Object arg) {
-
+        debug(format, new Object[]{arg});
     }
 
     @Override
@@ -134,7 +134,7 @@ public class TestLoggerFacade implements Logger {
 
     @Override
     public void info(String format, Object arg) {
-
+        info(format, new Object[]{arg});
     }
 
     @Override
@@ -179,7 +179,7 @@ public class TestLoggerFacade implements Logger {
 
     @Override
     public void warn(String format, Object arg) {
-
+        warn(format, new Object[]{arg});
     }
 
     @Override
@@ -224,7 +224,7 @@ public class TestLoggerFacade implements Logger {
 
     @Override
     public void error(String format, Object arg) {
-
+        error(format, new Object[]{arg});
     }
 
     @Override
@@ -294,27 +294,27 @@ public class TestLoggerFacade implements Logger {
 
     @Override
     public void trace(String message) {
-        trace(message, (Object[])null);
+        trace(message, new Object[0]);
     }
 
     @Override
     public void debug(String message) {
-        debug(message, (Object[])null);
+        debug(message, new Object[0]);
     }
 
     @Override
     public void warn(String message) {
-        warn(message, (Object[])null);
+        warn(message, new Object[0]);
     }
 
     @Override
     public void info(String message) {
-        info(message, (Object[])null);
+        info(message, new Object[0]);
     }
 
     @Override
     public void error(String message) {
-        error(message, (Object[])null);
+        error(message, new Object[0]);
     }
 
     @Override

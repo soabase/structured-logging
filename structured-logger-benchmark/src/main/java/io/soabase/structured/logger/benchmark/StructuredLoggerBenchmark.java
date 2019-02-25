@@ -17,25 +17,50 @@ package io.soabase.structured.logger.benchmark;
 
 import io.soabase.structured.logger.StructuredLogger;
 import io.soabase.structured.logger.StructuredLoggerFactory;
+import io.soabase.structured.logger.benchmark.internals.Schema;
+import io.soabase.structured.logger.benchmark.internals.StubbedLogger;
+import io.soabase.structured.logger.benchmark.internals.Utils;
+import io.soabase.structured.logger.formatting.FastLoggingFormatter;
+import io.soabase.structured.logger.formatting.LoggingFormatter;
 import org.openjdk.jmh.annotations.Benchmark;
 
 import java.time.Instant;
 
 public class StructuredLoggerBenchmark {
-    private static final StructuredLogger<Schema> logger = StructuredLoggerFactory.structured(Schema.class);
+    private static final LoggingFormatter fastLoggingFormatter = new FastLoggingFormatter(false, true, false);
 
-    @Benchmark
-    public void testFreshLogger() {
-        StructuredLogger<Schema> newLogger = StructuredLoggerFactory.structured(Schema.class);
-        newLogger.trace("message", schema -> schema.id(Utils.str()).qty(Utils.value()).time(Instant.now()));
-        newLogger.warn("message", schema -> schema.id(Utils.str()).qty(Utils.value()).time(Instant.now()));
-        newLogger.debug("message", schema -> schema.id(Utils.str()).qty(Utils.value()).time(Instant.now()));
-        newLogger.error("message", schema -> schema.id(Utils.str()).qty(Utils.value()).time(Instant.now()));
-        newLogger.info("message", schema -> schema.id(Utils.str()).qty(Utils.value()).time(Instant.now()));
+    //@Benchmark
+    public void testFreshLoggerDefaultFormatter() {
+        testAllLevels(null, LoggingFormatter.defaultLoggingFormatter);
+    }
+
+    //@Benchmark
+    public void testSavedLoggerDefaultFormatter() {
+        StructuredLogger<Schema> logger = StructuredLoggerFactory.structured(Schema.class, LoggingFormatter.defaultLoggingFormatter);
+        testAllLevels(logger, LoggingFormatter.defaultLoggingFormatter);
     }
 
     @Benchmark
-    public void testSavedLogger() {
+    public void testFreshLoggerFastFormatter() {
+        testAllLevels(null, fastLoggingFormatter);
+    }
+
+    @Benchmark
+    public void testSavedLoggerFastFormatter() {
+        StructuredLogger<Schema> logger = StructuredLoggerFactory.structured(Schema.class, fastLoggingFormatter);
+        testAllLevels(logger, fastLoggingFormatter);
+    }
+
+    @Benchmark
+    public void testStubbedLogger() {
+        StructuredLogger<Schema> logger = StructuredLoggerFactory.structured(new StubbedLogger(), Schema.class, fastLoggingFormatter);
+        testAllLevels(logger, fastLoggingFormatter);
+    }
+
+    private void testAllLevels(StructuredLogger<Schema> logger, LoggingFormatter formatter) {
+        if (logger == null) {
+            logger = StructuredLoggerFactory.structured(Schema.class, formatter);
+        }
         logger.trace("message", schema -> schema.id(Utils.str()).qty(Utils.value()).time(Instant.now()));
         logger.warn("message", schema -> schema.id(Utils.str()).qty(Utils.value()).time(Instant.now()));
         logger.debug("message", schema -> schema.id(Utils.str()).qty(Utils.value()).time(Instant.now()));

@@ -69,7 +69,7 @@ public class TestGelfFormatting {
 
     private void validate(TestLoggerFacade logger) throws IOException {
         assertThat(logger.entries).hasSize(1);
-        assertThat(logger.entries.get(0).arguments).isNull();
+        assertThat(logger.entries.get(0).arguments).hasSize(0);
 
         ObjectMapper mapper = new ObjectMapper();
         JsonNode tree = mapper.readTree(logger.entries.get(0).message);
