@@ -19,7 +19,7 @@ public class MyClass {
     private void myOperation() {
     ...
     
-        log.info("Something happened", schema -> schema.event("creation event").id(10064).qty(qty));
+        log.info("Something happened", schema -> schema.event("creation event").id(10064).qty(100));
     }
 }
 ```
@@ -47,7 +47,7 @@ StructuredLogger<LogSchema> log = StructuredLoggerFactory.structured(LogSchema.c
 private void myOperation() {
     ...
     
-        log.info("Something happened", schema -> schema.event("creation event").id(10064).qty(qty));
+        log.info("Something happened", schema -> schema.event("creation event").id(10064).qty(100));
 }
 ```
 
