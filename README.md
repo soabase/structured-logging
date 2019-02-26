@@ -95,6 +95,25 @@ public interface MySchema {
 
 The Structured Logger will throw `MissingSchemaValueException` if no value is set for required values. Note: if you want to only use this in development or pre-production, you can globally disable required value checking by calling `StructuredLoggerFactory.setRequiredValuesEnabled(false)`.
 
+### Change Ordering
+
+By default, schema values are output in alphabetical order. Add `@SortOrder` annotations to change this. E.g.
+
+```java
+public interface SchemaWithSort {
+    SchemaWithSort id(String id);
+
+    SchemaWithSort bool(boolean b);
+
+    @SortOrder(1)
+    SchemaWithSort qty(int qty);
+
+    @SortOrder(0)
+    SchemaWithSort zero(int z);
+}
+```
+This schema will be output ala: `zero=xxx qty=xxx bool=xxx id=xxx`
+
 ## Under The Hood
 
 - The schema concrete instance is generated from the interface using Byte Buddy here: [Generator.java](https://github.com/soabase/structured-logging/blob/master/structured-logger-core/src/main/java/io/soabase/structured/logger/generation/Generator.java)
