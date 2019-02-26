@@ -20,7 +20,16 @@ import org.slf4j.Logger;
 
 import java.util.function.Consumer;
 
+/**
+ * A Logger instance. Roughly corresponds to {@link Logger} however each logging
+ * method accepts a schema consumer
+ */
 public interface StructuredLogger<T> {
+    /**
+     * Returns the underlying logger
+     *
+     * @return logger
+     */
     Logger logger();
 
     default void trace(Consumer<T> statement) {
@@ -73,7 +82,20 @@ public interface StructuredLogger<T> {
 
     void error(String mainMessage, Throwable t, Consumer<T> statement);
 
+    /**
+     * Utility - returns the underlying logger and formatter with a different schema
+     *
+     * @param schema new schema
+     * @return logger
+     */
     <S> StructuredLogger<S> as(Class<S> schema);
 
+    /**
+     * Utility - returns the underlying logger with a different schema and formatter
+     *
+     * @param schema new schema
+     * @param formatter formatter
+     * @return logger
+     */
     <S> StructuredLogger<S> as(Class<S> schema, LoggingFormatter formatter);
 }

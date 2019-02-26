@@ -15,6 +15,9 @@
  */
 package io.soabase.structured.logger.schemas;
 
+/**
+ * Prebuilt schema mixin to represent an amount
+ */
 public interface Amount {
     Amount amount(double amount);
 }

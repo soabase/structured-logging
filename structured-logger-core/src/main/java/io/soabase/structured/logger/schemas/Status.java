@@ -15,6 +15,9 @@
  */
 package io.soabase.structured.logger.schemas;
 
+/**
+ * Prebuilt schema mixin to represent a status
+ */
 public interface Status {
     Status status(int statusCode);
 }

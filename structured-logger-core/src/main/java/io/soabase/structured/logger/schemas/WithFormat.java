@@ -15,6 +15,18 @@
  */
 package io.soabase.structured.logger.schemas;
 
+/**
+ * Special purpose mixin. The Structured Logger treats WithFormat specially. It is translated
+ * into a call to {@link String#format(String, Object...)}. E.g.:
+ *
+ * <code><pre>
+ *  log.info(s -> s.formatted("a: %s, b: %s", anA, aB));
+ *
+ *  // is the same as
+ *
+ *  log.info(s -> s.id(String.format("a: %s, b: %s", anA, aB));
+ * </pre></code>
+ */
 public interface WithFormat {
     WithFormat formatted(String format, Object... arguments);
 }

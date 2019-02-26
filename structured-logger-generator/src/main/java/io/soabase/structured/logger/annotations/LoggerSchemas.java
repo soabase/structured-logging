@@ -20,6 +20,10 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+/**
+ * Allows for multiple LoggerSchema annotations on a class. The contained LoggerSchema
+ * annotations must set a {@link LoggerSchema#schemaName()}
+ */
 @Retention(RetentionPolicy.SOURCE)
 @Target(ElementType.TYPE)
 public @interface LoggerSchemas {

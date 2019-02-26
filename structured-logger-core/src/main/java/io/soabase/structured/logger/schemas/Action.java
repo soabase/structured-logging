@@ -15,6 +15,9 @@
  */
 package io.soabase.structured.logger.schemas;
 
+/**
+ * Prebuilt schema mixin to represent an action
+ */
 public interface Action {
     Action action(String actionName);
 }

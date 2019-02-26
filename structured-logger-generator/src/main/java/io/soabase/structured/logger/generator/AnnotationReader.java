@@ -33,7 +33,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-public class AnnotationReader {
+class AnnotationReader {
     private final String annotationName;
     private final Map<String, Object> values;
     private final ProcessingEnvironment processingEnv;

@@ -15,6 +15,9 @@
  */
 package io.soabase.structured.logger.schemas;
 
+/**
+ * Prebuilt schema mixin to represent a miscellaneous value
+ */
 public interface Miscellaneous {
     Miscellaneous misc(Object obj);
 }

@@ -15,6 +15,9 @@
  */
 package io.soabase.structured.logger.schemas;
 
+/**
+ * Prebuilt schema mixin to represent a category
+ */
 public interface Category {
     Category category(String categoryName);
 }

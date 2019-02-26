@@ -17,6 +17,9 @@ package io.soabase.structured.logger.schemas;
 
 import java.time.Instant;
 
+/**
+ * Prebuilt schema mixin to represent an instant in time
+ */
 public interface Time {
     Time time(Instant i);
 }

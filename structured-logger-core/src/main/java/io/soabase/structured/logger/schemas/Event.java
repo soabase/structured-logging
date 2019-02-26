@@ -15,6 +15,9 @@
  */
 package io.soabase.structured.logger.schemas;
 
+/**
+ * Prebuilt schema mixin to represent an event
+ */
 public interface Event {
     Event event(String type);
 }

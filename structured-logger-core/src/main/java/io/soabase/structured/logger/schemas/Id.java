@@ -15,6 +15,9 @@
  */
 package io.soabase.structured.logger.schemas;
 
+/**
+ * Prebuilt schema mixin to represent an id
+ */
 public interface Id {
     Id id(String value);
 }

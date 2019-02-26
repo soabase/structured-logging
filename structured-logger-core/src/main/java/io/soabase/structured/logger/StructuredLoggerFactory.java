@@ -24,38 +24,74 @@ import org.slf4j.LoggerFactory;
 import java.util.Objects;
 import java.util.function.Function;
 
+/**
+ * Factory for getting structured loggers
+ */
 public class StructuredLoggerFactory {
     private static final Generator generator = new Generator();
     private static volatile LoggingFormatter defaultLoggingFormatter = LoggingFormatter.defaultLoggingFormatter;
     private static volatile Function<Class, ClassLoader> classloaderProc = Class::getClassLoader;
     private static volatile boolean requiredValuesEnabled = true;
 
+    /**
+     * An internal cache of generated schemas, etc. is maintained. This clears that cache
+     */
     public static void clearCache() {
         generator.clearCache();
     }
 
+    /**
+     * Set the default logging formatter to use. Normally, it's {@link io.soabase.structured.logger.formatting.DefaultLoggingFormatter}
+     *
+     * @param defaultLoggingFormatter new formatter
+     */
     public static void setDefaultLoggingFormatter(LoggingFormatter defaultLoggingFormatter) {
         StructuredLoggerFactory.defaultLoggingFormatter = Objects.requireNonNull(defaultLoggingFormatter);
     }
 
+    /**
+     * Return the current default logging formatter
+     * @return default logging formatter
+     */
     public static LoggingFormatter getDefaultLoggingFormatter() {
         return defaultLoggingFormatter;
     }
 
+    /**
+     * The code generator needs a classloader. By default it is the class loader of the schema class
+     * being used
+     *
+     * @param classloaderProc new classloader functor
+     */
     public static void setClassloaderProc(Function<Class, ClassLoader> classloaderProc) {
         StructuredLoggerFactory.classloaderProc = classloaderProc;
     }
 
+    /**
+     * Return the current classloader proc
+     *
+     * @return proc
+     */
     public static Function<Class, ClassLoader> getClassloaderProc() {
         return classloaderProc;
     }
 
-    public static boolean requiredValuesEnabled() {
-        return requiredValuesEnabled;
-    }
-
+    /**
+     * Change whether or not required values are validated
+     *
+     * @param requiredValuesEnabled true/false
+     */
     public static void setRequiredValuesEnabled(boolean requiredValuesEnabled) {
         StructuredLoggerFactory.requiredValuesEnabled = requiredValuesEnabled;
+    }
+
+    /**
+     * Returns whether or not required values are validated
+     *
+     * @return true/false
+     */
+    public static boolean requiredValuesEnabled() {
+        return requiredValuesEnabled;
     }
 
     public static <T> StructuredLogger<T> getLogger(Logger logger, Class<T> schema, LoggingFormatter loggingFormatter) {

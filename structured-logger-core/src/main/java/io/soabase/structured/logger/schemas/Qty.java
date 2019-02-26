@@ -15,6 +15,9 @@
  */
 package io.soabase.structured.logger.schemas;
 
+/**
+ * Prebuilt schema mixin to represent a qty
+ */
 public interface Qty {
     Qty qty(int n);
 }
