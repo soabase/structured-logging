@@ -22,7 +22,7 @@ import io.soabase.structured.logger.formatting.LoggingFormatter;
 import io.soabase.structured.logger.formatting.gelf.GelfLoggingFormatter;
 import io.soabase.structured.logger.formatting.gelf.JacksonJsonBuilder;
 import io.soabase.structured.logger.formatting.gelf.SimpleJsonBuilder;
-import io.soabase.structured.logger.util.Schema;
+import io.soabase.structured.logger.schema.Schema;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

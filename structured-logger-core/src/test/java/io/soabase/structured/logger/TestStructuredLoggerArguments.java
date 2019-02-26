@@ -17,17 +17,14 @@ package io.soabase.structured.logger;
 
 import io.soabase.structured.logger.exception.InvalidSchemaException;
 import io.soabase.structured.logger.exception.MissingSchemaValueException;
-import io.soabase.structured.logger.formatting.DefaultLoggingFormatter;
 import io.soabase.structured.logger.formatting.LoggingFormatter;
-import io.soabase.structured.logger.schemas.Code;
-import io.soabase.structured.logger.schemas.Event;
-import io.soabase.structured.logger.schemas.Id;
-import io.soabase.structured.logger.schemas.Qty;
-import io.soabase.structured.logger.schemas.Time;
-import io.soabase.structured.logger.schemas.WithFormat;
+import io.soabase.structured.logger.schema.BadReturnType;
+import io.soabase.structured.logger.schema.Duplicates;
+import io.soabase.structured.logger.schema.Empty;
+import io.soabase.structured.logger.schema.MixedBase;
+import io.soabase.structured.logger.schema.RequiredMixin;
 import io.soabase.structured.logger.util.RecordingLoggingFormatter;
-import io.soabase.structured.logger.util.RequiredId;
-import io.soabase.structured.logger.util.SchemaWithSort;
+import io.soabase.structured.logger.schema.SchemaWithSort;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -40,39 +37,13 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SuppressWarnings({"WeakerAccess", "UnusedReturnValue"})
-public class TestStructuredLogger {
+public class TestStructuredLoggerArguments {
     private final RecordingLoggingFormatter loggingFormatter = new RecordingLoggingFormatter();
-
-    public interface BigMixin extends Id<BigMixin>, Event<BigMixin>, Time<BigMixin>, Code<BigMixin>, Qty<BigMixin>, WithFormat<BigMixin> {}
-
-    public interface RequiredMixin extends RequiredId<RequiredMixin>, Code<RequiredMixin> {}
-
-    public interface Empty {}
-
-    public interface AnotherId<R extends AnotherId<R>> {
-        R id(String value);
-    }
-
-    public interface Duplicates extends Id<Duplicates>, AnotherId<Duplicates> {}
 
     public interface LocalSchema {
         LocalSchema id(String id);
         LocalSchema count(int n);
     }
-
-    public interface BadReturnType {
-        String id(String id);
-    }
-
-    public interface Base1 {
-        Base1 one(String i);
-    }
-
-    public interface Base2 {
-        Base2 two(String i);
-    }
-
-    public interface MixedBase extends Base1, Base2 {}
 
     @After
     @Before
@@ -109,33 +80,6 @@ public class TestStructuredLogger {
         assertThat(loggingFormatter.entries.get(0).arguments.get(0)).isNull();
         assertThat(loggingFormatter.entries.get(0).arguments.get(1)).isEqualTo("123");
     }
-/*
-
-    @Test
-    public void testMainMessageIsFirstNoException() {
-        TestLoggerFacade logger = new TestLoggerFacade();
-        StructuredLogger<LocalSchema> log = StructuredLoggerFactory.getLogger(logger, LocalSchema.class, new DefaultLoggingFormatter(false, false, true));
-        log.info("A Message", m -> m.id("123").count(10));
-        assertThat(logger.entries).hasSize(1);
-        assertThat(logger.entries.get(0).arguments[0]).isEqualTo("A Message");
-        assertThat(logger.entries.get(0).arguments[1]).isEqualTo(10);
-        assertThat(logger.entries.get(0).arguments[2]).isEqualTo("123");
-    }
-*/
-/*
-
-    @Test
-    public void testMainMessageIsFirstWithException() {
-        TestLoggerFacade logger = new TestLoggerFacade();
-        StructuredLogger<LocalSchema> log = StructuredLoggerFactory.getLogger(logger, LocalSchema.class, new DefaultLoggingFormatter(false, false, true));
-        log.info("A Message", new Exception(), m -> m.id("123").count(10));
-        assertThat(logger.entries).hasSize(1);
-        assertThat(logger.entries.get(0).arguments[0]).isEqualTo("A Message");
-        assertThat(logger.entries.get(0).arguments[1]).isEqualTo(10);
-        assertThat(logger.entries.get(0).arguments[2]).isEqualTo("123");
-        assertThat(logger.entries.get(0).arguments[3]).isInstanceOf(Exception.class);
-    }
-*/
 
     @Test
     public void testEmptySchema() {

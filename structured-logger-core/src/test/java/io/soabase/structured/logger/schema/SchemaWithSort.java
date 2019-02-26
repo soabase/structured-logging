@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.soabase.structured.logger.util;
+package io.soabase.structured.logger.schema;
 
 import io.soabase.structured.logger.annotations.SortOrder;
 

@@ -24,10 +24,26 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class RecordingLoggingFormatter implements LoggingFormatter {
-    public final List<LoggingEntry> entries = new ArrayList<>();
+    public final List<Entry> entries = new ArrayList<>();
 
     @Override
     public void apply(LevelLogger levelLogger, Logger logger, List<String> schemaNames, Arguments arguments, String mainMessage, Throwable t) {
-        entries.add(new LoggingEntry(levelLogger, schemaNames, arguments, mainMessage, t));
+        entries.add(new Entry(levelLogger, schemaNames, arguments, mainMessage, t));
+    }
+
+    public static class Entry {
+        public final LevelLogger levelLogger;
+        public final List<String> schemaNames;
+        public final Arguments arguments;
+        public final String mainMessage;
+        public final Throwable t;
+
+        public Entry(LevelLogger levelLogger, List<String> schemaNames, Arguments arguments, String mainMessage, Throwable t) {
+            this.levelLogger = levelLogger;
+            this.schemaNames = schemaNames;
+            this.arguments = arguments;
+            this.mainMessage = mainMessage;
+            this.t = t;
+        }
     }
 }

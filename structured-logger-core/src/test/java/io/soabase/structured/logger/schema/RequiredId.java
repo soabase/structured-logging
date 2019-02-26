@@ -13,14 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.soabase.structured.logger.util;
+package io.soabase.structured.logger.schema;
 
-public interface Schema {
-    Schema event(String s);
+import io.soabase.structured.logger.annotations.Required;
 
-    Schema id(String id);
-
-    Schema context(String c);
-
-    Schema count(int c);
+public interface RequiredId<R extends RequiredId<R>> {
+    @Required
+    R id(int i);
 }
