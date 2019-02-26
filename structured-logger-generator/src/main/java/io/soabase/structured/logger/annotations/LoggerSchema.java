@@ -25,7 +25,7 @@ import java.lang.annotation.Target;
 public @interface LoggerSchema {    // TODO double check and test each attribute
     Class[] value();
 
-    String schemaName() default "%sSchema";
+    String schemaName() default "";
 
     String packageName() default "";
 

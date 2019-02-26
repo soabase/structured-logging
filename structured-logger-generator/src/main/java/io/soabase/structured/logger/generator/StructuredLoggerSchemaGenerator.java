@@ -70,7 +70,7 @@ public class StructuredLoggerSchemaGenerator extends AbstractProcessor {
     private void processElement(TypeElement element, TypeElement annotation) {
         if (annotation.getQualifiedName().toString().equals(LoggerSchema.class.getName())) {
             AnnotationReader annotationReader = new AnnotationReader(processingEnv, element, annotation.getSimpleName().toString());
-            processSchemaElement(annotationReader, element);
+            processSchemaElement(annotationReader, element, false);
         } else {
             processSchemaContainerElement(element, annotation);
         }
@@ -81,11 +81,11 @@ public class StructuredLoggerSchemaGenerator extends AbstractProcessor {
         List<AnnotationMirror> classes = annotationReader.getAnnotations("value");
         classes.forEach(e -> {
             AnnotationReader subAnnotationReader = new AnnotationReader(processingEnv, e, e.getElementValues(), annotation.getSimpleName().toString());
-            processSchemaElement(subAnnotationReader, element);
+            processSchemaElement(subAnnotationReader, element, true);
         });
     }
 
-    private void processSchemaElement(AnnotationReader annotationReader, TypeElement element) {
+    private void processSchemaElement(AnnotationReader annotationReader, TypeElement element, boolean schemaNameRequired) {
         if (annotationReader.getAnnotationName() == null) {
             return;
         }
@@ -95,6 +95,13 @@ public class StructuredLoggerSchemaGenerator extends AbstractProcessor {
         String packageName = annotationReader.getString("packageName");
         boolean reuseExistingSchema = annotationReader.getBoolean("reuseExistingSchema");
 
+        if (schemaName.isEmpty()) {
+            if (schemaNameRequired) {
+                processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "LoggerSchema entries in LoggerSchemas must have a schemaName", element);
+                return;
+            }
+            schemaName = "%sSchema";
+        }
         String schemaClassName = String.format(schemaName, element.getSimpleName());
         if (packageName.isEmpty()) {
             packageName = getPackage(element);
