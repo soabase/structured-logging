@@ -82,6 +82,19 @@ public class LoggingSchema {
 }
 ```
 
+### Make Some Values Required
+
+If you would like to require certain schema values to not be omitted, annotate them with `@Required`. E.g.
+
+```java
+public interface MySchema {
+    @Required
+    MySchema auth(String authValue);
+}
+```
+
+The Structured Logger will throw `MissingSchemaValueException` if no value is set for required values. Note: if you want to only use this in development or pre-production, you can globally disable required value checking by calling `StructuredLoggerFactory.setRequiredValuesEnabled(false)`.
+
 ## Under The Hood
 
 - The schema concrete instance is generated from the interface using Byte Buddy here: [Generator.java](https://github.com/soabase/structured-logging/blob/master/structured-logger-core/src/main/java/io/soabase/structured/logger/generation/Generator.java)
