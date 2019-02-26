@@ -5,7 +5,9 @@
 
 Per Thoughtworks (https://www.thoughtworks.com/radar/techniques/structured-logging) we should log in a structured manner
 
-...
+Per Splunk: "Use clear key-value pairs. One of the most powerful features of Splunk software is its ability to extract fields from events when you search, creating structure out of unstructured data."
+
+If you export your logs to a centralized indexer, structuring your logging will make the indexer's job much easier and you will be able to get more and better information out of your logs. Manual structured logging is error prone and requires too much discipline. We can do better.
 
 ## TL;DR
 
