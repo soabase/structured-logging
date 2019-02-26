@@ -20,6 +20,12 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+/**
+ * Marks a schema method as being required. If a value is not set for it
+ * then log statements will throw {@link io.soabase.structured.logger.exception.MissingSchemaValueException}.
+ * Note: for production, etc. you can disable these checks via
+ * {@link io.soabase.structured.logger.StructuredLoggerFactory#setRequiredValuesEnabled(boolean)}
+ */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
 public @interface Required {

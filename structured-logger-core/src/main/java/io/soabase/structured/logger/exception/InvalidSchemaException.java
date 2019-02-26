@@ -15,6 +15,9 @@
  */
 package io.soabase.structured.logger.exception;
 
+/**
+ * Thrown during schema generation when the schema class is invalid for some reason
+ */
 public class InvalidSchemaException extends RuntimeException {
     public InvalidSchemaException(String message) {
         super(message);

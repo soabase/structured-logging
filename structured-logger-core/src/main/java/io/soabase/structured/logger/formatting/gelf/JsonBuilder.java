@@ -15,9 +15,24 @@
  */
 package io.soabase.structured.logger.formatting.gelf;
 
+/**
+ * Minimal interface for building JSON Objects.
+ */
 public interface JsonBuilder<J> {
+    /**
+     * Create a new empty JSON object
+     *
+     * @return new empty object
+     */
     J newObject();
 
+    /**
+     * Add a field/value to the JSON object
+     *
+     * @param object object being built
+     * @param name field name
+     * @param value value
+     */
     void addField(J object, String name, Object value);
 
     void addExceptionField(J object, Throwable e);

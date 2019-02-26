@@ -95,6 +95,6 @@ public class TestGelfFormatting {
         assertThat(tree.get("_count")).isNotNull();
         assertThat(tree.get("_count").asInt()).isEqualTo(456);
         assertThat(tree.get("_exception")).isNotNull();
-        assertThat(tree.get("_exception").asText()).isEqualTo("java.lang.Exception: hey");
+        assertThat(tree.get("_exception").asText()).startsWith("java.lang.Exception: hey");
     }
 }

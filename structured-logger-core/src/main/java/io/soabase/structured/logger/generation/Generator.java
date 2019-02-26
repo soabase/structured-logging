@@ -106,7 +106,7 @@ public class Generator {
             schemaNames.add(method.getName());
 
             SortOrder sortOrder = method.getAnnotation(SortOrder.class);
-            int sortOrderValue = (sortOrder != null) ? sortOrder.value() : (methodQty + 1);
+            int sortOrderValue = (sortOrder != null) ? sortOrder.value() : Short.MAX_VALUE;
             schemaNameToSortOrder.put(method.getName(), sortOrderValue);
         }
         schemaNames.sort((name1, name2) -> compareSchemaNames(schemaNameToSortOrder, name1, name2));

@@ -15,6 +15,6 @@
  */
 package io.soabase.structured.logger.schemas;
 
-public interface Action<R extends Action<R>> {
-    R action(String actionName);
+public interface Action {
+    Action action(String actionName);
 }

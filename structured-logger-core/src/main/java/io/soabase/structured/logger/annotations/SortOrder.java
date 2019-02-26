@@ -20,6 +20,11 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+/**
+ * Normally, schema fields are ordered alphabetically. Annotate methods
+ * with SortOrder to influence sorting. Lower values sort first. Note: the default
+ * sort value for un-annotated methods is {@link Short#MAX_VALUE}.
+ */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
 public @interface SortOrder {

@@ -15,21 +15,22 @@
  */
 package io.soabase.structured.logger.formatting.gelf;
 
-import java.util.function.Function;
-
+/**
+ * In case you can't or don't want to use Jackson, this minimal JSON builder should suffice
+ */
 public class SimpleJsonBuilder implements JsonBuilder<StringBuilder> {
     private final String exceptionFieldName;
-    private final Function<Throwable, String> exceptionFormatter;
+    private final ExceptionFormatter exceptionFormatter;
 
     public SimpleJsonBuilder() {
-        this("_exception", Throwable::toString);
+        this("_exception", ExceptionFormatter.standard);
     }
 
     public SimpleJsonBuilder(String exceptionFieldName) {
-        this(exceptionFieldName, Throwable::toString);
+        this(exceptionFieldName, ExceptionFormatter.standard);
     }
 
-    public SimpleJsonBuilder(String exceptionFieldName, Function<Throwable, String> exceptionFormatter) {
+    public SimpleJsonBuilder(String exceptionFieldName, ExceptionFormatter exceptionFormatter) {
         this.exceptionFieldName = '"' + exceptionFieldName + '"';
         this.exceptionFormatter = exceptionFormatter;
     }
@@ -50,7 +51,7 @@ public class SimpleJsonBuilder implements JsonBuilder<StringBuilder> {
     public void addExceptionField(StringBuilder object, Throwable e) {
         checkFirst(object);
         object.append(exceptionFieldName).append(':');
-        format(object, exceptionFormatter.apply(e));
+        format(object, exceptionFormatter.format(e));
     }
 
     @Override

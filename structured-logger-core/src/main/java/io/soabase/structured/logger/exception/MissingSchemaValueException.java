@@ -15,6 +15,11 @@
  */
 package io.soabase.structured.logger.exception;
 
+/**
+ * If your schema has {@link io.soabase.structured.logger.annotations.Required} values
+ * that were not assigned during a log. Can be disabled via
+ * {@link io.soabase.structured.logger.StructuredLoggerFactory#setRequiredValuesEnabled(boolean)}
+ */
 public class MissingSchemaValueException extends RuntimeException {
     public MissingSchemaValueException(String message) {
         super(message);

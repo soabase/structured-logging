@@ -15,6 +15,6 @@
  */
 package io.soabase.structured.logger.schemas;
 
-public interface Category<R extends Category<R>> {
-    R category(String categoryName);
+public interface Category {
+    Category category(String categoryName);
 }

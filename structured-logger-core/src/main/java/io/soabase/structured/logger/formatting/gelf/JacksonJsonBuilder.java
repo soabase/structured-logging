@@ -23,17 +23,24 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  * The Maven dependency for this project does NOT include Jackson. You must manually add a compatible version
  * of Jackson to your project when using JacksonJsonBuilder
  */
+@SuppressWarnings("WeakerAccess")
 public class JacksonJsonBuilder implements JsonBuilder<ObjectNode> {
     private final ObjectMapper mapper;
     private final String exceptionFieldName;
+    private final ExceptionFormatter exceptionFormatter;
 
     public JacksonJsonBuilder(ObjectMapper mapper) {
-        this(mapper, "_exception");
+        this(mapper, "_exception", ExceptionFormatter.standard);
     }
 
     public JacksonJsonBuilder(ObjectMapper mapper, String exceptionFieldName) {
+        this(mapper, exceptionFieldName, ExceptionFormatter.standard);
+    }
+
+    public JacksonJsonBuilder(ObjectMapper mapper, String exceptionFieldName, ExceptionFormatter exceptionFormatter) {
         this.mapper = mapper;
         this.exceptionFieldName = exceptionFieldName;
+        this.exceptionFormatter = exceptionFormatter;
     }
 
     @Override
@@ -48,7 +55,7 @@ public class JacksonJsonBuilder implements JsonBuilder<ObjectNode> {
 
     @Override
     public void addExceptionField(ObjectNode object, Throwable e) {
-        object.putPOJO(exceptionFieldName, e);
+        object.putPOJO(exceptionFieldName, exceptionFormatter.format(e));
     }
 
     @Override

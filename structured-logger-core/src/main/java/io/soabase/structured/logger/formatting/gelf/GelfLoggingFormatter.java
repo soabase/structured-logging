@@ -24,6 +24,9 @@ import java.time.Instant;
 import java.util.List;
 import java.util.function.Supplier;
 
+/**
+ * Formats to GELF JSON - http://docs.graylog.org/en/2.5/pages/gelf.html
+ */
 public class GelfLoggingFormatter implements LoggingFormatter {
     private final String host;
     private final JsonBuilder jsonBuilder;
