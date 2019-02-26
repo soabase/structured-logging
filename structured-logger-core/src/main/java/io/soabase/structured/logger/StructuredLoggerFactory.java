@@ -28,6 +28,7 @@ public class StructuredLoggerFactory {
     private static final Generator generator = new Generator();
     private static volatile LoggingFormatter defaultLoggingFormatter = LoggingFormatter.defaultLoggingFormatter;
     private static volatile Function<Class, ClassLoader> classloaderProc = Class::getClassLoader;
+    private static volatile boolean requiredValuesEnabled = true;
 
     public static void clearCache() {
         generator.clearCache();
@@ -47,6 +48,14 @@ public class StructuredLoggerFactory {
 
     public static Function<Class, ClassLoader> getClassloaderProc() {
         return classloaderProc;
+    }
+
+    public static boolean requiredValuesEnabled() {
+        return requiredValuesEnabled;
+    }
+
+    public static void setRequiredValuesEnabled(boolean requiredValuesEnabled) {
+        StructuredLoggerFactory.requiredValuesEnabled = requiredValuesEnabled;
     }
 
     public static <T> StructuredLogger<T> getLogger(Logger logger, Class<T> schema, LoggingFormatter loggingFormatter) {

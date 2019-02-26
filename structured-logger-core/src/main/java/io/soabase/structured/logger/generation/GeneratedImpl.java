@@ -15,6 +15,7 @@
  */
 package io.soabase.structured.logger.generation;
 
+import io.soabase.structured.logger.StructuredLoggerFactory;
 import io.soabase.structured.logger.exception.MissingSchemaValueException;
 import io.soabase.structured.logger.formatting.Arguments;
 import io.soabase.structured.logger.formatting.LevelLogger;
@@ -54,7 +55,7 @@ class GeneratedImpl<T> implements Generated<T> {
     public void apply(LevelLogger levelLogger, Logger logger, T instance, String mainMessage, Throwable t) {
         Object[] arguments = ((Instance)instance).arguments;
 
-        if (!schemaNames.requireds.isEmpty()) {
+        if (StructuredLoggerFactory.requiredValuesEnabled() && !schemaNames.requireds.isEmpty()) {
             schemaNames.requireds.forEach(index -> {
                 if (arguments[index] == null) {
                     throw new MissingSchemaValueException("Entire schema must be specified. Missing: " + schemaNames.names.get(index));
