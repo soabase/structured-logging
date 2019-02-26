@@ -13,9 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.soabase.structured.logger.benchmark.internals;
+package io.soabase.structured.logger.schema;
 
-import io.soabase.structured.logger.schemas.Qty;
+import java.math.BigInteger;
 
-public interface QtySchema extends Qty<QtySchema> {
+public interface CustomSchema<T extends CustomSchema<T>> {
+    T value(BigInteger i);
 }

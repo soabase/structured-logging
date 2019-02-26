@@ -15,6 +15,6 @@
  */
 package io.soabase.structured.logger.schemas;
 
-public interface Qty<R extends Qty<R>> {
-    R qty(int n);
+public interface Qty {
+    Qty qty(int n);
 }

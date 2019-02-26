@@ -15,6 +15,6 @@
  */
 package io.soabase.structured.logger.schemas;
 
-public interface Amount<R extends Amount<R>> {
-    R amount(double amount);
+public interface Amount {
+    Amount amount(double amount);
 }

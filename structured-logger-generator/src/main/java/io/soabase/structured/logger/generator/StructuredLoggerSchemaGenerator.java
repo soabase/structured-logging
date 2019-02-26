@@ -1,12 +1,12 @@
 /**
  * Copyright 2019 Jordan Zimmerman
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,9 +15,11 @@
  */
 package io.soabase.structured.logger.generator;
 
+import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.JavaFile;
-import com.squareup.javapoet.ParameterizedTypeName;
+import com.squareup.javapoet.MethodSpec;
+import com.squareup.javapoet.ParameterSpec;
 import com.squareup.javapoet.TypeSpec;
 import io.soabase.structured.logger.annotations.LoggerSchema;
 
@@ -31,8 +33,10 @@ import javax.lang.model.SourceVersion;
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
+import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
+import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
 import javax.tools.Diagnostic;
 import javax.tools.JavaFileObject;
@@ -86,14 +90,12 @@ public class StructuredLoggerSchemaGenerator extends AbstractProcessor {
             return;
         }
 
-        String schemaFormatString = annotationReader.getString("schemaFormatString");
         List<TypeMirror> components = annotationReader.getClasses("value");
-        boolean schemaClassesExtendBase = annotationReader.getBoolean("schemaClassesExtendBase");
         String schemaName = annotationReader.getString("schemaName");
         String packageName = annotationReader.getString("packageName");
         boolean reuseExistingSchema = annotationReader.getBoolean("reuseExistingSchema");
 
-        String schemaClassName = schemaName.isEmpty() ? String.format(schemaFormatString, element.getSimpleName()) : schemaName;
+        String schemaClassName = String.format(schemaName, element.getSimpleName());
         if (packageName.isEmpty()) {
             packageName = getPackage(element);
         }
@@ -102,11 +104,8 @@ public class StructuredLoggerSchemaGenerator extends AbstractProcessor {
         TypeSpec.Builder builder = TypeSpec.interfaceBuilder(className).addModifiers(Modifier.PUBLIC);
         for (TypeMirror parentInterface : components) {
             ClassName typeName = (ClassName) ClassName.get(parentInterface);
-            if (schemaClassesExtendBase) {
-                builder.addSuperinterface(ParameterizedTypeName.get(typeName, className));
-            } else {
-                builder.addSuperinterface(typeName);
-            }
+            builder.addSuperinterface(typeName);
+            copyMethods(builder, className, parentInterface);
         }
 
         TypeSpec classSpec = builder.build();
@@ -128,6 +127,32 @@ public class StructuredLoggerSchemaGenerator extends AbstractProcessor {
                     message = message + ": " + e.getMessage();
                 }
                 processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, message, element);
+            }
+        }
+    }
+
+    private void copyMethods(TypeSpec.Builder builder, ClassName className, TypeMirror parentInterface) {
+        TypeElement parentInterfaceElement = (TypeElement) processingEnv.getTypeUtils().asElement(parentInterface);
+        for (Element member : processingEnv.getElementUtils().getAllMembers(parentInterfaceElement)) {
+            if (member.getKind() == ElementKind.METHOD) {
+                ExecutableElement method = (ExecutableElement) member;
+                if (parentInterfaceElement.equals(method.getEnclosingElement())) {
+                    String methodName = method.getSimpleName().toString();
+                    MethodSpec.Builder methodBuilder = MethodSpec.methodBuilder(methodName)
+                            .addAnnotation(Override.class)
+                            .addModifiers(Modifier.ABSTRACT, Modifier.PUBLIC)
+                            .returns(className);
+
+                    for (VariableElement parameter : method.getParameters()) {
+                        methodBuilder.addParameter(ParameterSpec.get(parameter));
+                    }
+
+                    for (AnnotationMirror annotation : processingEnv.getElementUtils().getAllAnnotationMirrors(method)) {
+                        methodBuilder.addAnnotation(AnnotationSpec.get(annotation));
+                    }
+
+                    builder.addMethod(methodBuilder.build());
+                }
             }
         }
     }

@@ -50,4 +50,11 @@ public class TestGenerated {
         StructuredLogger<RequiredNumberEventSchema> log = StructuredLoggerFactory.getLogger(RequiredNumberEventSchema.class);
         log.debug(schema -> schema.event("hey"));
     }
+
+    @Test
+    public void testSimple() {
+        StructuredLogger<SimpleSchema> log = StructuredLoggerFactory.getLogger(SimpleSchema.class);
+        log.warn(schema -> schema.id("hey").qty(100));
+        log.warn(schema -> schema.qty(234).id("what"));
+    }
 }

@@ -90,7 +90,7 @@ public class TestStructuredLoggerArguments {
     }
 
     @Test(expected = InvalidSchemaException.class)
-    public void testDuplicateMixins() {
+    public void testDuplicates() {
         StructuredLoggerFactory.getLogger(Duplicates.class);
     }
 

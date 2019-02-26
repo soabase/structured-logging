@@ -17,7 +17,7 @@ package io.soabase.structured.logger.schema;
 
 import io.soabase.structured.logger.annotations.Required;
 
-public interface RequiredId<R extends RequiredId<R>> {
+public interface RequiredId {
     @Required
-    R id(int i);
+    RequiredId id(int i);
 }

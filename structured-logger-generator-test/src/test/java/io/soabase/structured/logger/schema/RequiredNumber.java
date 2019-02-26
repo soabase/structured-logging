@@ -13,10 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.soabase.structured.logger;
+package io.soabase.structured.logger.schema;
 
-import java.math.BigInteger;
+import io.soabase.structured.logger.annotations.Required;
+import io.soabase.structured.logger.annotations.SortOrder;
 
-public interface CustomSchema<T extends CustomSchema<T>> {
-    T value(BigInteger i);
+public interface RequiredNumber<R extends RequiredNumber<R>> {
+    @Required
+    @SortOrder(1)
+    R number(Number n);
 }

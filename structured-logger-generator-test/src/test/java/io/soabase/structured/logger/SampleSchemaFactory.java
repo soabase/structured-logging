@@ -17,6 +17,10 @@ package io.soabase.structured.logger;
 
 import io.soabase.structured.logger.annotations.LoggerSchema;
 import io.soabase.structured.logger.annotations.LoggerSchemas;
+import io.soabase.structured.logger.schema.CustomSchema;
+import io.soabase.structured.logger.schema.RequiredNumber;
+import io.soabase.structured.logger.schema.SimpleId;
+import io.soabase.structured.logger.schema.SimpleQty;
 import io.soabase.structured.logger.schemas.Code;
 import io.soabase.structured.logger.schemas.Event;
 import io.soabase.structured.logger.schemas.Id;
@@ -27,7 +31,8 @@ import io.soabase.structured.logger.schemas.Id;
         @LoggerSchema(value = Id.class, schemaName = "IdSchema"),
         @LoggerSchema(value = {Id.class, CustomSchema.class}, schemaName = "IdCustomSchema"),
         @LoggerSchema(value = {Id.class, CustomSchema.class}, schemaName = "IdCustomSchema"),
-        @LoggerSchema(value = {RequiredNumber.class, Event.class}, schemaName = "RequiredNumberEventSchema")
+        @LoggerSchema(value = {RequiredNumber.class, Event.class}, schemaName = "RequiredNumberEventSchema"),
+        @LoggerSchema(value = {SimpleId.class, SimpleQty.class}, schemaName = "SimpleSchema")
 })
 public class SampleSchemaFactory {
     private SampleSchemaFactory() {

@@ -19,5 +19,15 @@ import io.soabase.structured.logger.schemas.Id;
 import io.soabase.structured.logger.schemas.Qty;
 import io.soabase.structured.logger.schemas.Time;
 
-public interface Schema extends Id<Schema>, Qty<Schema>, Time<Schema> {
+import java.time.Instant;
+
+public interface Schema extends Id, Qty, Time {
+    @Override
+    Schema id(String value);
+
+    @Override
+    Schema qty(int n);
+
+    @Override
+    Schema time(Instant i);
 }

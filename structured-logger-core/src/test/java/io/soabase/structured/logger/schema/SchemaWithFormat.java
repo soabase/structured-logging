@@ -17,8 +17,11 @@ package io.soabase.structured.logger.schema;
 
 import io.soabase.structured.logger.schemas.WithFormat;
 
-public interface SchemaWithFormat extends WithFormat<SchemaWithFormat> {
+public interface SchemaWithFormat extends WithFormat {
     SchemaWithFormat a(String value);
 
     SchemaWithFormat b(String value);
+
+    @Override
+    SchemaWithFormat formatted(String format, Object... arguments);
 }

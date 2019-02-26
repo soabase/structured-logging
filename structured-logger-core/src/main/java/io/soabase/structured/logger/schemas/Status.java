@@ -15,6 +15,6 @@
  */
 package io.soabase.structured.logger.schemas;
 
-public interface Status<R extends Status<R>> {
-    R status(int statusCode);
+public interface Status {
+    Status status(int statusCode);
 }

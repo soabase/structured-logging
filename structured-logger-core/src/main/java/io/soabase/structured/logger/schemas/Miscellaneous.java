@@ -15,6 +15,6 @@
  */
 package io.soabase.structured.logger.schemas;
 
-public interface Miscellaneous<R extends Miscellaneous<R>> {
-    R misc(Object obj);
+public interface Miscellaneous {
+    Miscellaneous misc(Object obj);
 }

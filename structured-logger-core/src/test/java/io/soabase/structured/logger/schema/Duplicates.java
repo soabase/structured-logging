@@ -1,6 +1,7 @@
 package io.soabase.structured.logger.schema;
 
-import io.soabase.structured.logger.TestStructuredLoggerArguments;
-import io.soabase.structured.logger.schemas.Id;
+public interface Duplicates {
+    Duplicates id(int i);
 
-public interface Duplicates extends Id<Duplicates>, AnotherId<Duplicates> {}
+    Duplicates id(String s);
+}

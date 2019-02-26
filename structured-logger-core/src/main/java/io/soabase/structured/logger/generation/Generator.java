@@ -15,10 +15,10 @@
  */
 package io.soabase.structured.logger.generation;
 
+import io.soabase.structured.logger.annotations.Required;
 import io.soabase.structured.logger.annotations.SortOrder;
 import io.soabase.structured.logger.exception.InvalidSchemaException;
 import io.soabase.structured.logger.formatting.LoggingFormatter;
-import io.soabase.structured.logger.annotations.Required;
 import io.soabase.structured.logger.schemas.WithFormat;
 import net.bytebuddy.ByteBuddy;
 import net.bytebuddy.dynamic.DynamicType;
@@ -79,14 +79,17 @@ public class Generator {
 
         Set<String> requiredNames = new HashSet<>();
         List<String> schemaNames = new ArrayList<>();
-        Set<String> usedMethodNames = new HashSet<>();
+        Set<String> usedMethods = new HashSet<>();
         Map<String, Integer> schemaNameToSortOrder = new HashMap<>();
         int methodQty = schemaClass.getMethods().length;
-        for (Method method : schemaClass.getMethods()) {
+        for (Method method : schemaClass.getDeclaredMethods()) {
+            if (method.isBridge()) {
+                continue;
+            }
             if (!method.getReturnType().isAssignableFrom(schemaClass)) {
                 throw new InvalidSchemaException("Schema methods must return " + schemaClass.getSimpleName() + " or a subclass of it. Method: " + method.getName());
             }
-            if (!usedMethodNames.add(method.getName())) {
+            if (!usedMethods.add(method.getName())) {
                 throw new InvalidSchemaException("Schema method names must be unique. Duplicate: " + method.getName());
             }
             if (!method.getDeclaringClass().equals(WithFormat.class)) {
@@ -97,12 +100,12 @@ public class Generator {
                     throw new InvalidSchemaException("Schema method name is reserved for internal use. Name: " + method.getName());
                 }
             }
-            if (method.getDeclaredAnnotation(Required.class) != null) {
+            if (method.getAnnotation(Required.class) != null) {
                 requiredNames.add(method.getName());
             }
             schemaNames.add(method.getName());
 
-            SortOrder sortOrder = method.getDeclaredAnnotation(SortOrder.class);
+            SortOrder sortOrder = method.getAnnotation(SortOrder.class);
             int sortOrderValue = (sortOrder != null) ? sortOrder.value() : (methodQty + 1);
             schemaNameToSortOrder.put(method.getName(), sortOrderValue);
         }
@@ -124,7 +127,10 @@ public class Generator {
 
     private Class internalGenerate(ByteBuddy byteBuddy, Class schemaClass, ClassLoader classLoader, List<String> names) {
         DynamicType.Builder builder = byteBuddy.subclass(Instance.class).implement(schemaClass);
-        for (Method method : schemaClass.getMethods()) {
+        for (Method method : schemaClass.getDeclaredMethods()) {
+            if (method.isBridge()) {
+                continue;
+            }
             int thisIndex = names.indexOf(method.getName());
             Implementation methodCall;
             if (method.getDeclaringClass().equals(WithFormat.class)) {

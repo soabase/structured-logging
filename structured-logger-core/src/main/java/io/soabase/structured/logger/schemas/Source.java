@@ -15,6 +15,6 @@
  */
 package io.soabase.structured.logger.schemas;
 
-public interface Source<R extends Source<R>> {
-    R source(String sourceName);
+public interface Source {
+    Source source(String sourceName);
 }
