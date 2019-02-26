@@ -114,6 +114,20 @@ public interface SchemaWithSort {
 ```
 This schema will be output ala: `zero=xxx qty=xxx bool=xxx id=xxx`
 
+### Formatting
+
+The formatting of the log message is customizable. Two formatters are provided, `DefaultLoggingFormatter` and `GelfLoggingFormatter`.
+
+_DefaultLoggingFormatter_
+
+The DefaultLoggingFormatter formats the log in `field=value` pairs and has several options. Values can be quoted and/or escaped and the log main message can appear at the beginning or the end of the log string.
+
+_GelfLoggingFormatter_
+
+The GelfLoggingFormatter formats in the [GELF](http://docs.graylog.org/en/2.5/pages/gelf.html) 1.1 JSON format.
+
+You change the logging formatter used by default by calling `StructuredLoggerFactory.setDefaultLoggingFormatter(...)`. You can also specify a logging formatter when creating structured logger instances via `setDefaultLoggingFormatter`.
+
 ## Under The Hood
 
 - The schema concrete instance is generated from the interface using Byte Buddy here: [Generator.java](https://github.com/soabase/structured-logging/blob/master/structured-logger-core/src/main/java/io/soabase/structured/logger/generation/Generator.java)
