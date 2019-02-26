@@ -3,7 +3,7 @@
 
 # Structured Logging
 
-Per Thoughtworks (https://www.thoughtworks.com/radar/techniques/structured-logging) we should log in a structured manner
+Per Thoughtworks (https://www.thoughtworks.com/radar/techniques/structured-logging) we should log in a structured manner...
 
 Per Splunk: "Use clear key-value pairs. One of the most powerful features of Splunk software is its ability to extract fields from events when you search, creating structure out of unstructured data."
 
