@@ -127,7 +127,7 @@ _GelfLoggingFormatter_
 
 The GelfLoggingFormatter formats in the [GELF](http://docs.graylog.org/en/2.5/pages/gelf.html) 1.1 JSON format.
 
-You change the logging formatter used by default by calling `StructuredLoggerFactory.setDefaultLoggingFormatter(...)`. You can also specify a logging formatter when creating structured logger instances via `setDefaultLoggingFormatter`.
+You change the logging formatter used by default by calling `StructuredLoggerFactory.setDefaultLoggingFormatter(...)`. You can also specify a logging formatter when creating structured logger instances.
 
 ## Under The Hood
 
