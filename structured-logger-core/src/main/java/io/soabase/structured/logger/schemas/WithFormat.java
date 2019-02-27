@@ -22,9 +22,9 @@ package io.soabase.structured.logger.schemas;
  * <code><pre>
  *  log.info(s -> s.formatted("a: %s, b: %s", anA, aB));
  *
- *  // is the same as
+ *  // is the same as with a normal schema value named "formatted" ala...
  *
- *  log.info(s -> s.id(String.format("a: %s, b: %s", anA, aB));
+ *  log.info(s -> s.formatted(String.format("a: %s, b: %s", anA, aB));
  * </pre></code>
  */
 public interface WithFormat {
