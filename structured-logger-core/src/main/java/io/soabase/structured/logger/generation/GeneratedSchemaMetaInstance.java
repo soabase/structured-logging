@@ -20,15 +20,16 @@ import io.soabase.structured.logger.exception.MissingSchemaValueException;
 import io.soabase.structured.logger.formatting.Arguments;
 import io.soabase.structured.logger.formatting.LevelLogger;
 import io.soabase.structured.logger.formatting.LoggingFormatter;
+import io.soabase.structured.logger.spi.SchemaMetaInstance;
 import org.slf4j.Logger;
 
-class GeneratedImpl<T> implements Generated<T> {
+class GeneratedSchemaMetaInstance<T> implements SchemaMetaInstance<T> {
     private final Class<T> generatedClass;
     private final SchemaNames schemaNames;
     private final LoggingFormatter loggingFormatter;
     private final InstanceFactory<T> instanceFactory;
 
-    GeneratedImpl(Class<T> generatedClass, InstanceFactory<T> instanceFactory, SchemaNames schemaNames, LoggingFormatter loggingFormatter) {
+    GeneratedSchemaMetaInstance(Class<T> generatedClass, InstanceFactory<T> instanceFactory, SchemaNames schemaNames, LoggingFormatter loggingFormatter) {
         this.instanceFactory = instanceFactory;
         this.generatedClass = generatedClass;
         this.schemaNames = schemaNames;
@@ -41,7 +42,7 @@ class GeneratedImpl<T> implements Generated<T> {
     }
 
     @Override
-    public T newInstance() {
+    public T newSchemaInstance() {
         try {
             T instance = instanceFactory.newInstance();
             ((Instance)instance).arguments = new Object[schemaNames.names.size()];

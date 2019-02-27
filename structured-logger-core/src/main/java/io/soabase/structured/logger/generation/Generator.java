@@ -20,6 +20,8 @@ import io.soabase.structured.logger.annotations.SortOrder;
 import io.soabase.structured.logger.exception.InvalidSchemaException;
 import io.soabase.structured.logger.formatting.LoggingFormatter;
 import io.soabase.structured.logger.schemas.WithFormat;
+import io.soabase.structured.logger.spi.SchemaFactory;
+import io.soabase.structured.logger.spi.SchemaMetaInstance;
 import net.bytebuddy.ByteBuddy;
 import net.bytebuddy.dynamic.DynamicType;
 import net.bytebuddy.implementation.FixedValue;
@@ -41,8 +43,8 @@ import java.util.stream.Stream;
 import static net.bytebuddy.implementation.MethodCall.invoke;
 import static net.bytebuddy.matcher.ElementMatchers.named;
 
-public class Generator {
-    private final Map<Key, Generated> generated = new ConcurrentHashMap<>();
+public class Generator implements SchemaFactory {
+    private final Map<Key, SchemaMetaInstance> generated = new ConcurrentHashMap<>();
     private static final Set<String> reservedMethodNames = Collections.unmodifiableSet(
             Stream.of(Instance.class.getMethods()).map(Method::getName).collect(Collectors.toSet())
     );
@@ -57,18 +59,20 @@ public class Generator {
         }
     }
 
+    @Override
     public void clearCache() {
         generated.clear();
     }
 
     @SuppressWarnings("unchecked")
-    public <T> Generated<T> generate(Class<T> schemaClass, ClassLoader classLoader, LoggingFormatter loggingFormatter) {
+    @Override
+    public <T> SchemaMetaInstance<T> generate(Class<T> schemaClass, ClassLoader classLoader, LoggingFormatter loggingFormatter) {
         return generated.computeIfAbsent(new Key(schemaClass, loggingFormatter), __ -> {
             SchemaNames schemaNames = validateSchemaClass(schemaClass);
             ByteBuddy byteBuddy = new ByteBuddy();
             Class generatedClass = internalGenerate(byteBuddy, schemaClass, classLoader, schemaNames.names);
             InstanceFactory<T> instanceFactory = generateInstanceFactory(byteBuddy, generatedClass);
-            return new GeneratedImpl<>(generatedClass, instanceFactory, schemaNames, loggingFormatter);
+            return new GeneratedSchemaMetaInstance<>(generatedClass, instanceFactory, schemaNames, loggingFormatter);
         });
     }
 

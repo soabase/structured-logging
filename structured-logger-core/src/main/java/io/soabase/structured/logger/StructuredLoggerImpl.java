@@ -18,18 +18,18 @@ package io.soabase.structured.logger;
 import io.soabase.structured.logger.formatting.LevelLogger;
 import io.soabase.structured.logger.formatting.LevelLoggers;
 import io.soabase.structured.logger.formatting.LoggingFormatter;
-import io.soabase.structured.logger.generation.Generated;
+import io.soabase.structured.logger.spi.SchemaMetaInstance;
 import org.slf4j.Logger;
 
 import java.util.function.Consumer;
 
 class StructuredLoggerImpl<T> implements StructuredLogger<T> {
     private final Logger logger;
-    private final Generated<T> generated;
+    private final SchemaMetaInstance<T> schemaMetaInstance;
 
-    StructuredLoggerImpl(Logger logger, Generated<T> generated) {
+    StructuredLoggerImpl(Logger logger, SchemaMetaInstance<T> schemaMetaInstance) {
         this.logger = logger;
-        this.generated = generated;
+        this.schemaMetaInstance = schemaMetaInstance;
     }
 
     @Override
@@ -64,7 +64,7 @@ class StructuredLoggerImpl<T> implements StructuredLogger<T> {
 
     @Override
     public <S> StructuredLogger<S> as(Class<S> schema) {
-        return StructuredLoggerFactory.getLogger(logger, schema, generated.loggingFormatter());
+        return StructuredLoggerFactory.getLogger(logger, schema, schemaMetaInstance.loggingFormatter());
     }
 
     @Override
@@ -74,9 +74,9 @@ class StructuredLoggerImpl<T> implements StructuredLogger<T> {
 
     private void consume(LevelLogger levelLogger, Logger logger, Consumer<T> statement, String mainMessage, Throwable t) {
         if (levelLogger.isEnabled(logger)) {
-            T instance = generated.newInstance();
+            T instance = schemaMetaInstance.newSchemaInstance();
             statement.accept(instance);
-            generated.apply(levelLogger, logger, instance, mainMessage, t);
+            schemaMetaInstance.apply(levelLogger, logger, instance, mainMessage, t);
         }
     }
 }

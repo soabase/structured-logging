@@ -16,8 +16,9 @@
 package io.soabase.structured.logger;
 
 import io.soabase.structured.logger.formatting.LoggingFormatter;
-import io.soabase.structured.logger.generation.Generated;
 import io.soabase.structured.logger.generation.Generator;
+import io.soabase.structured.logger.spi.SchemaFactory;
+import io.soabase.structured.logger.spi.SchemaMetaInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,12 +33,13 @@ public class StructuredLoggerFactory {
     private static volatile LoggingFormatter defaultLoggingFormatter = LoggingFormatter.defaultLoggingFormatter;
     private static volatile Function<Class, ClassLoader> classloaderProc = Class::getClassLoader;
     private static volatile boolean requiredValuesEnabled = true;
+    private static volatile SchemaFactory schemaFactory = new Generator();
 
     /**
      * An internal cache of generated schemas, etc. is maintained. This clears that cache
      */
     public static void clearCache() {
-        generator.clearCache();
+        schemaFactory.clearCache();
     }
 
     /**
@@ -94,16 +96,25 @@ public class StructuredLoggerFactory {
         return requiredValuesEnabled;
     }
 
-    public static <T> StructuredLogger<T> getLogger(Logger logger, Class<T> schema, LoggingFormatter loggingFormatter) {
-        Generated<T> generated = generator.generate(schema, classloaderProc.apply(schema), loggingFormatter);
-        return new StructuredLoggerImpl<>(logger, generated);
+    public static SchemaFactory getSchemaFactory() {
+        return schemaFactory;
     }
+
+    public static void setSchemaFactory(SchemaFactory schemaFactory) {
+        StructuredLoggerFactory.schemaFactory = schemaFactory;
+    }
+
+    public static <T> StructuredLogger<T> getLogger(Logger logger, Class<T> schema, LoggingFormatter loggingFormatter) {
+        SchemaMetaInstance<T> schemaMetaInstance = schemaFactory.generate(schema, classloaderProc.apply(schema), loggingFormatter);
+        return new StructuredLoggerImpl<>(logger, schemaMetaInstance);
+    }
+
     public static <T> StructuredLogger<T> getLogger(Class<T> schema) {
-        return getLogger(LoggerFactory.getLogger(schema), schema);
+        return getLogger(LoggerFactory.getLogger(schema), schema, getDefaultLoggingFormatter());
     }
 
     public static <T> StructuredLogger<T> getLogger(Class<?> clazz, Class<T> schema) {
-        return getLogger(LoggerFactory.getLogger(clazz), schema);
+        return getLogger(LoggerFactory.getLogger(clazz), schema, getDefaultLoggingFormatter());
     }
 
     public static <T> StructuredLogger<T> getLogger(String name, Class<T> schema) {

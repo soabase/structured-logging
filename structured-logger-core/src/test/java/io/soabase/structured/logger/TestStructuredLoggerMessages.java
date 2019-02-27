@@ -16,6 +16,9 @@
 package io.soabase.structured.logger;
 
 import io.soabase.structured.logger.formatting.DefaultLoggingFormatter;
+import io.soabase.structured.logger.generation.Generator;
+import io.soabase.structured.logger.schema.Schema;
+import io.soabase.structured.logger.schema.TestSchemaFactory;
 import io.soabase.structured.logger.util.RecordingLogger;
 import org.junit.After;
 import org.junit.Before;
@@ -81,5 +84,20 @@ public class TestStructuredLoggerMessages {
         assertThat(logger.entries.get(0).message).isEqualTo("A Message count=10 id=a\\ b\\ c");
         assertThat(logger.entries.get(0).t).isInstanceOf(RuntimeException.class);
         assertThat(logger.entries.get(0).t.getMessage()).isEqualTo("hey");
+    }
+
+    @Test
+    public void testCustomFactory() {
+        try {
+            StructuredLoggerFactory.setSchemaFactory(new TestSchemaFactory());
+            StructuredLogger<Schema> log = StructuredLoggerFactory.getLogger(logger, Schema.class);
+            log.info(s -> s.id("temp"));
+        } finally {
+            StructuredLoggerFactory.setSchemaFactory(new Generator());
+        }
+
+        assertThat(logger.entries).hasSize(1);
+        assertThat(logger.entries.get(0).level).isEqualTo("info");
+        assertThat(logger.entries.get(0).message).isEqualTo("custom");
     }
 }

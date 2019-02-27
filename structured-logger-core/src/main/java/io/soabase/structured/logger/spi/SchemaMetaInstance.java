@@ -13,16 +13,35 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.soabase.structured.logger.generation;
+package io.soabase.structured.logger.spi;
 
 import io.soabase.structured.logger.formatting.LevelLogger;
 import io.soabase.structured.logger.formatting.LoggingFormatter;
 import org.slf4j.Logger;
 
-public interface Generated<T> {
-    T newInstance();
+public interface SchemaMetaInstance<T> {
+    /**
+     * Return a new instance of the schema for use in a log statement
+     *
+     * @return instance
+     */
+    T newSchemaInstance();
 
+    /**
+     * Return the logging formatter registered or the one to use
+     *
+     * @return formatter
+     */
     LoggingFormatter loggingFormatter();
 
+    /**
+     * Apply the now processed schema instance to the logger - i.e. write the log message
+     *
+     * @param levelLogger the log level
+     * @param logger the SLF4J logger
+     * @param instance schema instance
+     * @param mainMessage main message or an empty string
+     * @param t the exception to log or null
+     */
     void apply(LevelLogger levelLogger, Logger logger, T instance, String mainMessage, Throwable t);
 }

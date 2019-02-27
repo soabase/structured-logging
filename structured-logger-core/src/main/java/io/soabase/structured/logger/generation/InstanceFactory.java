@@ -15,6 +15,7 @@
  */
 package io.soabase.structured.logger.generation;
 
+// note: this is public so that ByteBuddy can access it
 public interface InstanceFactory<T> {
     T newInstance();
 }

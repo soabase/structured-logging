@@ -26,7 +26,7 @@ import org.junit.Test;
 import java.math.BigInteger;
 
 @LoggerSchema(value={Id.class, Qty.class}, schemaName = "TestSchema") // <--- Preprocessor generates a "schema" class named TestSchema
-public class TestGenerated {
+public class TestGeneratedSchema {
     @Before
     @After
     public void setup() {
