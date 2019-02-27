@@ -65,7 +65,8 @@ Logger log = LoggerFactory.getLogger(...);
 private void myOperation(String id, String eventName, int qty) {
     ...
     
-    log.info("Something happened where id={} eventnme={}and qty = {}", id, qty, eventName);    // note mistakes misspellings
+        // note mistakes misspellings
+    log.info("Something happened where id={} eventnme={}and qty = {}", id, qty, eventName);
 }
 ```
 
