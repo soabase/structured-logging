@@ -32,11 +32,6 @@ public class TestSchemaFactory implements SchemaFactory {
             }
 
             @Override
-            public LoggingFormatter loggingFormatter() {
-                return loggingFormatter;
-            }
-
-            @Override
             public void apply(LevelLogger levelLogger, Logger logger, T instance, String mainMessage, Throwable t) {
                 levelLogger.log(logger, "custom");
             }

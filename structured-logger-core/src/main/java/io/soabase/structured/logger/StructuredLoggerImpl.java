@@ -63,11 +63,6 @@ class StructuredLoggerImpl<T> implements StructuredLogger<T> {
     }
 
     @Override
-    public <S> StructuredLogger<S> as(Class<S> schema) {
-        return StructuredLoggerFactory.getLogger(logger, schema, schemaMetaInstance.loggingFormatter());
-    }
-
-    @Override
     public <S> StructuredLogger<S> as(Class<S> schema, LoggingFormatter formatter) {
         return StructuredLoggerFactory.getLogger(logger, schema, formatter);
     }

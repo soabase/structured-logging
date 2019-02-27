@@ -15,9 +15,12 @@
  */
 package io.soabase.structured.logger.spi;
 
+import io.soabase.structured.logger.formatting.Arguments;
 import io.soabase.structured.logger.formatting.LevelLogger;
 import io.soabase.structured.logger.formatting.LoggingFormatter;
 import org.slf4j.Logger;
+
+import java.util.List;
 
 public interface SchemaMetaInstance<T> {
     /**
@@ -28,14 +31,8 @@ public interface SchemaMetaInstance<T> {
     T newSchemaInstance();
 
     /**
-     * Return the logging formatter registered or the one to use
-     *
-     * @return formatter
-     */
-    LoggingFormatter loggingFormatter();
-
-    /**
-     * Apply the now processed schema instance to the logger - i.e. write the log message
+     * Apply the now processed schema instance to the logger - i.e. write the log message. This should
+     * be done by calling {@link LoggingFormatter#apply(LevelLogger, Logger, List, Arguments, String, Throwable)}.
      *
      * @param levelLogger the log level
      * @param logger the SLF4J logger

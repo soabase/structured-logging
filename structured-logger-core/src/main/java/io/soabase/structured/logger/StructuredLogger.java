@@ -83,14 +83,6 @@ public interface StructuredLogger<T> {
     void error(String mainMessage, Throwable t, Consumer<T> statement);
 
     /**
-     * Utility - returns the underlying logger and formatter with a different schema
-     *
-     * @param schema new schema
-     * @return logger
-     */
-    <S> StructuredLogger<S> as(Class<S> schema);
-
-    /**
      * Utility - returns the underlying logger with a different schema and formatter
      *
      * @param schema new schema

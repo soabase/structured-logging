@@ -15,13 +15,11 @@
  */
 package io.soabase.structured.logger.generation;
 
-import io.soabase.structured.logger.annotations.Required;
-import io.soabase.structured.logger.annotations.SortOrder;
-import io.soabase.structured.logger.exception.InvalidSchemaException;
 import io.soabase.structured.logger.formatting.LoggingFormatter;
 import io.soabase.structured.logger.schemas.WithFormat;
 import io.soabase.structured.logger.spi.SchemaFactory;
 import io.soabase.structured.logger.spi.SchemaMetaInstance;
+import io.soabase.structured.logger.spi.SchemaNames;
 import net.bytebuddy.ByteBuddy;
 import net.bytebuddy.dynamic.DynamicType;
 import net.bytebuddy.implementation.FixedValue;
@@ -29,10 +27,7 @@ import net.bytebuddy.implementation.Implementation;
 import net.bytebuddy.implementation.MethodDelegation;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -68,65 +63,12 @@ public class Generator implements SchemaFactory {
     @Override
     public <T> SchemaMetaInstance<T> generate(Class<T> schemaClass, ClassLoader classLoader, LoggingFormatter loggingFormatter) {
         return generated.computeIfAbsent(new Key(schemaClass, loggingFormatter), __ -> {
-            SchemaNames schemaNames = validateSchemaClass(schemaClass);
+            SchemaNames schemaNames = SchemaNames.build(schemaClass, reservedMethodNames);
             ByteBuddy byteBuddy = new ByteBuddy();
-            Class generatedClass = internalGenerate(byteBuddy, schemaClass, classLoader, schemaNames.names);
+            Class generatedClass = internalGenerate(byteBuddy, schemaClass, classLoader, schemaNames.getNames());
             InstanceFactory<T> instanceFactory = generateInstanceFactory(byteBuddy, generatedClass);
             return new GeneratedSchemaMetaInstance<>(generatedClass, instanceFactory, schemaNames, loggingFormatter);
         });
-    }
-
-    private <T> SchemaNames validateSchemaClass(Class<T> schemaClass) {
-        if (!schemaClass.isInterface()) {
-            throw new InvalidSchemaException("Schema must be an interface. Schema: " + schemaClass.getName());
-        }
-
-        Set<String> requiredNames = new HashSet<>();
-        List<String> schemaNames = new ArrayList<>();
-        Set<String> usedMethods = new HashSet<>();
-        Map<String, Integer> schemaNameToSortOrder = new HashMap<>();
-        int methodQty = schemaClass.getMethods().length;
-        for (Method method : schemaClass.getDeclaredMethods()) {
-            if (method.isBridge()) {
-                continue;
-            }
-            if (!method.getReturnType().isAssignableFrom(schemaClass)) {
-                throw new InvalidSchemaException("Schema methods must return " + schemaClass.getSimpleName() + " or a subclass of it. Method: " + method.getName());
-            }
-            if (!usedMethods.add(method.getName())) {
-                throw new InvalidSchemaException("Schema method names must be unique. Duplicate: " + method.getName());
-            }
-            if (!method.getDeclaringClass().equals(WithFormat.class)) {
-                if (method.getParameterCount() != 1) {
-                    throw new InvalidSchemaException("Schema methods must take exactly 1 argument. Method: " + method.getName());
-                }
-                if (reservedMethodNames.contains(method.getName())) {
-                    throw new InvalidSchemaException("Schema method name is reserved for internal use. Name: " + method.getName());
-                }
-            }
-            if (method.getAnnotation(Required.class) != null) {
-                requiredNames.add(method.getName());
-            }
-            schemaNames.add(method.getName());
-
-            SortOrder sortOrder = method.getAnnotation(SortOrder.class);
-            int sortOrderValue = (sortOrder != null) ? sortOrder.value() : Short.MAX_VALUE;
-            schemaNameToSortOrder.put(method.getName(), sortOrderValue);
-        }
-        schemaNames.sort((name1, name2) -> compareSchemaNames(schemaNameToSortOrder, name1, name2));
-
-        Set<Integer> requireds = requiredNames.stream().map(schemaNames::indexOf).collect(Collectors.toSet());
-        return new SchemaNames(schemaNames, requireds);
-    }
-
-    private int compareSchemaNames(Map<String, Integer> schemaNameToSortOrder, String name1, String name2) {
-        int sortValue1 = schemaNameToSortOrder.get(name1);
-        int sortValue2 = schemaNameToSortOrder.get(name2);
-        int diff = sortValue1 - sortValue2;
-        if (diff == 0) {
-            diff = name1.compareTo(name2);
-        }
-        return diff;
     }
 
     private Class internalGenerate(ByteBuddy byteBuddy, Class schemaClass, ClassLoader classLoader, List<String> names) {

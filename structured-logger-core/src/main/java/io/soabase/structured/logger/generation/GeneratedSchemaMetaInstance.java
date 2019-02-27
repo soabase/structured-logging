@@ -15,12 +15,11 @@
  */
 package io.soabase.structured.logger.generation;
 
-import io.soabase.structured.logger.StructuredLoggerFactory;
-import io.soabase.structured.logger.exception.MissingSchemaValueException;
 import io.soabase.structured.logger.formatting.Arguments;
 import io.soabase.structured.logger.formatting.LevelLogger;
 import io.soabase.structured.logger.formatting.LoggingFormatter;
 import io.soabase.structured.logger.spi.SchemaMetaInstance;
+import io.soabase.structured.logger.spi.SchemaNames;
 import org.slf4j.Logger;
 
 class GeneratedSchemaMetaInstance<T> implements SchemaMetaInstance<T> {
@@ -37,15 +36,10 @@ class GeneratedSchemaMetaInstance<T> implements SchemaMetaInstance<T> {
     }
 
     @Override
-    public LoggingFormatter loggingFormatter() {
-        return loggingFormatter;
-    }
-
-    @Override
     public T newSchemaInstance() {
         try {
             T instance = instanceFactory.newInstance();
-            ((Instance)instance).arguments = new Object[schemaNames.names.size()];
+            ((Instance)instance).arguments = new Object[schemaNames.getNames().size()];
             return instance;
         } catch (Exception e) {
             throw new RuntimeException("Could not allocate schema instance: " + generatedClass.getName(), e);
@@ -55,15 +49,6 @@ class GeneratedSchemaMetaInstance<T> implements SchemaMetaInstance<T> {
     @Override
     public void apply(LevelLogger levelLogger, Logger logger, T instance, String mainMessage, Throwable t) {
         Object[] arguments = ((Instance)instance).arguments;
-
-        if (StructuredLoggerFactory.requiredValuesEnabled() && !schemaNames.requireds.isEmpty()) {
-            schemaNames.requireds.forEach(index -> {
-                if (arguments[index] == null) {
-                    throw new MissingSchemaValueException("Entire schema must be specified. Missing: " + schemaNames.names.get(index));
-                }
-            });
-        }
-
         Arguments argumentsWrapper = new Arguments() {
             @Override
             public int size() {
@@ -75,6 +60,7 @@ class GeneratedSchemaMetaInstance<T> implements SchemaMetaInstance<T> {
                 return arguments[index];
             }
         };
-        loggingFormatter.apply(levelLogger, logger, schemaNames.names, argumentsWrapper, mainMessage, t);
+        schemaNames.validateRequired(argumentsWrapper);
+        loggingFormatter.apply(levelLogger, logger, schemaNames.getNames(), argumentsWrapper, mainMessage, t);
     }
 }
