@@ -16,27 +16,16 @@
 package io.soabase.structured.logger.generation;
 
 import io.soabase.structured.logger.formatting.Arguments;
-import io.soabase.structured.logger.formatting.LevelLogger;
 import io.soabase.structured.logger.formatting.LoggingFormatter;
-import io.soabase.structured.logger.spi.SchemaMetaInstance;
+import io.soabase.structured.logger.spi.SchemaMetaInstanceAdaptor;
 import io.soabase.structured.logger.spi.SchemaNames;
-import org.slf4j.Logger;
 
-class GeneratedSchemaMetaInstance<T> implements SchemaMetaInstance<T> {
-    private final Class<T> generatedClass;
-    private final SchemaNames schemaNames;
-    private final LoggingFormatter loggingFormatter;
-    private final InstanceFactory<T> instanceFactory;
-
+class GeneratedSchemaMetaInstance<T> extends SchemaMetaInstanceAdaptor<T> {
     GeneratedSchemaMetaInstance(Class<T> generatedClass, InstanceFactory<T> instanceFactory, SchemaNames schemaNames, LoggingFormatter loggingFormatter) {
-        this.instanceFactory = instanceFactory;
-        this.generatedClass = generatedClass;
-        this.schemaNames = schemaNames;
-        this.loggingFormatter = loggingFormatter;
+        super(() -> newInstance(generatedClass, instanceFactory, schemaNames), GeneratedSchemaMetaInstance::asArguments, schemaNames, loggingFormatter);
     }
 
-    @Override
-    public T newSchemaInstance() {
+    private static <T> T newInstance(Class<T> generatedClass, InstanceFactory<T> instanceFactory, SchemaNames schemaNames) {
         try {
             T instance = instanceFactory.newInstance();
             ((Instance)instance).arguments = new Object[schemaNames.getNames().size()];
@@ -46,10 +35,9 @@ class GeneratedSchemaMetaInstance<T> implements SchemaMetaInstance<T> {
         }
     }
 
-    @Override
-    public void apply(LevelLogger levelLogger, Logger logger, T instance, String mainMessage, Throwable t) {
+    private static <T> Arguments asArguments(T instance) {
         Object[] arguments = ((Instance)instance).arguments;
-        Arguments argumentsWrapper = new Arguments() {
+        return new Arguments() {
             @Override
             public int size() {
                 return arguments.length;
@@ -60,7 +48,5 @@ class GeneratedSchemaMetaInstance<T> implements SchemaMetaInstance<T> {
                 return arguments[index];
             }
         };
-        schemaNames.validateRequired(argumentsWrapper);
-        loggingFormatter.apply(levelLogger, logger, schemaNames.getNames(), argumentsWrapper, mainMessage, t);
     }
 }
