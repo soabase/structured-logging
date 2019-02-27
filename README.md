@@ -11,8 +11,6 @@
 
 If you export your logs to a centralized indexer, structuring your logging will make the indexer's job much easier and you will be able to get more and better information out of your logs. Manual structured logging is error prone and requires too much discipline. We can do better.
 
-## TL;DR
-
 ### With Structured Logging And Preprocessor
 
 ```java
@@ -135,3 +133,12 @@ You change the logging formatter used by default by calling `StructuredLoggerFac
 - The schema concrete instance is generated from the interface using Byte Buddy here: [Generator.java](https://github.com/soabase/structured-logging/blob/master/structured-logger-core/src/main/java/io/soabase/structured/logger/generation/Generator.java)
 - The logging facade forwards directly to SLF4J (or whatever). This is not a new logging library.
 - If writing a little interface schema is too much trouble, there's a preprocessor that will generate one from "mixins". See the example here: [TestGenerated.java](https://github.com/soabase/structured-logging/blob/master/structured-logger-generator-test/src/test/java/io/soabase/structured/logger/TestGenerated.java)
+- Very small (< 50K) library with minimal third party dependencies (only ByteBuddy and SLF4J)
+
+## Usage
+
+| Group ID | Artifact ID | Description |
+| -------- | ----------- | ----------- |
+| `io.soabase.structured-logger` | `structured-logger-core` | The main library. You will also need to add SLF4J to your dependency manager |
+| `io.soabase.structured-logger` | `structured-logger-generator` | Annotation processor for building Schema. Make sure your IDE or build tool has annotation processing enabled |
+
