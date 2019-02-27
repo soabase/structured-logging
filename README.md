@@ -7,6 +7,8 @@
 
 [Per Splunk](http://dev.splunk.com/view/logging/SP-CAAAFCK): "Use clear key-value pairs. One of the most powerful features of Splunk software is its ability to extract fields from events when you search, creating structure out of unstructured data."
 
+[Per Elasticsearc](https://www.elastic.co/blog/structured-logging-filebeat): "[Logging] works best when the logs are pre-parsed in a structured object, so you can search and aggregate on individual fields." It can already be done in Go or Python so why not Java?
+
 If you export your logs to a centralized indexer, structuring your logging will make the indexer's job much easier and you will be able to get more and better information out of your logs. Manual structured logging is error prone and requires too much discipline. We can do better.
 
 ## TL;DR
