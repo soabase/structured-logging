@@ -135,6 +135,18 @@ You change the logging formatter used by default by calling `StructuredLoggerFac
 - If writing a little interface schema is too much trouble, there's a preprocessor that will generate one from "mixins". See the example here: [TestGenerated.java](https://github.com/soabase/structured-logging/blob/master/structured-logger-generator-test/src/test/java/io/soabase/structured/logger/TestGenerated.java)
 - Very small (< 50K) library with minimal third party dependencies (only ByteBuddy and SLF4J)
 
+## Performance / Benchmarks
+
+Performance is nearly identical to raw SLF4J:
+
+```
+Ops/s            Min    Avg    Max   
+Raw SLF4J:     301711 305972 310233
+Structured:    273331 293237 313143
+(Results obtained via JMH)
+```
+
+
 ## Usage
 
 | Group ID | Artifact ID | Description |
