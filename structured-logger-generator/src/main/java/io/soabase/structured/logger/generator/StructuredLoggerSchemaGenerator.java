@@ -110,8 +110,6 @@ public class StructuredLoggerSchemaGenerator extends AbstractProcessor {
         ClassName className = ClassName.get(packageName, schemaClassName);
         TypeSpec.Builder builder = TypeSpec.interfaceBuilder(className).addModifiers(Modifier.PUBLIC);
         for (TypeMirror parentInterface : components) {
-            ClassName typeName = (ClassName) ClassName.get(parentInterface);
-            builder.addSuperinterface(typeName);
             copyMethods(builder, className, parentInterface);
         }
 
@@ -146,7 +144,6 @@ public class StructuredLoggerSchemaGenerator extends AbstractProcessor {
                 if (parentInterfaceElement.equals(method.getEnclosingElement())) {
                     String methodName = method.getSimpleName().toString();
                     MethodSpec.Builder methodBuilder = MethodSpec.methodBuilder(methodName)
-                            .addAnnotation(Override.class)
                             .addModifiers(Modifier.ABSTRACT, Modifier.PUBLIC)
                             .returns(className);
 
