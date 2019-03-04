@@ -52,14 +52,14 @@ public class TestGelfFormatting {
     @Test
     public void testBasicFormatting() throws IOException {
         StructuredLogger<Schema> log = StructuredLoggerFactory.getLogger(Schema.class, gelfLoggingFormatter);
-        log.debug("message", new Exception("hey"), m -> m.id("123").context(null).event("y").count(456));
+        log.debug("message", new Exception("hey"), m -> m.id("123").context(null).event("y").count(456).configValue("config"));
         validate();
     }
 
     @Test
     public void testEscapingAndMultiLine() throws IOException {
         StructuredLogger<Schema> log = StructuredLoggerFactory.getLogger(Schema.class, gelfLoggingFormatter);
-        log.debug("message", new Exception("hey"), m -> m.id("123").context(null).event("y").count(456));
+        log.debug("message", new Exception("hey"), m -> m.id("123").context(null).event("y").count(456).configValue("config"));
         validate();
     }
 
@@ -72,7 +72,7 @@ public class TestGelfFormatting {
             };
         };
         StructuredLogger<Schema> log = StructuredLoggerFactory.getLogger(Schema.class, formatter);
-        log.debug("message", m -> m.context("\"quoted\"").event("line1\nline2"));
+        log.debug("message", m -> m.context("\"quoted\"").event("line1\nline2").configValue("config"));
     }
 
     private void validate() throws IOException {
@@ -86,12 +86,15 @@ public class TestGelfFormatting {
         assertThat(tree.get("timestamp").asLong()).isEqualTo(2468L);
         assertThat(tree.get("host")).isNotNull();
         assertThat(tree.get("host").asText()).isEqualTo("test");
+        assertThat(tree.get("_config_value")).isNotNull();
+        assertThat(tree.get("_config_value").asText()).isEqualTo("config");
         assertThat(tree.get("_id")).isNotNull();
         assertThat(tree.get("_id").asText()).isEqualTo("123");
         assertThat(tree.get("_context")).isNotNull();
         assertThat(tree.get("_context").isNull()).isTrue();
         assertThat(tree.get("_event")).isNotNull();
         assertThat(tree.get("_event").asText()).isEqualTo("y");
+        assertThat(tree.get("_count")).isNotNull();
         assertThat(tree.get("_count")).isNotNull();
         assertThat(tree.get("_count").asInt()).isEqualTo(456);
         assertThat(tree.get("_exception")).isNotNull();

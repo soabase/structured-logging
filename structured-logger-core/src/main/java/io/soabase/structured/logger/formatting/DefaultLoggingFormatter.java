@@ -101,22 +101,24 @@ public class DefaultLoggingFormatter implements LoggingFormatter {
     }
 
     private String filterSchemaName(String name) {
-        if (snakeCase) {
-            StringBuilder str = new StringBuilder(name.length() * 2);
-            for (int i = 0; i < name.length(); ++i) {
-                char c = name.charAt(i);
-                if (Character.isUpperCase(c)) {
-                    if (str.length() > 0) {
-                        str.append('_');
-                    }
-                    str.append(Character.toLowerCase(c));
-                } else
-                {
-                    str.append(c);
+        return snakeCase ? toSnakeCase(name) : name;
+    }
+
+    public static String toSnakeCase(String name) {
+        StringBuilder str = new StringBuilder(name.length() * 2);
+        for (int i = 0; i < name.length(); ++i) {
+            char c = name.charAt(i);
+            if (Character.isUpperCase(c)) {
+                if (str.length() > 0) {
+                    str.append('_');
                 }
+                str.append(Character.toLowerCase(c));
+            } else
+            {
+                str.append(c);
             }
-            name = str.toString();
         }
+        name = str.toString();
         return name;
     }
 

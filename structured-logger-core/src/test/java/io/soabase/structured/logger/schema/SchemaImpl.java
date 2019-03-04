@@ -35,4 +35,9 @@ public class SchemaImpl implements Schema {
     public Schema count(int c) {
         return this;
     }
+
+    @Override
+    public Schema configValue(String value) {
+        return this;
+    }
 }

@@ -23,4 +23,6 @@ public interface Schema {
     Schema context(String c);
 
     Schema count(int c);
+
+    Schema configValue(String value);
 }

@@ -16,6 +16,7 @@
 package io.soabase.structured.logger.formatting.gelf;
 
 import io.soabase.structured.logger.formatting.Arguments;
+import io.soabase.structured.logger.formatting.DefaultLoggingFormatter;
 import io.soabase.structured.logger.formatting.LevelLogger;
 import io.soabase.structured.logger.formatting.LoggingFormatter;
 import org.slf4j.Logger;
@@ -31,15 +32,25 @@ public class GelfLoggingFormatter implements LoggingFormatter {
     private final String host;
     private final JsonBuilder jsonBuilder;
     private final Supplier<Long> timestampSupplier;
+    private final boolean snakeCase;
 
     public GelfLoggingFormatter(String host, JsonBuilder jsonBuilder) {
-        this(host, jsonBuilder, () -> Instant.now().toEpochMilli());
+        this(host, jsonBuilder, () -> Instant.now().toEpochMilli(), true);
     }
 
     public GelfLoggingFormatter(String host, JsonBuilder jsonBuilder, Supplier<Long> timestampSupplier) {
+        this(host, jsonBuilder, timestampSupplier, true);
+    }
+
+    public GelfLoggingFormatter(String host, JsonBuilder jsonBuilder, boolean snakeCase) {
+        this(host, jsonBuilder, () -> Instant.now().toEpochMilli(), snakeCase);
+    }
+
+    public GelfLoggingFormatter(String host, JsonBuilder jsonBuilder, Supplier<Long> timestampSupplier, boolean snakeCase) {
         this.host = host;
         this.jsonBuilder = jsonBuilder;
         this.timestampSupplier = timestampSupplier;
+        this.snakeCase = snakeCase;
     }
 
     @SuppressWarnings("unchecked")
@@ -50,7 +61,8 @@ public class GelfLoggingFormatter implements LoggingFormatter {
 
         int index = 0;  // 0 is the message
         for (String name : schemaNames) {
-            jsonBuilder.addField(obj, "_" + name, arguments.get(index++));
+            String useName = snakeCase ? DefaultLoggingFormatter.toSnakeCase(name) : name;
+            jsonBuilder.addField(obj, "_" + useName, arguments.get(index++));
         }
         if (t != null) {
             jsonBuilder.addExceptionField(obj, t);
