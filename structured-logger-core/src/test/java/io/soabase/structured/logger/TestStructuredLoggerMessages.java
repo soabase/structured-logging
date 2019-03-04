@@ -24,9 +24,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import static io.soabase.structured.logger.formatting.DefaultLoggingFormatter.Option.ESCAPE_VALUES;
-import static io.soabase.structured.logger.formatting.DefaultLoggingFormatter.Option.MAIN_MESSAGE_IS_LAST;
-import static io.soabase.structured.logger.formatting.DefaultLoggingFormatter.Option.QUOTE_VALUES;
+import static io.soabase.structured.logger.formatting.DefaultLoggingFormatter.Option.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SuppressWarnings({"WeakerAccess", "UnusedReturnValue"})
@@ -36,6 +34,12 @@ public class TestStructuredLoggerMessages {
     public interface LocalSchema {
         LocalSchema id(String id);
         LocalSchema count(int n);
+    }
+
+    public interface LocalCasedSchema {
+        LocalCasedSchema oneTwo(int i);
+
+        LocalCasedSchema codeStyle(String s);
     }
 
     @After
@@ -99,5 +103,15 @@ public class TestStructuredLoggerMessages {
         assertThat(logger.entries).hasSize(1);
         assertThat(logger.entries.get(0).level).isEqualTo("info");
         assertThat(logger.entries.get(0).message).isEqualTo("custom");
+    }
+
+    @Test
+    public void testSnakeCase() {
+        StructuredLogger<LocalCasedSchema> log = StructuredLoggerFactory.getLogger(logger, LocalCasedSchema.class, new DefaultLoggingFormatter(SNAKE_CASE));
+        log.warn(s -> s.codeStyle("one").oneTwo(123));
+
+        assertThat(logger.entries).hasSize(1);
+        assertThat(logger.entries.get(0).level).isEqualTo("warn");
+        assertThat(logger.entries.get(0).message).isEqualTo("code_style=one one_two=123");
     }
 }

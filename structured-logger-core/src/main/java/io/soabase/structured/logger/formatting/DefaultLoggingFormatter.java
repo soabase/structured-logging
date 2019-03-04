@@ -28,6 +28,7 @@ public class DefaultLoggingFormatter implements LoggingFormatter {
     private final boolean mainMessageIsLast;
     private final boolean quoteValues;
     private final boolean escapeValues;
+    private final boolean snakeCase;
     private final int stringBuilderCapacity;
 
     private static final int DEFAULT_CAPACITY = 128;
@@ -35,7 +36,8 @@ public class DefaultLoggingFormatter implements LoggingFormatter {
     public enum Option {
         MAIN_MESSAGE_IS_LAST,
         QUOTE_VALUES,
-        ESCAPE_VALUES
+        ESCAPE_VALUES,
+        SNAKE_CASE
     }
 
     public DefaultLoggingFormatter(Option... options) {
@@ -48,6 +50,7 @@ public class DefaultLoggingFormatter implements LoggingFormatter {
         this.mainMessageIsLast = optionsSet.contains(MAIN_MESSAGE_IS_LAST);
         this.quoteValues = optionsSet.contains(QUOTE_VALUES);
         this.escapeValues = optionsSet.contains(ESCAPE_VALUES);
+        this.snakeCase = optionsSet.contains(SNAKE_CASE);
         this.stringBuilderCapacity = stringBuilderCapacity;
     }
 
@@ -60,10 +63,11 @@ public class DefaultLoggingFormatter implements LoggingFormatter {
 
         for (int i = 0; i < arguments.size(); ++i) {
             Object value = arguments.get(i);
-            if (!mainMessageIsLast || (i > 0)) {
+            if ((i > 0) || (!mainMessage.isEmpty() && !mainMessageIsLast)) {
                 logMessage.append(" ");
             }
-            logMessage.append(schemaNames.get(i)).append("=");
+            String name = filterSchemaName(schemaNames.get(i));
+            logMessage.append(name).append("=");
             if (quoteValues) {
                 logMessage.append("\"");
             }
@@ -89,6 +93,26 @@ public class DefaultLoggingFormatter implements LoggingFormatter {
         } else {
             levelLogger.log(logger, logMessage.toString());
         }
+    }
+
+    private String filterSchemaName(String name) {
+        if (snakeCase) {
+            StringBuilder str = new StringBuilder(name.length() * 2);
+            for (int i = 0; i < name.length(); ++i) {
+                char c = name.charAt(i);
+                if (Character.isUpperCase(c)) {
+                    if (str.length() > 0) {
+                        str.append('_');
+                    }
+                    str.append(Character.toLowerCase(c));
+                } else
+                {
+                    str.append(c);
+                }
+            }
+            name = str.toString();
+        }
+        return name;
     }
 
     private void addEscapedValue(StringBuilder logMessage, Object value) {
