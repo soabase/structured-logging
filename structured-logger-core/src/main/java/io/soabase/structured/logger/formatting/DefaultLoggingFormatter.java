@@ -55,6 +55,11 @@ public class DefaultLoggingFormatter implements LoggingFormatter {
     }
 
     @Override
+    public String formatSchemaName(String name) {
+        return snakeCase ? toSnakeCase(name) : name;
+    }
+
+    @Override
     public void apply(LevelLogger levelLogger, Logger logger, List<String> schemaNames, Arguments arguments, String mainMessage, Throwable t) {
         StringBuilder logMessage = new StringBuilder(stringBuilderCapacity);
         boolean needsSpace = false;
@@ -71,8 +76,7 @@ public class DefaultLoggingFormatter implements LoggingFormatter {
             if (needsSpace) {
                 logMessage.append(" ");
             }
-            String name = filterSchemaName(schemaNames.get(i));
-            logMessage.append(name).append("=");
+            logMessage.append(schemaNames.get(i)).append("=");
             if (quoteValues) {
                 logMessage.append("\"");
             }
@@ -98,10 +102,6 @@ public class DefaultLoggingFormatter implements LoggingFormatter {
         } else {
             levelLogger.log(logger, logMessage.toString());
         }
-    }
-
-    private String filterSchemaName(String name) {
-        return snakeCase ? toSnakeCase(name) : name;
     }
 
     public static String toSnakeCase(String name) {

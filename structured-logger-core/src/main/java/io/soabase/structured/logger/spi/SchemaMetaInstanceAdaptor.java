@@ -48,6 +48,6 @@ public abstract class SchemaMetaInstanceAdaptor<T> implements SchemaMetaInstance
     public void apply(LevelLogger levelLogger, Logger logger, T instance, String mainMessage, Throwable t) {
         Arguments arguments = argumentsAccessor.apply(instance);
         schemaNames.validateRequired(arguments);
-        loggingFormatter.apply(levelLogger, logger, schemaNames.getNames(), arguments, mainMessage, t);
+        loggingFormatter.apply(levelLogger, logger, schemaNames.getFormattedNames(), arguments, mainMessage, t);
     }
 }

@@ -63,7 +63,7 @@ public class Generator implements SchemaFactory {
     @Override
     public <T> SchemaMetaInstance<T> generate(Class<T> schemaClass, ClassLoader classLoader, LoggingFormatter loggingFormatter) {
         return generated.computeIfAbsent(new Key(schemaClass, loggingFormatter), __ -> {
-            SchemaNames schemaNames = SchemaNames.build(schemaClass, reservedMethodNames);
+            SchemaNames schemaNames = SchemaNames.build(schemaClass, reservedMethodNames, loggingFormatter::formatSchemaName);
             ByteBuddy byteBuddy = new ByteBuddy();
             Class generatedClass = internalGenerate(byteBuddy, schemaClass, classLoader, schemaNames.getNames());
             InstanceFactory<T> instanceFactory = generateInstanceFactory(byteBuddy, generatedClass);

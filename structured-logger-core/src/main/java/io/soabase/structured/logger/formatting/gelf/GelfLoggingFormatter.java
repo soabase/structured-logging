@@ -25,6 +25,8 @@ import java.time.Instant;
 import java.util.List;
 import java.util.function.Supplier;
 
+import static io.soabase.structured.logger.formatting.DefaultLoggingFormatter.toSnakeCase;
+
 /**
  * Formats to GELF JSON - http://docs.graylog.org/en/2.5/pages/gelf.html
  */
@@ -53,6 +55,11 @@ public class GelfLoggingFormatter implements LoggingFormatter {
         this.snakeCase = snakeCase;
     }
 
+    @Override
+    public String formatSchemaName(String name) {
+        return snakeCase ? toSnakeCase(name) : name;
+    }
+
     @SuppressWarnings("unchecked")
     @Override
     public void apply(LevelLogger levelLogger, Logger logger, List<String> schemaNames, Arguments arguments, String mainMessage, Throwable t) {
@@ -61,8 +68,7 @@ public class GelfLoggingFormatter implements LoggingFormatter {
 
         int index = 0;  // 0 is the message
         for (String name : schemaNames) {
-            String useName = snakeCase ? DefaultLoggingFormatter.toSnakeCase(name) : name;
-            jsonBuilder.addField(obj, "_" + useName, arguments.get(index++));
+            jsonBuilder.addField(obj, "_" + name, arguments.get(index++));
         }
         if (t != null) {
             jsonBuilder.addExceptionField(obj, t);

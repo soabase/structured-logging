@@ -27,5 +27,9 @@ import static io.soabase.structured.logger.formatting.DefaultLoggingFormatter.Op
 public interface LoggingFormatter {
     void apply(LevelLogger levelLogger, Logger logger, List<String> schemaNames, Arguments arguments, String mainMessage, Throwable t);
 
+    default String formatSchemaName(String name) {
+        return name;
+    }
+
     LoggingFormatter defaultLoggingFormatter = new DefaultLoggingFormatter(MAIN_MESSAGE_IS_LAST, ESCAPE_VALUES, QUOTE_VALUES);
 }

@@ -32,6 +32,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 
 /**
@@ -39,6 +40,7 @@ import java.util.stream.Collectors;
  */
 public class SchemaNames {
     private final List<String> names;
+    private final List<String> formattedNames;
     private final Set<Integer> requireds;
 
     /**
@@ -49,6 +51,10 @@ public class SchemaNames {
      * @return schema names
      */
     public static SchemaNames build(Class<?> schemaClass, Collection<String> reservedNames) {
+        return build(schemaClass, reservedNames, UnaryOperator.identity());
+    }
+
+    public static SchemaNames build(Class<?> schemaClass, Collection<String> reservedNames, UnaryOperator<String> nameFormatter) {
         if (!schemaClass.isInterface()) {
             throw new InvalidSchemaException("Schema must be an interface. Schema: " + schemaClass.getName());
         }
@@ -85,14 +91,19 @@ public class SchemaNames {
             schemaNameToSortOrder.put(method.getName(), sortOrderValue);
         }
         schemaNames.sort((name1, name2) -> compareSchemaNames(schemaNameToSortOrder, name1, name2));
-
+        List<String> formattedNames = schemaNames.stream().map(nameFormatter).collect(Collectors.toList());
         Set<Integer> requireds = requiredNames.stream().map(schemaNames::indexOf).collect(Collectors.toSet());
-        return new SchemaNames(schemaNames, requireds);
+        return new SchemaNames(schemaNames, formattedNames, requireds);
     }
 
-    public SchemaNames(List<String> names, Set<Integer> requireds) {
+    public SchemaNames(List<String> names, List<String> formattedNames, Set<Integer> requireds) {
         this.names = Collections.unmodifiableList(names);
+        this.formattedNames = Collections.unmodifiableList(formattedNames);
         this.requireds = Collections.unmodifiableSet(requireds);
+    }
+
+    public List<String> getFormattedNames() {
+        return formattedNames;
     }
 
     public List<String> getNames() {
