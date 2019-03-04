@@ -57,13 +57,18 @@ public class DefaultLoggingFormatter implements LoggingFormatter {
     @Override
     public void apply(LevelLogger levelLogger, Logger logger, List<String> schemaNames, Arguments arguments, String mainMessage, Throwable t) {
         StringBuilder logMessage = new StringBuilder(stringBuilderCapacity);
-        if (!mainMessageIsLast) {
-            logMessage.append(mainMessage);
+        boolean needsSpace = false;
+        boolean hasMainMessage = !mainMessage.isEmpty();
+        if (hasMainMessage) {
+            if (!mainMessageIsLast) {
+                needsSpace = true;
+                logMessage.append(mainMessage);
+            }
         }
 
-        for (int i = 0; i < arguments.size(); ++i) {
+        for (int i = 0; i < arguments.size(); ++i, needsSpace = true) {
             Object value = arguments.get(i);
-            if ((i > 0) || (!mainMessage.isEmpty() && !mainMessageIsLast)) {
+            if (needsSpace) {
                 logMessage.append(" ");
             }
             String name = filterSchemaName(schemaNames.get(i));
@@ -81,7 +86,7 @@ public class DefaultLoggingFormatter implements LoggingFormatter {
             }
         }
 
-        if (mainMessageIsLast) {
+        if (hasMainMessage && mainMessageIsLast) {
             if (arguments.size() > 0) {
                 logMessage.append(" ");
             }
